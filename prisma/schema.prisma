@@ -1,0 +1,201 @@
+// Prisma Schema for Sahla (سهلة) Platform
+// Database: PostgreSQL
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  OWNER
+  EMPLOYEE
+  SUPER_ADMIN
+}
+
+enum LedgerType {
+  CREDIT
+  DEBIT
+  REFUND
+}
+
+enum CardStatus {
+  UNREDEEMED
+  REDEEMED
+  REVOKED
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// 1. المستخدمين
+model User {
+  id            String       @id @default(cuid())
+  phone         String       @unique
+  fullName      String?
+  role          UserRole     @default(OWNER)
+  shopId        String?
+  shop          Shop?        @relation(fields: [shopId], references: [id])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+// 2. المحلات
+model Shop {
+  id            String        @id @default(cuid())
+  name          String
+  wilayaCode    Int           // 1 to 58
+  commune       String
+  address       String?
+  wallet        Wallet?
+  users         User[]
+  customers     Customer[]
+  documents     Document[]
+  invoices      Invoice[]
+  devices       BoundDevice[]
+  createdAt     DateTime      @default(now())
+}
+
+// 3. المحفظة (رصيد النقاط)
+model Wallet {
+  id            String       @id @default(cuid())
+  shopId        String       @unique
+  shop          Shop         @relation(fields: [shopId], references: [id])
+  balancePoints Int          @default(50) // رصيد تجريبي ترحيبي
+  transactions  Ledger[]
+  updatedAt     DateTime     @updatedAt
+}
+
+// 4. دفتر الحركات المالية الذري (Ledger)
+model Ledger {
+  id            String         @id @default(cuid())
+  walletId      String
+  wallet        Wallet         @relation(fields: [walletId], references: [id])
+  type          LedgerType     // CREDIT, DEBIT, REFUND
+  points        Int
+  balanceAfter  Int
+  serviceCode   String?        // CV_GEN, INVOICE_PDF, PHOTO_ID...
+  jobId         String?
+  cardCode      String?
+  description   String
+  createdAt     DateTime       @default(now())
+}
+
+// 5. بطاقات الشحن المادية (Scratch Cards)
+model Card {
+  id               String       @id @default(cuid())
+  batchNumber      String
+  pinCodeHash      String       @unique
+  serialNumber     String       @unique
+  pointsValue      Int          // 100, 300, 1000
+  priceDZD         Decimal      // 1000, 2500, 7000 DZD
+  status           CardStatus   @default(UNREDEEMED)
+  redeemedAt       DateTime?
+  redeemedByShopId String?
+  createdAt        DateTime     @default(now())
+}
+
+// 6. قائمة الخدمات والأسعار
+model ServiceRate {
+  id               String       @id @default(cuid())
+  code             String       @unique
+  nameAr           String
+  nameFr           String
+  pointsCost       Int          // 0 = free
+  estimatedCostDZD Decimal
+  isActive         Boolean      @default(true)
+}
+
+// 7. مهام التوليد (Jobs)
+model Job {
+  id            String       @id @default(cuid())
+  shopId        String
+  serviceCode   String
+  status        JobStatus    @default(PENDING)
+  pointsLocked  Int          @default(0)
+  errorMessage  String?
+  metadata      Json?
+  createdAt     DateTime     @default(now())
+  completedAt   DateTime?
+}
+
+// 8. سجل الوثائق المنجزة
+model Document {
+  id            String       @id @default(cuid())
+  shopId        String
+  shop          Shop         @relation(fields: [shopId], references: [id])
+  type          String       // CV, INVOICE, ID_PHOTO, REQUEST_LETTER
+  title         String
+  customerName  String?
+  templateId    String?
+  fileUrl       String?
+  dataSnapshot  Json
+  salePriceDZD  Decimal?
+  expiresAt     DateTime     // حذف آلي بعد 24-72 ساعة امتثالاً لقانون 18-07
+  createdAt     DateTime     @default(now())
+}
+
+// 9. القوالب الرسمية (Templates)
+model Template {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  nameAr        String
+  category      String
+  language      String
+  layoutConfig  Json
+  isOfficial    Boolean      @default(false)
+  isActive      Boolean      @default(true)
+}
+
+// 10. دفتر الزبائن (Customers)
+model Customer {
+  id            String       @id @default(cuid())
+  shopId        String
+  shop          Shop         @relation(fields: [shopId], references: [id])
+  fullName      String
+  phone         String?
+  nif           String?
+  nis           String?
+  rc            String?
+  address       String?
+  invoices      Invoice[]
+  createdAt     DateTime     @default(now())
+}
+
+// 11. الفواتير التجارية الرسمية (Invoices)
+model Invoice {
+  id            String       @id @default(cuid())
+  shopId        String
+  shop          Shop         @relation(fields: [shopId], references: [id])
+  customerId    String?
+  customer      Customer?    @relation(fields: [customerId], references: [id])
+  invoiceNumber String
+  date          DateTime     @default(now())
+  dueDate       DateTime?
+  items         Json
+  subtotalHT    Decimal
+  tvaAmount     Decimal
+  timbreFiscal  Decimal
+  totalTTC      Decimal
+  amountInWords String
+  notes         String?
+  status        String       @default("PAID")
+  createdAt     DateTime     @default(now())
+}
+
+// ربط الأجهزة (Device Binding لمنع مشاركة الحساب خارج المحل)
+model BoundDevice {
+  id            String       @id @default(cuid())
+  shopId        String
+  shop          Shop         @relation(fields: [shopId], references: [id])
+  deviceId      String
+  deviceLabel   String
+  lastActive    DateTime     @default(now())
+}

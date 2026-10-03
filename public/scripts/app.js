@@ -1,0 +1,1843 @@
+// Sahla Application Master Orchestrator (المتحكم الرئيسي لمنصة سهلة)
+
+document.addEventListener('DOMContentLoaded', () => {
+  initNavigation();
+  initWalletUI();
+  initCVBuilderUI();
+  initIDPhotoUI();
+  initInvoiceUI();
+  initAdminLettersUI();
+  initProceduresGuideUI();
+  initAdminUI();
+  initPrintBridgeUI();
+  initThemeToggle();
+  // المرحلة 2: الخدمات المدرسية والبحوث، الاستمارات الرسمية بالـ OCR، ودفتر الزبائن
+  initSchoolUI();
+  initOCRFormsUI();
+  initCustomersUI();
+  // المرحلة 3: التصاريح الجبائية الرسمية G50/G12، بوابة الدفع الإلكتروني، وتوزيع البطاقات
+  initTaxUI();
+  initEpayUI();
+  initWholesaleUI();
+  // المرحلة 4: التوسع المؤسسي، نقاط البيع، المحاسبة، والبوابات الوطنية
+  initPosUI();
+  initAccountingUI();
+  initEgovUI();
+  initHardwareUI();
+
+  // تسجيل Service Worker للـ PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+});
+
+// Toast notification helper
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icon = type === 'success' ? '✓' : (type === 'error' ? '✕' : 'ℹ');
+  toast.innerHTML = `<span style="font-weight:900;">${icon}</span> <span>${message}</span>`;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
+// 1. نظام التنقل والتبويبات (Navigation)
+function initNavigation() {
+  const navButtons = document.querySelectorAll('[data-target-tab]');
+  const views = document.querySelectorAll('.app-view-section');
+
+  window.switchTab = function(tabId) {
+    navButtons.forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-target-tab') === tabId);
+    });
+
+    views.forEach(v => {
+      v.style.display = v.id === `view-${tabId}` ? 'block' : 'none';
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  navButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.getAttribute('data-target-tab');
+      switchTab(tabId);
+    });
+  });
+}
+
+// 2. واجهة المحفظة والرصيد (Wallet UI)
+function initWalletUI() {
+  const pointsBadge = document.getElementById('headerPointsValue');
+  const miniPointsBadge = document.getElementById('miniPointsValue');
+  const shopNameBadge = document.getElementById('sidebarShopName');
+  const wilayaBadge = document.getElementById('sidebarWilaya');
+
+  function updateDisplay(data) {
+    if (pointsBadge) pointsBadge.textContent = data.points;
+    if (miniPointsBadge) miniPointsBadge.textContent = data.points;
+    if (shopNameBadge) shopNameBadge.textContent = data.shopName;
+    const w = ALGERIAN_WILAYAS.find(item => item.code === data.wilayaCode);
+    if (wilayaBadge && w) wilayaBadge.textContent = `${w.code} - ${w.nameAr}`;
+  }
+
+  updateDisplay(sahlaWallet.data);
+  window.addEventListener('sahla:wallet-updated', (e) => updateDisplay(e.detail));
+
+  // فتح وإغلاق نافذة المحفظة
+  const walletModal = document.getElementById('walletModal');
+  window.openWalletModal = function() {
+    renderLedgerTable();
+    walletModal.classList.add('open');
+  };
+  window.closeWalletModal = function() {
+    walletModal.classList.remove('open');
+  };
+
+  // شحن ببطاقة تعبئة
+  const redeemBtn = document.getElementById('btnSubmitScratchCode');
+  const pinInput = document.getElementById('scratchPinInput');
+  if (redeemBtn && pinInput) {
+    redeemBtn.addEventListener('click', () => {
+      const pin = pinInput.value;
+      if (!pin) return showToast('يرجى كتابة رمز بطاقة الشحن', 'error');
+
+      const res = sahlaWallet.redeemScratchCard(pin);
+      if (res.success) {
+        showToast(`تم شحن المحفظة بنجاح! +${res.pointsAdded} نقطة (الرصيد الجديد: ${res.newBalance} نقطة)`);
+        pinInput.value = '';
+        renderLedgerTable();
+      } else {
+        showToast(res.error, 'error');
+      }
+    });
+  }
+
+  // شحن بريدي موب
+  const btnBaridiMob = document.getElementById('btnSubmitBaridiMob');
+  if (btnBaridiMob) {
+    btnBaridiMob.addEventListener('click', () => {
+      const amount = document.getElementById('baridiAmountSelect').value;
+      const points = amount === '1000' ? 100 : (amount === '2500' ? 300 : 1000);
+      sahlaWallet.submitBaridiMobProof('007999990022334455', amount, points, null);
+      showToast('تم رفع إشعار الدفع عبر بريدي موب! سيتم إيداع النقاط فورياً.');
+      renderLedgerTable();
+    });
+  }
+
+  function renderLedgerTable() {
+    const tbody = document.getElementById('ledgerTableBody');
+    if (!tbody) return;
+    const items = sahlaWallet.getLedgerHistory();
+    tbody.innerHTML = items.slice(0, 10).map(i => {
+      const isCredit = i.type === 'CREDIT';
+      const color = isCredit ? '#10b981' : (i.type === 'REFUND' ? '#38bdf8' : '#f87171');
+      const sign = isCredit ? '+' : (i.type === 'REFUND' ? '↺' : '-');
+      const time = new Date(i.date).toLocaleDateString('ar-DZ') + ' ' + new Date(i.date).toLocaleTimeString('ar-DZ', { hour: '2-digit', minute: '2-digit' });
+      return `
+        <tr>
+          <td><small>${time}</small></td>
+          <td>${i.description}</td>
+          <td style="color:${color}; font-weight:800; text-align:center;">${sign} ${i.points}</td>
+          <td style="font-weight:700; text-align:center;">${i.balanceAfter}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+}
+
+// 3. مولد السير الذاتية (CV Builder UI)
+function initCVBuilderUI() {
+  const container = document.getElementById('cvPreviewContainer');
+  let currentCVData = JSON.parse(JSON.stringify(sahlaCV.sampleData));
+
+  function updatePreview() {
+    if (!container) return;
+    container.innerHTML = sahlaCV.renderCVHTML(currentCVData);
+  }
+
+  updatePreview();
+
+  // تبديل القوالب
+  document.querySelectorAll('[data-cv-template]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-cv-template]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      sahlaCV.currentTemplate = btn.getAttribute('data-cv-template');
+      updatePreview();
+    });
+  });
+
+  // تبديل اللغات
+  document.querySelectorAll('[data-cv-lang]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-cv-lang]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      sahlaCV.currentLanguage = btn.getAttribute('data-cv-lang');
+      updatePreview();
+    });
+  });
+
+  // تحديث الحقول الحية
+  const nameInput = document.getElementById('cvInputFullName');
+  const titleInput = document.getElementById('cvInputJobTitle');
+  const phoneInput = document.getElementById('cvInputPhone');
+  const emailInput = document.getElementById('cvInputEmail');
+  const wilayaInput = document.getElementById('cvInputWilaya');
+  const summaryInput = document.getElementById('cvInputSummary');
+
+  if (nameInput) nameInput.addEventListener('input', (e) => { currentCVData.fullName = e.target.value; updatePreview(); });
+  if (titleInput) titleInput.addEventListener('input', (e) => { currentCVData.jobTitle = e.target.value; updatePreview(); });
+  if (phoneInput) phoneInput.addEventListener('input', (e) => { currentCVData.phone = e.target.value; updatePreview(); });
+  if (emailInput) emailInput.addEventListener('input', (e) => { currentCVData.email = e.target.value; updatePreview(); });
+  if (wilayaInput) wilayaInput.addEventListener('input', (e) => { currentCVData.wilaya = e.target.value; updatePreview(); });
+  if (summaryInput) summaryInput.addEventListener('input', (e) => { currentCVData.summary = e.target.value; updatePreview(); });
+
+  // طباعة السيرة الذاتية (مع الخصم الذري 15 نقطة)
+  const printCVBtn = document.getElementById('btnPrintCV');
+  if (printCVBtn) {
+    printCVBtn.addEventListener('click', () => {
+      const deduction = sahlaWallet.deductPoints('CV_STANDARD', SERVICE_RATES.CV_STANDARD.points, `توليد وطباعة سيرة ذاتية للزبون: ${currentCVData.fullName}`);
+      if (!deduction.success) {
+        return showToast(deduction.error, 'error');
+      }
+
+      showToast(`تم خصم ${SERVICE_RATES.CV_STANDARD.points} نقطة بنجاح، جاري فتح أمر الطباعة A4...`);
+      setTimeout(() => window.print(), 300);
+    });
+  }
+
+  // إرسال لطابعة المحل (Phone to PC Bridge)
+  const bridgeCVBtn = document.getElementById('btnBridgeCV');
+  if (bridgeCVBtn) {
+    bridgeCVBtn.addEventListener('click', () => {
+      const deduction = sahlaWallet.deductPoints('CV_STANDARD', SERVICE_RATES.CV_STANDARD.points, `إرسال سيرة ذاتية للطباعة عبر الجسر: ${currentCVData.fullName}`);
+      if (!deduction.success) return showToast(deduction.error, 'error');
+
+      const html = sahlaCV.renderCVHTML(currentCVData);
+      sahlaBridge.sendDocumentFromPhone('CV', `سيرة ذاتية - ${currentCVData.fullName}`, html, null);
+      showToast('تم إرسال السيرة الذاتية لطابعة المحل لاسلكياً بنجاح! 🚀');
+    });
+  }
+
+  // توليد رسالة التحفيز بالذكاء الاصطناعي
+  const aiLetterBtn = document.getElementById('btnGenerateAILetter');
+  const letterOutputModal = document.getElementById('aiLetterModal');
+  const letterTextArea = document.getElementById('aiLetterContent');
+
+  if (aiLetterBtn && letterOutputModal && letterTextArea) {
+    aiLetterBtn.addEventListener('click', () => {
+      const deduction = sahlaWallet.deductPoints('MOTIVATION_LETTER', SERVICE_RATES.MOTIVATION_LETTER.points, `صياغة رسالة تحفيز بالذكاء الاصطناعي: ${currentCVData.fullName}`);
+      if (!deduction.success) return showToast(deduction.error, 'error');
+
+      showToast('جاري استدعاء نموذج الذكاء الاصطناعي لتوليد رسالة تحفيز احترافية...');
+      setTimeout(() => {
+        const text = sahlaCV.generateMotivationLetter(currentCVData, '', '', sahlaCV.currentLanguage);
+        letterTextArea.value = text;
+        letterOutputModal.classList.add('open');
+      }, 700);
+    });
+  }
+
+  window.closeAILetterModal = function() {
+    if (letterOutputModal) letterOutputModal.classList.remove('open');
+  };
+}
+
+// 4. استوديو صور الهوية الجزائرية 35×45 مم
+function initIDPhotoUI() {
+  const singleCanvas = document.getElementById('idPhotoSingleCanvas');
+  const sheetCanvas = document.getElementById('idPhotoSheetCanvas');
+  if (!singleCanvas || !sheetCanvas) return;
+
+  const demoImg = new Image();
+  demoImg.src = sahlaIDPhoto.demoImageSrc;
+  demoImg.onload = () => {
+    sahlaIDPhoto.sourceImage = demoImg;
+    renderAllPhotos();
+  };
+
+  function renderAllPhotos() {
+    sahlaIDPhoto.drawSinglePhoto(singleCanvas, sahlaIDPhoto.sourceImage, sahlaIDPhoto.bgColor, sahlaIDPhoto.zoom, sahlaIDPhoto.panX, sahlaIDPhoto.panY);
+    sahlaIDPhoto.renderPrintSheet(sheetCanvas, singleCanvas, sahlaIDPhoto.sheetFormat);
+  }
+
+  // رفع صورة جديدة من جهاز صاحب المحل أو كاميرا الهاتف
+  const uploadInput = document.getElementById('photoFileInput');
+  if (uploadInput) {
+    uploadInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const img = new Image();
+        img.onload = () => {
+          sahlaIDPhoto.sourceImage = img;
+          sahlaIDPhoto.zoom = 1;
+          sahlaIDPhoto.panX = 0;
+          sahlaIDPhoto.panY = 0;
+          renderAllPhotos();
+          showToast('تم تحميل الصورة بنجاح! تم تطبيق مقاس 35×45 مم وعلامات التقطيع.');
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // تغيير الخلفية (أبيض / رمادي بيومتري رسمي)
+  document.querySelectorAll('[data-bg-color]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-bg-color]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      sahlaIDPhoto.bgColor = btn.getAttribute('data-bg-color');
+      renderAllPhotos();
+    });
+  });
+
+  // تغيير مصفوفة الطباعة (4 أو 8 صور على 10×15 سم)
+  document.querySelectorAll('[data-photo-grid]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-photo-grid]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      sahlaIDPhoto.sheetFormat = btn.getAttribute('data-photo-grid');
+      renderAllPhotos();
+    });
+  });
+
+  // تحكم التكبير (Zoom)
+  const zoomSlider = document.getElementById('photoZoomSlider');
+  if (zoomSlider) {
+    zoomSlider.addEventListener('input', (e) => {
+      sahlaIDPhoto.zoom = parseFloat(e.target.value);
+      renderAllPhotos();
+    });
+  }
+
+  // طباعة الصور (مجانية دائماً طبقاً لـ PRD)
+  const printPhotoBtn = document.getElementById('btnPrintPhotos');
+  if (printPhotoBtn) {
+    printPhotoBtn.addEventListener('click', () => {
+      showToast('خدمة تجهيز صور الهوية مجانية دائماً في سهلة! جاري إرسال مصفوفة الطباعة للطابعة...');
+      document.body.classList.add('print-format-10x15');
+      setTimeout(() => {
+        window.print();
+        document.body.classList.remove('print-format-10x15');
+      }, 300);
+    });
+  }
+}
+
+// 5. محرك الفواتير التجارية الرسمية (Invoice UI)
+function initInvoiceUI() {
+  const invoicePreview = document.getElementById('invoicePreviewContainer');
+  let currentItems = [...sahlaInvoice.items];
+  let currentSeller = { ...sahlaInvoice.defaultSeller };
+  let currentCustomer = { ...sahlaInvoice.defaultCustomer };
+  let currentMeta = { ...sahlaInvoice.invoiceMeta };
+
+  function updateInvoice() {
+    if (!invoicePreview) return;
+    invoicePreview.innerHTML = sahlaInvoice.renderInvoiceHTML(currentSeller, currentCustomer, currentItems, currentMeta);
+  }
+
+  updateInvoice();
+
+  // إضافة بند جديد
+  const addItemBtn = document.getElementById('btnAddInvoiceItem');
+  if (addItemBtn) {
+    addItemBtn.addEventListener('click', () => {
+      const descInput = document.getElementById('itemDescInput');
+      const qtyInput = document.getElementById('itemQtyInput');
+      const priceInput = document.getElementById('itemPriceInput');
+      const tvaSelect = document.getElementById('itemTvaSelect');
+
+      if (!descInput.value || !qtyInput.value || !priceInput.value) {
+        return showToast('يرجى ملء جميع حقول البند', 'error');
+      }
+
+      currentItems.push({
+        id: Date.now(),
+        desc: descInput.value,
+        qty: parseInt(qtyInput.value, 10),
+        priceHT: parseFloat(priceInput.value),
+        tva: parseInt(tvaSelect.value, 10)
+      });
+
+      descInput.value = '';
+      qtyInput.value = '1';
+      priceInput.value = '';
+      updateInvoice();
+      showToast('تمت إضافة البند وإعادة حساب الرسم والطابع والتفقيط آلياً.');
+    });
+  }
+
+  // طباعة الفاتورة (خصم 10 نقاط)
+  const printInvoiceBtn = document.getElementById('btnPrintInvoice');
+  if (printInvoiceBtn) {
+    printInvoiceBtn.addEventListener('click', () => {
+      const deduction = sahlaWallet.deductPoints('INVOICE_OFFICIAL', SERVICE_RATES.INVOICE_OFFICIAL.points, `إصدار وطباعة فاتورة رسمية رقم: ${currentMeta.number}`);
+      if (!deduction.success) return showToast(deduction.error, 'error');
+
+      showToast(`تم خصم ${SERVICE_RATES.INVOICE_OFFICIAL.points} نقاط. جاري فتح الطباعة A4 بالمواصفات الجبائية...`);
+      setTimeout(() => window.print(), 300);
+    });
+  }
+}
+
+// 6. الاستمارات والطلبات الإدارية (Admin Letters UI)
+function initAdminLettersUI() {
+  const container = document.getElementById('lettersListContainer');
+  const letterModal = document.getElementById('letterDetailModal');
+  const letterBodyText = document.getElementById('modalLetterBody');
+  const letterTitleText = document.getElementById('modalLetterTitle');
+  if (!container) return;
+
+  container.innerHTML = ADMIN_LETTERS_TEMPLATES.map(tmpl => `
+    <div class="service-card" style="border-right: 4px solid var(--gold);">
+      <div class="service-card-top">
+        <span class="service-price-tag tag-paid">5 نقاط</span>
+      </div>
+      <h3>${tmpl.title}</h3>
+      <p>صيغة نموذجية رسمية جاهزة للطباعة مع الحقول الإلزامية للإدارات والمؤسسات الجزائرية.</p>
+      <button class="btn-secondary" style="margin-top:auto;" onclick="openLetterTemplate('${tmpl.id}')">
+        <span>معاينة وتخصيص الطلب ✍️</span>
+      </button>
+    </div>
+  `).join('');
+
+  window.openLetterTemplate = function(id) {
+    const t = ADMIN_LETTERS_TEMPLATES.find(item => item.id === id);
+    if (!t || !letterModal) return;
+    letterTitleText.textContent = t.title;
+    letterBodyText.value = `${t.target}\nالموضوع: ${t.subject}\n\n${t.body}`;
+    letterModal.classList.add('open');
+  };
+
+  window.closeLetterModal = function() {
+    if (letterModal) letterModal.classList.remove('open');
+  };
+
+  const printLetterBtn = document.getElementById('btnPrintLetterNow');
+  if (printLetterBtn) {
+    printLetterBtn.addEventListener('click', () => {
+      const deduction = sahlaWallet.deductPoints('ADMIN_LETTER', SERVICE_RATES.ADMIN_LETTER.points, 'طباعة طلب خطي إداري');
+      if (!deduction.success) return showToast(deduction.error, 'error');
+
+      showToast('تم خصم 5 نقاط. جاري طباعة الطلب الخطي...');
+      closeLetterModal();
+      setTimeout(() => window.print(), 300);
+    });
+  }
+}
+
+// 7. دليل الإجراءات الرسمية (Procedures Guide UI - Free)
+function initProceduresGuideUI() {
+  const container = document.getElementById('proceduresGuideContainer');
+  if (!container) return;
+
+  container.innerHTML = ALGERIAN_PROCEDURES_GUIDE.map(g => `
+    <div class="workspace-wrapper" style="margin-bottom: 20px;">
+      <div class="workspace-head" style="margin-bottom: 12px; padding-bottom: 10px;">
+        <div class="workspace-title-box">
+          <h3 style="color:var(--primary-light);">📑 ${g.title}</h3>
+          <p>جهة الإيداع: ${g.entity} • الرسوم: <strong style="color:#fbbf24;">${g.cost}</strong> • مدة الصلاحية: ${g.validity}</p>
+        </div>
+        <span class="nav-badge-free">مجاني دائم</span>
+      </div>
+      <h4 style="font-size:13px; font-weight:700; margin-bottom:8px; color:var(--text-muted);">الملف والوثائق المطلوبة:</h4>
+      <ul style="list-style: none; font-size: 13px; line-height: 1.8; padding-right: 12px;">
+        ${g.docs.map(d => `<li>✓ ${d}</li>`).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+// 8. لوحة الإدارة وتوليد البطاقات (Admin UI)
+function initAdminUI() {
+  const kpiTotalRevenue = document.getElementById('kpiTotalRevenue');
+  const kpiCardsCount = document.getElementById('kpiCardsCount');
+  const kpiRedeemedCount = document.getElementById('kpiRedeemedCount');
+  const kpiMargin = document.getElementById('kpiMargin');
+
+  function updateKPIs() {
+    const stats = sahlaAdmin.calculateKPIs();
+    if (kpiTotalRevenue) kpiTotalRevenue.textContent = `${stats.totalRevenueDZD.toLocaleString()} دج`;
+    if (kpiCardsCount) kpiCardsCount.textContent = stats.totalCardsCreated;
+    if (kpiRedeemedCount) kpiRedeemedCount.textContent = stats.cardsRedeemed;
+    if (kpiMargin) kpiMargin.textContent = `${stats.grossMarginPercent}%`;
+  }
+
+  updateKPIs();
+
+  // توليد دفعة بطاقات جديدة
+  const btnGenBatch = document.getElementById('btnGenerateCardBatch');
+  if (btnGenBatch) {
+    btnGenBatch.addEventListener('click', () => {
+      const count = document.getElementById('batchCountSelect').value;
+      const points = document.getElementById('batchPointsSelect').value;
+      const price = points === '100' ? 1000 : (points === '300' ? 2500 : 7000);
+
+      const res = sahlaAdmin.generateBatch(parseInt(count, 10), parseInt(points, 10), price);
+      showToast(`تم بنجاح توليد دفعة من ${res.count} بطاقة شحن بقيمة ${points} نقطة (${res.batchId})!`);
+      updateKPIs();
+      renderCardsList();
+    });
+  }
+
+  function renderCardsList() {
+    const listEl = document.getElementById('adminCardsList');
+    if (!listEl) return;
+    const cards = sahlaAdmin.getAllCards();
+    listEl.innerHTML = cards.slice(0, 12).map(c => `
+      <div class="scratch-card-item">
+        <div style="display:flex; justify-content:space-between;">
+          <span class="scratch-badge">${c.points} نقطة</span>
+          <span style="font-size:11px; color:${c.status === 'REDEEMED' ? '#ef4444' : '#10b981'}; font-weight:700;">
+            ${c.status === 'REDEEMED' ? 'تم الشحن' : 'جاهزة للشحن'}
+          </span>
+        </div>
+        <div class="scratch-secret-box">${c.pin}</div>
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted);">
+          <span>س.ن: ${c.serial}</span>
+          <span>السعر: ${c.priceDZD} دج</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  renderCardsList();
+}
+
+// 9. جسر الطباعة الهاتف-للحاسوب (Phone-to-PC Print Bridge UI)
+function initPrintBridgeUI() {
+  const pinDisplay = document.getElementById('bridgePinDisplay');
+  const bridgeModal = document.getElementById('printBridgeModal');
+
+  if (pinDisplay) pinDisplay.textContent = sahlaBridge.sessionPin;
+
+  window.openPrintBridge = function() {
+    if (bridgeModal) bridgeModal.classList.add('open');
+  };
+  window.closePrintBridge = function() {
+    if (bridgeModal) bridgeModal.classList.remove('open');
+  };
+
+  // استقبال وثيقة قادمة من الهاتف
+  window.addEventListener('sahla:doc-received', (e) => {
+    const doc = e.detail;
+    showToast(`🖨️ تم استلام وثيقة من هاتف الكاونتر: "${doc.title}". جاري تجهيز الطباعة فوراً!`);
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+          <title>${doc.title}</title>
+          <link rel="stylesheet" href="/styles/main.css">
+          <link rel="stylesheet" href="/styles/print.css">
+        </head>
+        <body onload="window.print(); window.close();">
+          ${doc.html}
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+  });
+}
+
+// 10. تبديل السمة (Dark / Light Mode)
+function initThemeToggle() {
+  const toggleBtn = document.getElementById('themeToggleBtn');
+  if (!toggleBtn) return;
+
+  toggleBtn.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    toggleBtn.textContent = next === 'dark' ? '🌙' : '☀️';
+    showToast(`تم التبديل إلى المظهر ${next === 'dark' ? 'الليلي' : 'النهاري'}`);
+  });
+}
+
+// 11. قسم الخدمات المدرسية والبحوث والامتحانات (School & Academic UI)
+function initSchoolUI() {
+  const topicSelect = document.getElementById('researchTopicSelect');
+  const titleInput = document.getElementById('researchTitleInput');
+  const levelInput = document.getElementById('researchLevelInput');
+  const studentInput = document.getElementById('researchStudentInput');
+  const schoolInput = document.getElementById('researchSchoolInput');
+  const teacherInput = document.getElementById('researchTeacherInput');
+  const wilayaSelect = document.getElementById('researchWilayaInput');
+  const previewPane = document.getElementById('researchPreviewPane');
+  const btnRegenPlan = document.getElementById('btnRegeneratePlanAI');
+
+  const btnToggleMode = document.getElementById('btnToggleSchoolMode');
+  const schoolModeLabel = document.getElementById('schoolModeLabel');
+  const printSchoolBtnText = document.getElementById('printSchoolBtnText');
+  const researchPanel = document.getElementById('schoolResearchPanel');
+  const examsPanel = document.getElementById('schoolExamsPanel');
+
+  const examSelect = document.getElementById('examSelectInput');
+  const examPreviewPane = document.getElementById('examPreviewPane');
+  const btnExamModeQuestions = document.getElementById('btnExamModeQuestions');
+  const btnExamModeSolution = document.getElementById('btnExamModeSolution');
+  const examFilterBtns = document.querySelectorAll('[data-exam-filter]');
+
+  const btnPrintDoc = document.getElementById('btnPrintSchoolDoc');
+  const btnBridgeDoc = document.getElementById('btnBridgeSchoolDoc');
+
+  let currentMode = 'RESEARCH'; // 'RESEARCH' or 'EXAMS'
+  let examViewMode = 'questions'; // 'questions' or 'solutions'
+  let activeExamFilter = 'ALL';
+
+  if (!topicSelect || !previewPane) return;
+
+  // populate topics
+  RESEARCH_TOPICS_DATABASE.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = `${t.title} (${t.subjectCategory})`;
+    topicSelect.appendChild(opt);
+  });
+
+  // populate wilayas
+  if (wilayaSelect && typeof ALGERIAN_WILAYAS !== 'undefined') {
+    ALGERIAN_WILAYAS.forEach(w => {
+      const opt = document.createElement('option');
+      opt.value = w.name;
+      opt.textContent = `${w.code} - ${w.name}`;
+      if (w.code === '16') opt.selected = true;
+      wilayaSelect.appendChild(opt);
+    });
+  }
+
+  let currentTopicData = JSON.parse(JSON.stringify(RESEARCH_TOPICS_DATABASE[0]));
+
+  function renderResearch() {
+    const data = {
+      title: titleInput ? titleInput.value : currentTopicData.title,
+      subjectCategory: currentTopicData.subjectCategory,
+      level: levelInput ? levelInput.value : currentTopicData.level,
+      language: currentTopicData.language || 'ar',
+      studentName: studentInput ? studentInput.value : 'محمد أمين رحماني',
+      schoolName: schoolInput ? schoolInput.value : 'ثانوية العقيد لطفي',
+      teacherName: teacherInput ? teacherInput.value : 'أ. بلقاسم مزيان',
+      wilaya: wilayaSelect ? wilayaSelect.value : 'الجزائر العاصمة',
+      className: levelInput ? levelInput.value : 'السنة الثالثة ثانوي',
+      plan: currentTopicData.plan,
+      summaryContent: currentTopicData.summaryContent
+    };
+    previewPane.innerHTML = sahlaSchool.renderResearchHTML(data);
+  }
+
+  topicSelect.addEventListener('change', () => {
+    const found = RESEARCH_TOPICS_DATABASE.find(t => t.id === topicSelect.value);
+    if (found) {
+      currentTopicData = JSON.parse(JSON.stringify(found));
+      if (titleInput) titleInput.value = found.title;
+      if (levelInput) levelInput.value = found.level;
+      renderResearch();
+    }
+  });
+
+  [titleInput, levelInput, studentInput, schoolInput, teacherInput, wilayaSelect].forEach(el => {
+    if (el) el.addEventListener('input', renderResearch);
+  });
+
+  if (btnRegenPlan) {
+    btnRegenPlan.addEventListener('click', () => {
+      const extraAxes = [
+        'المحور المستحدث: الأبعاد الاقتصادية والاجتماعية والتنموية للبحث',
+        'دراسة مقارنة: النماذج الإقليمية والدولية المشابهة والدروس المستفادة'
+      ];
+      extraAxes.forEach(ax => {
+        if (!currentTopicData.plan.includes(ax)) {
+          currentTopicData.plan.splice(currentTopicData.plan.length - 2, 0, ax);
+        }
+      });
+      renderResearch();
+      showToast('✨ تم توليد وتوسيع خطة البحث بالذكاء الاصطناعي بنجاح!');
+    });
+  }
+
+  // Toggle Mode (Research vs Exams)
+  if (btnToggleMode) {
+    btnToggleMode.addEventListener('click', () => {
+      if (currentMode === 'RESEARCH') {
+        currentMode = 'EXAMS';
+        researchPanel.style.display = 'none';
+        examsPanel.style.display = 'block';
+        schoolModeLabel.textContent = '📖 الانتقال لمولد البحوث المدرسية (AI)';
+        printSchoolBtnText.textContent = '🖨️ طباعة موضوع / حل الامتحان (مجاني)';
+        renderExamsList();
+      } else {
+        currentMode = 'RESEARCH';
+        researchPanel.style.display = 'block';
+        examsPanel.style.display = 'none';
+        schoolModeLabel.textContent = '📝 الانتقال لبنك الامتحانات (BEM / BAC)';
+        printSchoolBtnText.textContent = '🖨️ طباعة البحث A4 (10 نقاط)';
+        renderResearch();
+      }
+    });
+  }
+
+  // Exams logic
+  function renderExamsList() {
+    if (!examSelect) return;
+    examSelect.innerHTML = '';
+    const filtered = SCHOOL_EXAMS_DATABASE.filter(ex => {
+      if (activeExamFilter === 'ALL') return true;
+      return ex.level === activeExamFilter;
+    });
+
+    filtered.forEach(ex => {
+      const opt = document.createElement('option');
+      opt.value = ex.id;
+      opt.textContent = `[${ex.level} ${ex.year}] ${ex.subject} (${ex.title})`;
+      examSelect.appendChild(opt);
+    });
+
+    renderCurrentExam();
+  }
+
+  function renderCurrentExam() {
+    if (!examSelect || !examPreviewPane) return;
+    const exam = SCHOOL_EXAMS_DATABASE.find(e => e.id === examSelect.value) || SCHOOL_EXAMS_DATABASE[0];
+    if (exam) {
+      examPreviewPane.innerHTML = sahlaSchool.renderExamHTML(exam, examViewMode);
+    }
+  }
+
+  if (examSelect) {
+    examSelect.addEventListener('change', renderCurrentExam);
+  }
+
+  examFilterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      examFilterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeExamFilter = btn.getAttribute('data-exam-filter');
+      renderExamsList();
+    });
+  });
+
+  if (btnExamModeQuestions) {
+    btnExamModeQuestions.addEventListener('click', () => {
+      btnExamModeQuestions.classList.add('active');
+      if (btnExamModeSolution) btnExamModeSolution.classList.remove('active');
+      examViewMode = 'questions';
+      renderCurrentExam();
+    });
+  }
+
+  if (btnExamModeSolution) {
+    btnExamModeSolution.addEventListener('click', () => {
+      btnExamModeSolution.classList.add('active');
+      if (btnExamModeQuestions) btnExamModeQuestions.classList.remove('active');
+      examViewMode = 'solutions';
+      renderCurrentExam();
+    });
+  }
+
+  // Print Action
+  if (btnPrintDoc) {
+    btnPrintDoc.addEventListener('click', () => {
+      if (currentMode === 'RESEARCH') {
+        const cost = (typeof SERVICE_RATES !== 'undefined' && SERVICE_RATES.AI_RESEARCH) ? SERVICE_RATES.AI_RESEARCH.points : 10;
+        const deduction = sahlaWallet.deductPoints('AI_RESEARCH', cost, `طباعة بحث دراسي: ${titleInput ? titleInput.value : 'بحث مدرسي'}`);
+        if (!deduction.success) {
+          showToast(deduction.error, 'error');
+          openWalletModal();
+          return;
+        }
+        showToast(`✓ تم خصم ${cost} نقاط وطباعة البحث المدرسي بنجاح!`);
+        window.print();
+      } else {
+        // Free exams!
+        showToast('✓ طباعة ورقة الامتحان الرسمي (مجاني دائم)');
+        window.print();
+      }
+    });
+  }
+
+  // Bridge Action
+  if (btnBridgeDoc) {
+    btnBridgeDoc.addEventListener('click', () => {
+      const activeHtml = currentMode === 'RESEARCH' ? previewPane.innerHTML : examPreviewPane.innerHTML;
+      const title = currentMode === 'RESEARCH' ? (titleInput ? titleInput.value : 'بحث مدرسي') : 'ورقة امتحان رسمي';
+      sahlaBridge.sendDocument(title, activeHtml);
+      showToast('📲 تم إرسال الوثيقة عبر جسر الطباعة إلى طابعة المحل!');
+    });
+  }
+
+  // Initial render
+  renderResearch();
+}
+
+// 12. قسم ملء الاستمارات الرسمية بالـ OCR (Official Forms & OCR UI)
+function initOCRFormsUI() {
+  const formSelect = document.getElementById('officialFormSelect');
+  const fieldsContainer = document.getElementById('dynamicFormFieldsContainer');
+  const previewPane = document.getElementById('ocrFormPreviewPane');
+  const btnOCR = document.getElementById('btnSimulateOCR');
+  const fileInput = document.getElementById('ocrFileInput');
+  const statusBadge = document.getElementById('ocrStatusBadge');
+  const btnPrint = document.getElementById('btnPrintOCRForm');
+  const btnBridge = document.getElementById('btnBridgeOCRForm');
+
+  if (!formSelect || !previewPane) return;
+
+  // populate form options
+  OFFICIAL_FORMS_TEMPLATES.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f.id;
+    opt.textContent = `${f.name} — ${f.ministry}`;
+    formSelect.appendChild(opt);
+  });
+
+  function renderFormFields() {
+    if (!fieldsContainer) return;
+    fieldsContainer.innerHTML = '';
+    const form = sahlaFormFiller.selectedForm;
+
+    form.fields.forEach(field => {
+      const group = document.createElement('div');
+      group.className = 'form-group';
+
+      const label = document.createElement('label');
+      label.textContent = field.label;
+      group.appendChild(label);
+
+      let inputEl;
+      if (field.type === 'select' && field.options) {
+        inputEl = document.createElement('select');
+        inputEl.className = 'form-select';
+        field.options.forEach(op => {
+          const o = document.createElement('option');
+          o.value = op;
+          o.textContent = op;
+          if (sahlaFormFiller.formData[field.key] === op) o.selected = true;
+          inputEl.appendChild(o);
+        });
+      } else {
+        inputEl = document.createElement('input');
+        inputEl.type = field.type || 'text';
+        inputEl.className = 'form-input';
+        inputEl.value = sahlaFormFiller.formData[field.key] || '';
+      }
+
+      inputEl.dataset.fieldKey = field.key;
+      inputEl.addEventListener('input', (e) => {
+        sahlaFormFiller.formData[field.key] = e.target.value;
+        renderPreview();
+      });
+      inputEl.addEventListener('change', (e) => {
+        sahlaFormFiller.formData[field.key] = e.target.value;
+        renderPreview();
+      });
+
+      group.appendChild(inputEl);
+      fieldsContainer.appendChild(group);
+    });
+  }
+
+  function renderPreview() {
+    previewPane.innerHTML = sahlaFormFiller.renderOfficialFormHTML();
+  }
+
+  formSelect.addEventListener('change', () => {
+    sahlaFormFiller.setForm(formSelect.value);
+    renderFormFields();
+    renderPreview();
+  });
+
+  // OCR Extraction simulation
+  function triggerOCR() {
+    if (statusBadge) {
+      statusBadge.textContent = '⏳ جاري المسح والتعرف الضوئي (OCR)...';
+      statusBadge.style.color = '#fbbf24';
+      statusBadge.style.borderColor = '#fbbf24';
+    }
+
+    setTimeout(() => {
+      const res = sahlaFormFiller.simulateOCRExtraction();
+      renderFormFields();
+      renderPreview();
+      if (statusBadge) {
+        statusBadge.textContent = `✓ تم استخراج ${res.extractedFieldsCount} حقلاً بنجاح (${res.confidenceScore})`;
+        statusBadge.style.color = '#10b981';
+        statusBadge.style.borderColor = '#10b981';
+      }
+      showToast(`⚡ تم استخراج بيانات الهوية البيومترية بنجاح بنسبة دقة ${res.confidenceScore}!`);
+    }, 500);
+  }
+
+  if (btnOCR) btnOCR.addEventListener('click', triggerOCR);
+  if (fileInput) fileInput.addEventListener('change', triggerOCR);
+
+  // Print Action
+  if (btnPrint) {
+    btnPrint.addEventListener('click', () => {
+      const cost = (typeof SERVICE_RATES !== 'undefined' && SERVICE_RATES.OCR_FORM_FILLER) ? SERVICE_RATES.OCR_FORM_FILLER.points : 10;
+      const deduction = sahlaWallet.deductPoints('OCR_FORM_FILLER', cost, `ملء استمارة رسمية بالـ OCR: ${sahlaFormFiller.selectedForm.name}`);
+      if (!deduction.success) {
+        showToast(deduction.error, 'error');
+        openWalletModal();
+        return;
+      }
+      showToast(`✓ تم خصم ${cost} نقاط وطباعة الاستمارة الرسمية بنجاح!`);
+      window.print();
+    });
+  }
+
+  // Bridge Action
+  if (btnBridge) {
+    btnBridge.addEventListener('click', () => {
+      sahlaBridge.sendDocument(sahlaFormFiller.selectedForm.name, sahlaFormFiller.renderOfficialFormHTML());
+      showToast('📲 تم إرسال الاستمارة الرسمية لطابعة المحل!');
+    });
+  }
+
+  // Initial render
+  renderFormFields();
+  renderPreview();
+}
+
+// 13. قسم دفتر الزبائن وسجل الديون والكريدي (Customers & Credit Ledger UI)
+function initCustomersUI() {
+  const container = document.getElementById('customersCardsContainer');
+  const searchInput = document.getElementById('custSearchInput');
+  const kpiCount = document.getElementById('kpiCustCount');
+  const kpiDebts = document.getElementById('kpiCustOutstanding');
+  const kpiRecovery = document.getElementById('kpiCustRecovery');
+
+  const addCustModal = document.getElementById('addCustomerModal');
+  const btnOpenAddCust = document.getElementById('btnOpenAddCustomerModal');
+  const btnSaveCust = document.getElementById('btnSaveNewCustomer');
+
+  const addTxModal = document.getElementById('addTxModal');
+  const txCustomerId = document.getElementById('txCustomerId');
+  const txModalCustomerTitle = document.getElementById('txModalCustomerTitle');
+  const txTypeSelect = document.getElementById('txTypeSelect');
+  const txAmountInput = document.getElementById('txAmountInput');
+  const txDescInput = document.getElementById('txDescInput');
+  const btnSaveTx = document.getElementById('btnSaveTransaction');
+
+  const statementModal = document.getElementById('custStatementModal');
+  const statementCustName = document.getElementById('statementCustName');
+  const statementTableBody = document.getElementById('statementTableBody');
+  const statementSummaryBalance = document.getElementById('statementSummaryBalance');
+
+  window.openCustomerModal = () => { if (addCustModal) addCustModal.classList.add('open'); };
+  window.closeCustomerModal = () => { if (addCustModal) addCustModal.classList.remove('open'); };
+
+  window.openTxModal = (custId, custName) => {
+    if (txCustomerId) txCustomerId.value = custId;
+    if (txModalCustomerTitle) txModalCustomerTitle.textContent = `تسجيل حركة مالية: ${custName}`;
+    if (txAmountInput) txAmountInput.value = '';
+    if (txDescInput) txDescInput.value = '';
+    if (addTxModal) addTxModal.classList.add('open');
+  };
+  window.closeTxModal = () => { if (addTxModal) addTxModal.classList.remove('open'); };
+
+  window.openStatementModal = (custId) => {
+    const cust = sahlaCustomers.getAll().find(c => c.id === custId);
+    if (!cust) return;
+    if (statementCustName) statementCustName.textContent = `كشف حساب: ${cust.name}`;
+    if (statementTableBody) {
+      if (cust.history && cust.history.length > 0) {
+        statementTableBody.innerHTML = cust.history.map(h => `
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:8px 10px; font-family:monospace;">${h.date}</td>
+            <td style="padding:8px 10px;">
+              <span class="debt-badge ${h.type === 'CHARGE' ? 'debt-badge-danger' : 'debt-badge-success'}">
+                ${h.type === 'CHARGE' ? '🔴 كريدي (+)' : '🟢 تسديد (-)'}
+              </span>
+            </td>
+            <td style="padding:8px 10px;">${h.desc}</td>
+            <td style="padding:8px 10px; font-weight:800; text-align:left;">${h.amount.toLocaleString()} دج</td>
+          </tr>
+        `).join('');
+      } else {
+        statementTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:16px; color:var(--text-muted);">لا توجد حركات مسجلة حتى الآن</td></tr>`;
+      }
+    }
+    const balance = Math.max(0, cust.totalDebts - cust.totalPaid);
+    if (statementSummaryBalance) {
+      statementSummaryBalance.innerHTML = `الرصيد المتبقي المستحق: <strong style="color:${balance > 0 ? '#ef4444' : '#10b981'}; font-size:16px;">${balance.toLocaleString()} دج</strong>`;
+    }
+    if (statementModal) statementModal.classList.add('open');
+  };
+  window.closeStatementModal = () => { if (statementModal) statementModal.classList.remove('open'); };
+
+  function renderCustomers(filterText = '') {
+    const list = sahlaCustomers.getAll();
+    const totals = sahlaCustomers.getTotals();
+
+    if (kpiCount) kpiCount.textContent = totals.activeCount;
+    if (kpiDebts) kpiDebts.textContent = `${totals.totalOutstandingDZD.toLocaleString()} دج`;
+
+    const totalPaid = list.reduce((sum, c) => sum + (c.totalPaid || 0), 0);
+    const totalCharged = list.reduce((sum, c) => sum + (c.totalDebts || 0), 0);
+    const recoveryRate = totalCharged > 0 ? Math.round((totalPaid / totalCharged) * 100) : 100;
+    if (kpiRecovery) kpiRecovery.textContent = `${recoveryRate}%`;
+
+    if (!container) return;
+    const query = filterText.toLowerCase().trim();
+    const filtered = list.filter(c => {
+      if (!query) return true;
+      return (c.name && c.name.toLowerCase().includes(query)) ||
+             (c.phone && c.phone.includes(query)) ||
+             (c.address && c.address.toLowerCase().includes(query)) ||
+             (c.nif && c.nif.includes(query));
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted); background:var(--bg-card); border-radius:var(--radius-md);">
+          لا يوجد زبائن يطابقون البحث. انقر على "إضافة زبون جديد" لتسجيل زبون.
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(c => {
+      const remainingDebt = Math.max(0, c.totalDebts - c.totalPaid);
+      const isSettled = remainingDebt === 0;
+
+      return `
+        <div class="customer-debt-card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+            <div>
+              <h4 style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">${c.name}</h4>
+              <div style="display:flex; gap:10px; font-size:12px; color:var(--text-muted); flex-wrap:wrap;">
+                <span>📞 <a href="tel:${c.phone}" style="color:var(--primary); font-weight:700;">${c.phone}</a></span>
+                ${c.nif ? `<span>NIF: <strong style="font-family:monospace;">${c.nif}</strong></span>` : ''}
+              </div>
+            </div>
+            <span class="debt-badge ${isSettled ? 'debt-badge-success' : 'debt-badge-danger'}">
+              ${isSettled ? '✓ الحساب خالص' : `كريدي: ${remainingDebt.toLocaleString()} دج`}
+            </span>
+          </div>
+
+          <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">
+            <div>📍 ${c.address || 'العنوان غير محدد'}</div>
+            ${c.notes ? `<div style="margin-top:4px;">📝 ${c.notes}</div>` : ''}
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-color); padding-top:12px; margin-top:4px; font-size:12px;">
+            <div style="color:var(--text-muted);">
+              إجمالي المعاملات: <strong>${c.totalDebts.toLocaleString()} دج</strong>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn-secondary" style="padding:6px 10px; font-size:11px;" onclick="openStatementModal('${c.id}')">
+                <span>📜 كشف العمليات</span>
+              </button>
+              <button class="btn-primary" style="padding:6px 10px; font-size:11px;" onclick="openTxModal('${c.id}', '${c.name.replace(/'/g, "\\'")}')">
+                <span>➕ تسجيل حركة</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => renderCustomers(e.target.value));
+  }
+
+  if (btnOpenAddCust) {
+    btnOpenAddCust.addEventListener('click', openCustomerModal);
+  }
+
+  if (btnSaveCust) {
+    btnSaveCust.addEventListener('click', () => {
+      const name = document.getElementById('newCustName').value.trim();
+      const phone = document.getElementById('newCustPhone').value.trim();
+      const nif = document.getElementById('newCustNif').value.trim();
+      const address = document.getElementById('newCustAddress').value.trim();
+      const initialDebt = parseFloat(document.getElementById('newCustInitialDebt').value) || 0;
+      const notes = document.getElementById('newCustNotes').value.trim();
+
+      if (!name) {
+        showToast('يرجى إدخال اسم الزبون أو المؤسسة', 'error');
+        return;
+      }
+
+      sahlaCustomers.addCustomer(name, phone, address, nif, initialDebt, notes);
+      closeCustomerModal();
+      document.getElementById('newCustName').value = '';
+      document.getElementById('newCustPhone').value = '';
+      document.getElementById('newCustNif').value = '';
+      document.getElementById('newCustAddress').value = '';
+      document.getElementById('newCustInitialDebt').value = '0';
+      document.getElementById('newCustNotes').value = '';
+
+      renderCustomers(searchInput ? searchInput.value : '');
+      showToast(`✓ تم تسجيل الزبون "${name}" في دفتر المحل بنجاح!`);
+    });
+  }
+
+  if (btnSaveTx) {
+    btnSaveTx.addEventListener('click', () => {
+      const custId = txCustomerId.value;
+      const type = txTypeSelect.value;
+      const amount = parseFloat(txAmountInput.value) || 0;
+      const desc = txDescInput.value.trim() || (type === 'CHARGE' ? 'خدمة طباعة/وثائق' : 'تسديد نقدي');
+
+      if (amount <= 0) {
+        showToast('يرجى إدخال مبلغ صحيح أكبر من الصفر', 'error');
+        return;
+      }
+
+      sahlaCustomers.addTransaction(custId, type, amount, desc);
+      closeTxModal();
+      renderCustomers(searchInput ? searchInput.value : '');
+      showToast(`✓ تم تسجيل ${type === 'CHARGE' ? 'الكريدي' : 'الدفعة'} بمبلغ ${amount.toLocaleString()} دج بنجاح!`);
+    });
+  }
+
+  window.addEventListener('sahla:customers-updated', () => {
+    renderCustomers(searchInput ? searchInput.value : '');
+  });
+
+  // Initial render
+  renderCustomers();
+}
+
+// 14. قسم التصاريح الجبائية الرسمية (Tax Declarations UI - G50 / G12)
+function initTaxUI() {
+  const btnToggleMode = document.getElementById('btnToggleTaxMode');
+  const taxModeLabel = document.getElementById('taxModeLabel');
+  const printTaxBtnText = document.getElementById('printTaxBtnText');
+  const g50Panel = document.getElementById('taxG50InputsPanel');
+  const g12Panel = document.getElementById('taxG12InputsPanel');
+  const previewContainer = document.getElementById('taxPreviewContainer');
+  const btnPrint = document.getElementById('btnPrintTax');
+  const btnBridge = document.getElementById('btnBridgeTax');
+
+  let activeMode = 'G50'; // 'G50' or 'G12'
+
+  if (!previewContainer) return;
+
+  function renderTaxPreview() {
+    if (activeMode === 'G50') {
+      const g50Data = {
+        companyName: document.getElementById('taxG50Company').value,
+        nif: document.getElementById('taxG50Nif').value,
+        article: document.getElementById('taxG50Article').value,
+        recette: document.getElementById('taxG50Recette').value,
+        inspection: document.getElementById('taxG50Inspection').value,
+        periodValue: document.getElementById('taxG50Period').value,
+        periodMonthYear: '09/2026',
+        directionWilaya: 'Direction des Impôts de la Wilaya d’Alger',
+        activity: 'خدمات إعلام آلي، طباعة، وتوريدات مكتبية',
+        address: '42 شارع حسيبة بن بوعلي، الجزائر',
+        nis: '001916010023456',
+        regime: 'Régime Réel',
+        caTva9: parseFloat(document.getElementById('taxG50Ca9').value) || 0,
+        caTva19: parseFloat(document.getElementById('taxG50Ca19').value) || 0,
+        caExonere: 0,
+        deductionsAchats: parseFloat(document.getElementById('taxG50Deductions').value) || 0,
+        precompteAnterieur: parseFloat(document.getElementById('taxG50Precompte').value) || 0,
+        tapRate: 0,
+        caTap: 0,
+        masseSalariale: 480000,
+        irgSalairesRetenue: parseFloat(document.getElementById('taxG50Irg').value) || 0,
+        loyersMontant: 80000,
+        loyersRetenue: parseFloat(document.getElementById('taxG50Loyers').value) || 0,
+        caEspeces: parseFloat(document.getElementById('taxG50TimbreCa').value) || 0,
+        droitsTimbre: Math.round((parseFloat(document.getElementById('taxG50TimbreCa').value) || 0) * 0.01)
+      };
+      previewContainer.innerHTML = sahlaTax.renderG50HTML(g50Data);
+    } else {
+      const g12Data = {
+        artisanName: document.getElementById('taxG12Name').value,
+        nif: document.getElementById('taxG12Nif').value,
+        article: document.getElementById('taxG12Article').value,
+        wilaya: document.getElementById('taxG12Wilaya').value,
+        inspection: document.getElementById('taxG12Wilaya').value,
+        recette: 'قباضة الضرائب المختصة',
+        taxYear: document.getElementById('taxG12Year').value,
+        activity: 'بيع الكتب والأدوات المكتبية والخدمات الرقمية',
+        address: 'حي الصديقية، وهران',
+        rc: '31/00-1122334A20',
+        paymentMode: document.getElementById('taxG12PaymentMode').value,
+        caCommercial: parseFloat(document.getElementById('taxG12CaComm').value) || 0,
+        caServices: parseFloat(document.getElementById('taxG12CaServ').value) || 0
+      };
+      previewContainer.innerHTML = sahlaTax.renderG12HTML(g12Data);
+    }
+  }
+
+  // Toggle between G50 and G12
+  if (btnToggleMode) {
+    btnToggleMode.addEventListener('click', () => {
+      if (activeMode === 'G50') {
+        activeMode = 'G12';
+        g50Panel.style.display = 'none';
+        g12Panel.style.display = 'block';
+        taxModeLabel.textContent = '🏛️ الانتقال للتصريح الشهري بالضرائب (Série G N° 50)';
+        printTaxBtnText.textContent = '🖨️ طباعة تصريح IFU G12 (20 نقطة)';
+      } else {
+        activeMode = 'G50';
+        g50Panel.style.display = 'block';
+        g12Panel.style.display = 'none';
+        taxModeLabel.textContent = '📋 الانتقال لتصريح الضريبة الجزافية الوحيدة (IFU G12)';
+        printTaxBtnText.textContent = '🖨️ طباعة التصريح الجبائي G50 (20 نقطة)';
+      }
+      renderTaxPreview();
+    });
+  }
+
+  // Listeners on inputs
+  const g50InputIds = ['taxG50Company', 'taxG50Nif', 'taxG50Article', 'taxG50Recette', 'taxG50Inspection', 'taxG50Period', 'taxG50Ca9', 'taxG50Ca19', 'taxG50Deductions', 'taxG50Precompte', 'taxG50Irg', 'taxG50TimbreCa', 'taxG50Loyers'];
+  g50InputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', renderTaxPreview);
+  });
+
+  const g12InputIds = ['taxG12Name', 'taxG12Nif', 'taxG12Article', 'taxG12Wilaya', 'taxG12Year', 'taxG12PaymentMode', 'taxG12CaComm', 'taxG12CaServ'];
+  g12InputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', renderTaxPreview);
+      el.addEventListener('change', renderTaxPreview);
+    }
+  });
+
+  // Print Action
+  if (btnPrint) {
+    btnPrint.addEventListener('click', () => {
+      const serviceCode = activeMode === 'G50' ? 'TAX_G50' : 'TAX_G12';
+      const cost = 20;
+      const desc = activeMode === 'G50' ? 'طباعة التصريح الجبائي الرسمي Série G N° 50' : 'طباعة تصريح الضريبة الجزافية الوحيدة IFU G N° 12';
+
+      const deduction = sahlaWallet.deductPoints(serviceCode, cost, desc);
+      if (!deduction.success) {
+        showToast(deduction.error, 'error');
+        openWalletModal();
+        return;
+      }
+
+      showToast(`✓ تم خصم ${cost} نقطة وطباعة التصريح الجبائي بنجاح!`);
+      window.print();
+    });
+  }
+
+  // Bridge Action
+  if (btnBridge) {
+    btnBridge.addEventListener('click', () => {
+      const title = activeMode === 'G50' ? 'التصريح الجبائي Série G N° 50' : 'تصريح الضريبة الجزافية IFU G12';
+      sahlaBridge.sendDocument(title, previewContainer.innerHTML);
+      showToast('📲 تم إرسال التصريح الجبائي لطابعة المحل عبر الجسر!');
+    });
+  }
+
+  // Initial render
+  renderTaxPreview();
+}
+
+// 15. قسم بوابة الدفع الإلكتروني المباشر (Electronic Payment UI - SATIM / Edahabia / CIB)
+function initEpayUI() {
+  const packBtns = document.querySelectorAll('.epay-pack-btn');
+  const cardNumInput = document.getElementById('epayCardNumber');
+  const cardHolderInput = document.getElementById('epayCardHolder');
+  const expMonthInput = document.getElementById('epayExpMonth');
+  const expYearInput = document.getElementById('epayExpYear');
+  const cvv2Input = document.getElementById('epayCvv2');
+  const btnSubmit = document.getElementById('btnSubmitEpay');
+
+  const otpBox = document.getElementById('epayOtpBox');
+  const otpInput = document.getElementById('epayOtpInput');
+  const btnConfirmOtp = document.getElementById('btnConfirmOtp');
+  const demoOtpHint = document.getElementById('epayDemoOtpHint');
+
+  const cardPreview = document.getElementById('virtualCardPreview');
+  const cardTypeLabel = document.getElementById('vcardTypeLabel');
+  const cardNumberDisplay = document.getElementById('vcardNumberDisplay');
+  const cardHolderDisplay = document.getElementById('vcardHolderDisplay');
+  const cardExpDisplay = document.getElementById('vcardExpDisplay');
+  const receiptContainer = document.getElementById('epayReceiptPreviewContainer');
+  const btnPrintReceipt = document.getElementById('btnPrintEpayReceipt');
+
+  let selectedPackId = 'pack_300';
+
+  if (!cardNumInput) return;
+
+  // Package selection
+  packBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      packBtns.forEach(b => {
+        b.classList.remove('active');
+        b.style.borderColor = '';
+      });
+      btn.classList.add('active');
+      btn.style.borderColor = '#fbbf24';
+      selectedPackId = btn.getAttribute('data-pack-id');
+    });
+  });
+
+  // Card Number Formatting & live update
+  cardNumInput.addEventListener('input', (e) => {
+    let val = e.target.value.replace(/\D/g, '').substring(0, 16);
+    let formatted = val.match(/.{1,4}/g)?.join(' ') || val;
+    e.target.value = formatted;
+
+    if (cardNumberDisplay) {
+      cardNumberDisplay.textContent = formatted || '•••• •••• •••• ••••';
+    }
+
+    // Detect card brand
+    const cardInfo = sahlaEpay.detectCardType(val);
+    if (cardTypeLabel) cardTypeLabel.textContent = cardInfo.type === 'EDAHABIA' ? 'EDAHABIA' : 'CIB';
+    if (cardPreview) {
+      if (cardInfo.type === 'EDAHABIA') {
+        cardPreview.className = 'virtual-gold-card';
+      } else {
+        cardPreview.className = 'virtual-gold-card virtual-cib-card';
+      }
+    }
+  });
+
+  cardHolderInput.addEventListener('input', (e) => {
+    if (cardHolderDisplay) {
+      cardHolderDisplay.textContent = e.target.value.toUpperCase() || 'VOTRE NOM';
+    }
+  });
+
+  function updateExp() {
+    const mm = expMonthInput.value.padStart(2, '0');
+    const yy = expYearInput.value;
+    if (cardExpDisplay) {
+      cardExpDisplay.textContent = `${mm || 'MM'}/${yy || 'YY'}`;
+    }
+  }
+  expMonthInput.addEventListener('input', updateExp);
+  expYearInput.addEventListener('input', updateExp);
+
+  // Submit payment & generate OTP
+  btnSubmit.addEventListener('click', () => {
+    const cardData = {
+      cardNumber: cardNumInput.value,
+      cardHolder: cardHolderInput.value,
+      expMonth: expMonthInput.value,
+      expYear: expYearInput.value,
+      cvv2: cvv2Input.value
+    };
+
+    const res = sahlaEpay.initiatePayment(cardData, selectedPackId);
+    if (!res.success) {
+      showToast(res.error, 'error');
+      return;
+    }
+
+    if (otpBox) {
+      otpBox.style.display = 'block';
+      otpBox.scrollIntoView({ behavior: 'smooth' });
+    }
+    if (demoOtpHint) {
+      demoOtpHint.textContent = `💡 رمز الرسالة القصيرة (OTP) التجريبي للاختبار: ${res.demoOtp}`;
+    }
+    if (otpInput) {
+      otpInput.value = res.demoOtp;
+    }
+
+    showToast('📲 تم إرسال كود التحقق OTP إلى رقم الهاتف المسجل!');
+  });
+
+  // Confirm OTP
+  btnConfirmOtp.addEventListener('click', () => {
+    const entered = otpInput ? otpInput.value : '';
+    const res = sahlaEpay.confirmPaymentWithOtp(entered);
+
+    if (!res.success) {
+      showToast(res.error, 'error');
+      return;
+    }
+
+    if (otpBox) otpBox.style.display = 'none';
+    if (receiptContainer) {
+      receiptContainer.style.display = 'block';
+      receiptContainer.innerHTML = res.receiptHtml;
+    }
+    if (btnPrintReceipt) {
+      btnPrintReceipt.style.display = 'inline-flex';
+    }
+
+    showToast(`✓ تم الدفع بنجاح! أُضيفت ${res.pointsAdded} نقطة إلى رصيدك (الرصيد الجديد: ${res.newBalance} نقطة)`);
+  });
+
+  if (btnPrintReceipt) {
+    btnPrintReceipt.addEventListener('click', () => {
+      window.print();
+    });
+  }
+}
+
+// 16. قسم طباعة وتجهيز بطاقات الشحن المادية للتوزيع (Wholesale Cards Sheet UI)
+function initWholesaleUI() {
+  const modal = document.getElementById('wholesaleModal');
+  const btnOpen = document.getElementById('btnOpenWholesaleSheet');
+  const selectPoints = document.getElementById('wholesalePointsSelect');
+  const btnRegenerate = document.getElementById('btnRegenerateWholesaleSheet');
+  const btnPrintNow = document.getElementById('btnPrintWholesaleSheetNow');
+  const container = document.getElementById('wholesaleSheetContainer');
+
+  window.openWholesaleModal = () => {
+    if (modal) modal.classList.add('open');
+    renderSheet();
+  };
+  window.closeWholesaleModal = () => {
+    if (modal) modal.classList.remove('open');
+  };
+
+  if (btnOpen) btnOpen.addEventListener('click', openWholesaleModal);
+
+  let currentBatchData = null;
+
+  function renderSheet() {
+    const pts = selectPoints ? selectPoints.value : 300;
+    currentBatchData = sahlaCardsWholesale.generateWholesaleBatch(pts, 6);
+    if (container) {
+      container.innerHTML = sahlaCardsWholesale.renderWholesaleSheetHTML(currentBatchData);
+    }
+  }
+
+  if (btnRegenerate) {
+    btnRegenerate.addEventListener('click', () => {
+      renderSheet();
+      showToast('✓ تم توليد وتشفير أرقام تسلسلية جديدة للوحة البطاقات!');
+    });
+  }
+
+  if (selectPoints) {
+    selectPoints.addEventListener('change', renderSheet);
+  }
+
+  if (btnPrintNow) {
+    btnPrintNow.addEventListener('click', () => {
+      showToast('🖨️ جاري طباعة لوحة بطاقات التعبئة على ورق A4 مقوى...');
+      window.print();
+    });
+  }
+}
+
+// ==========================================
+// المرحلة 4: شبكة نقاط البيع POS، المحاسبة، والبوابات الوطنية
+// ==========================================
+
+// 17. إدارة شبكة نقاط البيع والأجهزة المرتبطة (Multi-POS UI)
+function initPosUI() {
+  const grid = document.getElementById('boundDevicesGrid');
+  const btnPairModal = document.getElementById('btnOpenPairDeviceModal');
+  const pairModal = document.getElementById('pairDeviceModal');
+  const pinDisplay = document.getElementById('pairingPinDisplay');
+  const btnRefreshPin = document.getElementById('btnRefreshPairingPin');
+  const btnSaveDevice = document.getElementById('btnSaveNewDevice');
+  const btnSimulateSync = document.getElementById('btnSimulateSyncAction');
+  const tickerText = document.getElementById('posSyncTickerText');
+
+  window.openPairDeviceModal = () => {
+    if (pairModal) {
+      const pinObj = sahlaPosDevices.generatePairingPin();
+      if (pinDisplay) pinDisplay.textContent = pinObj.pin.replace(/(\d{3})(\d{3})/, '$1 $2');
+      pairModal.classList.add('open');
+    }
+  };
+
+  window.closePairDeviceModal = () => {
+    if (pairModal) pairModal.classList.remove('open');
+  };
+
+  if (btnPairModal) btnPairModal.addEventListener('click', openPairDeviceModal);
+
+  if (btnRefreshPin) {
+    btnRefreshPin.addEventListener('click', () => {
+      const pinObj = sahlaPosDevices.generatePairingPin();
+      if (pinDisplay) pinDisplay.textContent = pinObj.pin.replace(/(\d{3})(\d{3})/, '$1 $2');
+      showToast('✓ تم توليد رمز اقتران جديد صالح لـ 10 دقائق');
+    });
+  }
+
+  if (btnSaveDevice) {
+    btnSaveDevice.addEventListener('click', () => {
+      const name = document.getElementById('newDevName').value;
+      const type = document.getElementById('newDevType').value;
+      const role = document.getElementById('newDevRole').value;
+
+      if (!name || name.trim() === '') {
+        showToast('يرجى كتابة اسم للجهاز أو الكاونتر', 'error');
+        return;
+      }
+
+      sahlaPosDevices.addDevice({ name, type, role });
+      closePairDeviceModal();
+      document.getElementById('newDevName').value = '';
+      showToast(`✓ تم بنجاح ربط الطرفية "${name}" بشبكة المحل`);
+      renderDevices();
+    });
+  }
+
+  function renderDevices() {
+    if (!grid) return;
+    const devices = sahlaPosDevices.getDevices();
+
+    grid.innerHTML = devices.map(dev => {
+      const isCur = dev.isCurrent;
+      const isOnline = dev.status === 'ONLINE';
+      const icon = dev.type === 'MOBILE' ? '📱' : (dev.type === 'PRINT_STATION' ? '🖨️' : '🖥️');
+
+      return `
+        <div class="device-card ${isCur ? 'is-current' : ''}">
+          <div class="device-card-top">
+            <div class="device-icon-and-meta">
+              <div class="device-icon-box">${icon}</div>
+              <div>
+                <div class="device-name-title">${dev.name} ${isCur ? '<small style="color:var(--primary); font-size:11px;">(الجهاز الحالي)</small>' : ''}</div>
+                <div class="device-ip-badge">IP: ${dev.ipAddress}</div>
+              </div>
+            </div>
+            <span class="device-status-badge ${isOnline ? 'status-online' : 'status-standby'}">
+              ${isOnline ? '● متصل نشط' : '○ في الانتظار'}
+            </span>
+          </div>
+
+          <div class="device-role-tag">
+            <span>الدور: <strong>${dev.roleTitle}</strong></span>
+            <span style="font-size:10px; color:var(--text-muted);">${dev.lastActive}</span>
+          </div>
+
+          <div class="device-permissions-list">
+            <span style="font-weight:700; color:var(--text-muted); font-size:11px; margin-bottom:2px;">صلاحيات هذه الطرفية:</span>
+            <label class="perm-checkbox-item">
+              <input type="checkbox" ${dev.permissions.canGenerateDocs ? 'checked' : ''} ${dev.role === 'OWNER' ? 'disabled' : ''} onchange="sahlaPosDevices.togglePermission('${dev.id}', 'canGenerateDocs')">
+              <span>توليد المستندات والوثائق (CV، صور، استمارات)</span>
+            </label>
+            <label class="perm-checkbox-item">
+              <input type="checkbox" ${dev.permissions.canPrint ? 'checked' : ''} ${dev.role === 'OWNER' ? 'disabled' : ''} onchange="sahlaPosDevices.togglePermission('${dev.id}', 'canPrint')">
+              <span>إرسال مهام الطباعة الفورية</span>
+            </label>
+            <label class="perm-checkbox-item">
+              <input type="checkbox" ${dev.permissions.canViewAccounting ? 'checked' : ''} ${dev.role === 'OWNER' ? 'disabled' : ''} onchange="sahlaPosDevices.togglePermission('${dev.id}', 'canViewAccounting')">
+              <span>الاطلاع على الأرباح والمحاسبة المالية</span>
+            </label>
+            <label class="perm-checkbox-item">
+              <input type="checkbox" ${dev.permissions.canRechargeWallet ? 'checked' : ''} ${dev.role === 'OWNER' ? 'disabled' : ''} onchange="sahlaPosDevices.togglePermission('${dev.id}', 'canRechargeWallet')">
+              <span>شحن المحفظة والدفع الإلكتروني</span>
+            </label>
+          </div>
+
+          <div class="device-card-footer">
+            <span>المعرف: <code style="font-size:10px;">${dev.id}</code></span>
+            ${!isCur ? `<button class="btn-action" style="color:#ef4444;" onclick="if(confirm('هل أنت متأكد من إلغاء اقتران هذا الجهاز؟')) { sahlaPosDevices.removeDevice('${dev.id}'); renderBoundDevices(); }">إلغاء الاقتران ✕</button>` : '<span style="color:#059669; font-weight:700;">✓ متصل محلياً</span>'}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.renderBoundDevices = renderDevices;
+  renderDevices();
+  window.addEventListener('sahla:devices-updated', renderDevices);
+
+  // زر محاكاة مزامنة العمليات بين الكاونترات
+  if (btnSimulateSync) {
+    btnSimulateSync.addEventListener('click', () => {
+      const services = [
+        'أنجز سيرة ذاتية فرنسية للزبون (خصم 15 نقطة)',
+        'أنجز لوحة صور هوية 8 صور 10x15 سم (خصم 10 نقاط)',
+        'أعد تصريح جبائي شهري DGI G50 (خصم 20 نقطة)',
+        'أعد بحث مدرسي مع صفحة الواجهة والمراجع (خصم 15 نقطة)'
+      ];
+      const randomService = services[Math.floor(Math.random() * services.length)];
+      const event = sahlaPosDevices.simulateBroadcastSync(randomService);
+      if (tickerText) {
+        tickerText.innerHTML = `<strong>[${event.timestamp}] ${event.terminal}:</strong> ${event.description}`;
+        tickerText.style.color = '#2563eb';
+        setTimeout(() => { tickerText.style.color = 'var(--text-muted)'; }, 2500);
+      }
+      showToast(`📡 [مزامنة شبكة المحل]: ${event.terminal} ${event.description}`);
+    });
+  }
+}
+
+// 18. النظام المحاسبي وكشف الأرباح (Accounting & Profit Ledger UI)
+function initAccountingUI() {
+  const kpisContainer = document.getElementById('accountingKpisContainer');
+  const statementContainer = document.getElementById('accountingStatementContainer');
+  const periodButtons = document.querySelectorAll('.period-btn');
+  const btnExportCSV = document.getElementById('btnExportAccountingCSV');
+  const btnPrintReport = document.getElementById('btnPrintAccountingReport');
+
+  let currentPeriod = 'ALL';
+
+  function renderAccounting() {
+    const metrics = sahlaAccounting.calculateMetrics(currentPeriod);
+
+    if (kpisContainer) {
+      kpisContainer.innerHTML = `
+        <div class="acc-kpi-card kpi-revenue">
+          <span class="kpi-label">إجمالي المقبوضات نقدًا من الزبائن</span>
+          <span class="kpi-val">${metrics.totalRevenue.toLocaleString()} دج</span>
+          <span class="kpi-subtext">تم تحصيلها في الصندوق (${metrics.count} عملية)</span>
+        </div>
+        <div class="acc-kpi-card kpi-points">
+          <span class="kpi-label">تكلفة النقاط المستهلكة (المنصة)</span>
+          <span class="kpi-val">${metrics.totalPointsCostDZD.toLocaleString()} دج</span>
+          <span class="kpi-subtext">محسوبة بـ 10 دج للنقطة المشتراة</span>
+        </div>
+        <div class="acc-kpi-card kpi-costs">
+          <span class="kpi-label">تكلفة الورق والحبر التقديرية</span>
+          <span class="kpi-val">${metrics.totalPaperInk.toLocaleString()} دج</span>
+          <span class="kpi-subtext">مستهلكات الورق المقوى 230g و A4</span>
+        </div>
+        <div class="acc-kpi-card kpi-profit">
+          <span class="kpi-label">صافي ربح صاحب المحل (Net Profit)</span>
+          <span class="kpi-val">${metrics.totalNetProfit.toLocaleString()} دج</span>
+          <span class="kpi-subtext" style="color:#059669; font-weight:800;">هامش ربحية استثنائي: ${metrics.marginPercent}%</span>
+        </div>
+      `;
+    }
+
+    if (statementContainer) {
+      statementContainer.innerHTML = sahlaAccounting.generatePrintableStatementHTML(sahlaWallet.data, currentPeriod);
+    }
+  }
+
+  periodButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      periodButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentPeriod = btn.getAttribute('data-period');
+      renderAccounting();
+    });
+  });
+
+  if (btnExportCSV) {
+    btnExportCSV.addEventListener('click', () => {
+      sahlaAccounting.exportToCSV(currentPeriod);
+      showToast('📥 تم تحميل جدول العمليات والمحاسبة بصيغة Excel / CSV بنجاح');
+    });
+  }
+
+  if (btnPrintReport) {
+    btnPrintReport.addEventListener('click', () => {
+      showToast('🖨️ جاري تجهيز وطباعة كشف الحساب المحاسبي الدوري A4...');
+      window.print();
+    });
+  }
+
+  renderAccounting();
+  window.addEventListener('sahla:accounting-updated', renderAccounting);
+  window.addEventListener('sahla:wallet-updated', renderAccounting);
+}
+
+// 19. دليل وبوابات الخدمات الحكومية الوطنية (E-Gov Directory UI)
+function initEgovUI() {
+  const grid = document.getElementById('egovGridContainer');
+  const searchInput = document.getElementById('egovSearchInput');
+  const catButtons = document.querySelectorAll('.egov-cat-pill');
+  const modal = document.getElementById('citizenDossierModal');
+  const modalContent = document.getElementById('citizenDossierContent');
+  const modalTitle = document.getElementById('modalDossierTitle');
+  const btnPrintNow = document.getElementById('btnPrintCitizenDossierNow');
+
+  let currentCategory = 'ALL';
+  let currentSearch = '';
+  let activeDossierId = null;
+
+  window.openCitizenDossierModal = (serviceId) => {
+    activeDossierId = serviceId;
+    const s = sahlaEgov.getById(serviceId);
+    if (!s) return;
+
+    if (modalTitle) modalTitle.textContent = `📋 الملف والوثائق المطلوبة: ${s.titleAr}`;
+    if (modalContent) {
+      modalContent.innerHTML = sahlaEgov.generateCitizenChecklistHTML(serviceId, sahlaWallet.data);
+    }
+    if (modal) modal.classList.add('open');
+  };
+
+  window.closeCitizenDossierModal = () => {
+    if (modal) modal.classList.remove('open');
+  };
+
+  if (btnPrintNow) {
+    btnPrintNow.addEventListener('click', () => {
+      showToast('🖨️ جاري طباعة بطاقة الملف الإداري للزبون A4...');
+      window.print();
+    });
+  }
+
+  function renderEgovCards() {
+    if (!grid) return;
+    const items = sahlaEgov.filter(currentCategory, currentSearch);
+
+    if (items.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align:center; padding:40px; background:var(--bg-card); border-radius:var(--radius-lg); border:1px solid var(--border-color);">
+          <div style="font-size:36px; margin-bottom:10px;">🔍</div>
+          <h4 style="font-size:16px; font-weight:800; color:var(--text-main);">لا توجد بوابات تطابق معايير البحث</h4>
+          <p style="font-size:12px; color:var(--text-muted);">جرب البحث بكلمات عامة مثل "ضرائب"، "سيرة"، "شهادة ميلاد" أو "منحة"</p>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = items.map(item => `
+      <div class="egov-card">
+        <div class="egov-card-top">
+          <span class="egov-badge-authority">${item.badge}</span>
+          <span style="font-size:11px; font-weight:700; color:#059669;">● ${item.portalStatus}</span>
+        </div>
+        <div>
+          <h3>${item.titleAr}</h3>
+          <h4>${item.titleFr}</h4>
+          <p style="font-size:11px; color:#475569; margin:4px 0 0 0;"><strong>الجهة:</strong> ${item.authorityAr}</p>
+        </div>
+        <p class="egov-desc-text">${item.descriptionAr}</p>
+        <div style="background:var(--bg-app); padding:8px 10px; border-radius:var(--radius-sm); font-size:11px; color:#92400e; background:#fffbeb; border:1px solid #fde68a;">
+          <strong>الرسوم:</strong> ${item.officialFees}
+        </div>
+        <div class="egov-card-actions">
+          <a href="${item.officialUrl}" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="font-size:12px; padding:6px 10px; text-decoration:none;">
+            <span>🌐 فتح البوابة الرسمية</span>
+          </a>
+          <button class="btn-primary" style="font-size:12px; padding:6px 10px;" onclick="openCitizenDossierModal('${item.id}')">
+            <span>📋 الملف المطلوب للزبون</span>
+          </button>
+          ${item.sahlaAction ? `
+            <button class="btn-action" style="font-size:11px; font-weight:800; color:var(--primary); margin-right:auto;" onclick="switchTab('${item.sahlaAction.targetTab}')">
+              <span>⚡ ${item.sahlaAction.label}</span>
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      currentSearch = e.target.value;
+      renderEgovCards();
+    });
+  }
+
+  catButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      catButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCategory = btn.getAttribute('data-category');
+      renderEgovCards();
+    });
+  });
+
+  renderEgovCards();
+}
+
+// 20. مركز صيانة وتشخيص طابعات المحل (Hardware Troubleshooter & Calibration UI)
+function initHardwareUI() {
+  const issuesContainer = document.getElementById('hardwareIssuesContainer');
+  const testSheetContainer = document.getElementById('printerTestSheetContainer');
+  const brandButtons = document.querySelectorAll('.brand-tab-btn');
+  const btnSwitchCalibration = document.getElementById('btnSwitchToCalibrationSheet');
+
+  let activeBrand = 'epson_ecotank';
+
+  function renderHardwareView() {
+    if (activeBrand === 'test_page') {
+      if (issuesContainer) issuesContainer.style.display = 'none';
+      if (testSheetContainer) {
+        testSheetContainer.style.display = 'block';
+        testSheetContainer.innerHTML = `
+          <div class="no-print" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; background:var(--bg-app); padding:10px 16px; border-radius:var(--radius-md); border:1px solid var(--border-color); flex-wrap:wrap; gap:10px;">
+            <span style="font-size:12px; color:var(--text-muted);">اطبع صفحة الاختبار هذه لفحص جودة الألوان، تدرج الفوهات ومحاذاة الورق A4 بدقة 300DPI.</span>
+            <button class="btn-primary" onclick="window.print()">
+              <span>🖨️ طباعة صفحة فحص الألوان A4 الآن</span>
+            </button>
+          </div>
+          ${sahlaHardwareGuide.generateTestPageHTML()}
+        `;
+      }
+      return;
+    }
+
+    if (testSheetContainer) testSheetContainer.style.display = 'none';
+    if (issuesContainer) {
+      issuesContainer.style.display = 'block';
+      const guide = sahlaHardwareGuide.getGuideById(activeBrand);
+      if (!guide) return;
+
+      const issuesHtml = guide.issues.map(iss => `
+        <div class="printer-issue-card">
+          <h4>
+            <span style="color:#ef4444;">⚠️</span>
+            <span>${iss.title}</span>
+          </h4>
+          <div class="issue-symptom-box">
+            <strong>العَرَض الملاحظ:</strong> ${iss.symptom}
+          </div>
+          <div class="issue-cause-box">
+            <strong>السبب التقني المباشر:</strong> ${iss.cause}
+          </div>
+          <div style="background:var(--bg-app); padding:12px 14px; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+            <strong style="display:block; margin-bottom:6px; font-size:12px; color:var(--text-main);">خطوات المعالجة والصيانة السريعة:</strong>
+            <ol class="issue-steps-ol">
+              ${iss.solutionSteps.map(step => `<li>${step}</li>`).join('')}
+            </ol>
+          </div>
+        </div>
+      `).join('');
+
+      issuesContainer.innerHTML = `
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:16px 20px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h3 style="font-size:16px; font-weight:900; margin:0 0 2px 0;">دليل صيانة ${guide.brand} (${guide.models})</h3>
+            <span style="font-size:11px; color:var(--primary); font-weight:700;">${guide.popularityTag}</span>
+          </div>
+          <button class="btn-secondary" onclick="switchBrandTab('test_page')">
+            <span>🎯 فحص الفوهات بصفحة الاختبار</span>
+          </button>
+        </div>
+        ${issuesHtml}
+      `;
+    }
+  }
+
+  window.switchBrandTab = (brandId) => {
+    activeBrand = brandId;
+    brandButtons.forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-brand') === brandId);
+    });
+    renderHardwareView();
+  };
+
+  brandButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const brand = btn.getAttribute('data-brand');
+      switchBrandTab(brand);
+    });
+  });
+
+  if (btnSwitchCalibration) {
+    btnSwitchCalibration.addEventListener('click', () => {
+      switchBrandTab('test_page');
+    });
+  }
+
+  renderHardwareView();
+}
+
+

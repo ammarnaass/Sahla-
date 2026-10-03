@@ -1,0 +1,20 @@
+{
+  "name": "sahla",
+  "version": "1.0.0",
+  "description": "منصة سهلة للخدمات الرقمية للمكتبات والكيوسكات في الجزائر",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "sahla",
+    "algeria",
+    "kiosque",
+    "cybercafe",
+    "bureautique",
+    "pwa"
+  ],
+  "author": "Sahla Team",
+  "license": "ISC"
+}
