@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initAccountingUI();
   initEgovUI();
   initHardwareUI();
+  // وثيقة PRD: تسجيل الدخول، الصفحة التعريفية، الشاشة الرئيسية، وتجربة أول زيارة
+  initLandingUI();
+  initAuthUI();
+  initOnboardingUI();
+  initDashboardEnhancements();
 
   // تسجيل Service Worker للـ PWA
   if ('serviceWorker' in navigator) {
@@ -1839,5 +1844,655 @@ function initHardwareUI() {
 
   renderHardwareView();
 }
+
+// ==============================================================================
+// وثيقة PRD: تسجيل الدخول، الصفحة التعريفية، الشاشة الرئيسية، وتجربة أول زيارة
+// ==============================================================================
+
+// 19. تهيئة الصفحة التعريفية (Landing Page UI)
+function initLandingUI() {
+  const landingWrapper = document.getElementById('view-landing');
+  const appLayout = document.querySelector('.app-layout');
+  const mobileBottomNav = document.querySelector('.mobile-bottom-nav');
+
+  // التبديل بين الصفحة التعريفية وتطبيق المنصة
+  window.showAppView = function() {
+    if (landingWrapper) landingWrapper.style.display = 'none';
+    if (appLayout) appLayout.style.display = 'flex';
+    if (mobileBottomNav && window.innerWidth <= 900) {
+      mobileBottomNav.style.display = 'flex';
+    }
+    if (window.updateDashboardHeaderProfile) updateDashboardHeaderProfile();
+    if (window.renderStarterChecklist) renderStarterChecklist();
+    if (window.checkLowPointsBanner) checkLowPointsBanner();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  window.showLandingView = function() {
+    if (landingWrapper) landingWrapper.style.display = 'block';
+    if (appLayout) appLayout.style.display = 'none';
+    if (mobileBottomNav) mobileBottomNav.style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // التحقق من حالة الدخول عند بدء التشغيل
+  if (window.sahlaAuth && window.sahlaAuth.isLoggedIn()) {
+    showAppView();
+    // التحقق من إكمال الـ Onboarding
+    if (window.sahlaOnboarding && !window.sahlaOnboarding.isCompleted()) {
+      setTimeout(() => openOnboardingModal(), 500);
+    }
+  } else {
+    showLandingView();
+  }
+
+  // 1. حاسبة الأرباح التفاعلية (كم تربح في محلك؟)
+  const calcDocsRange = document.getElementById('calcDocsRange');
+  const calcPriceRange = document.getElementById('calcPriceRange');
+  const calcCostRange = document.getElementById('calcCostRange');
+
+  const calcDocsDisplay = document.getElementById('calcDocsCountDisplay');
+  const calcPriceDisplay = document.getElementById('calcPriceDisplay');
+  const calcCostDisplay = document.getElementById('calcCostDisplay');
+
+  const calcMonthlyProfitVal = document.getElementById('calcMonthlyProfitVal');
+  const calcMarginVal = document.getElementById('calcMarginVal');
+  const calcGrossRevVal = document.getElementById('calcGrossRevVal');
+  const calcTotalCostVal = document.getElementById('calcTotalCostVal');
+  const calcTotalDocsVal = document.getElementById('calcTotalDocsVal');
+
+  function updateProfitCalculator() {
+    if (!calcDocsRange || !calcPriceRange || !calcCostRange) return;
+
+    const docsPerDay = parseInt(calcDocsRange.value) || 15;
+    const pricePerDoc = parseInt(calcPriceRange.value) || 150;
+    const costPerDoc = parseInt(calcCostRange.value) || 12;
+
+    const monthlyDocs = docsPerDay * 30;
+    const monthlyGross = monthlyDocs * pricePerDoc;
+    const monthlyCost = monthlyDocs * costPerDoc;
+    const monthlyProfit = monthlyGross - monthlyCost;
+    const margin = monthlyGross > 0 ? Math.round((monthlyProfit / monthlyGross) * 100) : 0;
+
+    if (calcDocsDisplay) calcDocsDisplay.textContent = `${docsPerDay} وثيقة / يوم`;
+    if (calcPriceDisplay) calcPriceDisplay.textContent = `${pricePerDoc} دج`;
+    if (calcCostDisplay) calcCostDisplay.textContent = `${costPerDoc} دج (نقاط)`;
+
+    if (calcMonthlyProfitVal) calcMonthlyProfitVal.textContent = `+${monthlyProfit.toLocaleString()} دج`;
+    if (calcMarginVal) calcMarginVal.textContent = `${margin}%`;
+    if (calcGrossRevVal) calcGrossRevVal.textContent = `${monthlyGross.toLocaleString()} دج`;
+    if (calcTotalCostVal) calcTotalCostVal.textContent = `-${monthlyCost.toLocaleString()} دج`;
+    if (calcTotalDocsVal) calcTotalDocsVal.textContent = `${monthlyDocs.toLocaleString()} وثيقة`;
+  }
+
+  if (calcDocsRange) calcDocsRange.addEventListener('input', updateProfitCalculator);
+  if (calcPriceRange) calcPriceRange.addEventListener('input', updateProfitCalculator);
+  if (calcCostRange) calcCostRange.addEventListener('input', updateProfitCalculator);
+  updateProfitCalculator();
+
+  // 2. الأسئلة الشائعة (FAQ Accordion)
+  const faqItems = document.querySelectorAll('.faq-accordion-item');
+  faqItems.forEach(item => {
+    const btn = item.querySelector('.faq-question-btn');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        faqItems.forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+      });
+    }
+  });
+
+  // 3. تبديل السمة من الصفحة التعريفية
+  const landingThemeBtn = document.getElementById('landingThemeBtn');
+  if (landingThemeBtn) {
+    landingThemeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      landingThemeBtn.textContent = next === 'dark' ? '🌙' : '☀️';
+      const appToggleBtn = document.getElementById('themeToggleBtn');
+      if (appToggleBtn) appToggleBtn.textContent = next === 'dark' ? '🌙' : '☀️';
+      showToast(`تم التبديل إلى المظهر ${next === 'dark' ? 'الليلي' : 'النهاري'}`);
+    });
+  }
+
+  // 4. محدد اللغة
+  const langSelect = document.getElementById('landingLangSelect');
+  if (langSelect) {
+    langSelect.addEventListener('change', (e) => {
+      const lang = e.target.value;
+      if (lang === 'fr') {
+        showToast('Langue changée en Français (Algérie) ✓');
+      } else if (lang === 'en') {
+        showToast('Language changed to English ✓');
+      } else {
+        showToast('تم ضبط اللغة على العربية الجزائرية ✓');
+      }
+    });
+  }
+}
+
+// 20. نظام المصادقة والـ OTP وإنشاء المحل (Auth UI)
+function initAuthUI() {
+  const authModal = document.getElementById('authModal');
+  const authModalTitle = document.getElementById('authModalTitle');
+
+  const stepPhone = document.getElementById('authStepPhone');
+  const stepOtp = document.getElementById('authStepOtp');
+  const stepShop = document.getElementById('authStepShop');
+
+  const phoneInput = document.getElementById('authPhoneInput');
+  const phoneError = document.getElementById('authPhoneError');
+  const carrierBadgeContainer = document.getElementById('carrierBadgeContainer');
+
+  const otpInput = document.getElementById('authOtpInput');
+  const otpError = document.getElementById('authOtpError');
+  const targetPhoneDisplay = document.getElementById('otpTargetPhoneDisplay');
+  const countdownSeconds = document.getElementById('otpCountdownSeconds');
+
+  const btnRequestOtp = document.getElementById('btnRequestOtp');
+  const btnVerifyOtp = document.getElementById('btnVerifyOtp');
+  const btnResendOtp = document.getElementById('btnResendOtp');
+  const btnFillDemoOtp = document.getElementById('btnFillDemoOtp');
+  const btnBackToPhone = document.getElementById('btnBackToPhone');
+
+  const shopNameInput = document.getElementById('newShopNameInput');
+  const shopWilayaSelect = document.getElementById('newShopWilayaSelect');
+  const shopActivitySelect = document.getElementById('newShopActivitySelect');
+  const ownerNameInput = document.getElementById('newOwnerNameInput');
+  const legalConsentCheckbox = document.getElementById('legalConsentCheckbox');
+  const shopError = document.getElementById('authShopError');
+  const btnCompleteRegistration = document.getElementById('btnCompleteRegistration');
+
+  let resendTimerInterval = null;
+  let verifiedPhoneNumber = '';
+
+  // ملء قائمة الولايات 58
+  if (shopWilayaSelect && window.ALGERIAN_WILAYAS) {
+    shopWilayaSelect.innerHTML = ALGERIAN_WILAYAS.map(w =>
+      `<option value="${w.code}" ${w.code === 16 ? 'selected' : ''}>${w.code} - ${w.nameAr} (${w.nameFr})</option>`
+    ).join('');
+  }
+
+  window.openAuthModal = function(mode = 'signup') {
+    if (!authModal) return;
+    if (authModalTitle) {
+      authModalTitle.textContent = mode === 'login' ? 'تسجيل الدخول برقم الهاتف 🇩🇿' : 'ابدأ مجاناً · تسجيل حساب المحل 🇩🇿';
+    }
+    // إعادة تعيين الخطوات
+    if (stepPhone) stepPhone.style.display = 'block';
+    if (stepOtp) stepOtp.style.display = 'none';
+    if (stepShop) stepShop.style.display = 'none';
+
+    if (phoneError) phoneError.style.display = 'none';
+    if (otpError) otpError.style.display = 'none';
+    if (shopError) shopError.style.display = 'none';
+
+    authModal.classList.add('open');
+    if (phoneInput) phoneInput.focus();
+  };
+
+  window.closeAuthModal = function() {
+    if (authModal) authModal.classList.remove('open');
+    if (resendTimerInterval) clearInterval(resendTimerInterval);
+  };
+
+  // كشف شركة الاتصال عند كتابة الرقم (موبيليس، جيزي، أوريدو)
+  if (phoneInput) {
+    phoneInput.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val.startsWith('213')) val = val.substring(3);
+
+      if (carrierBadgeContainer) {
+        if (val.startsWith('05') || val.startsWith('5')) {
+          carrierBadgeContainer.innerHTML = '<span class="phone-carrier-indicator carrier-ooredoo">🔴 أوريدو (Ooredoo)</span>';
+        } else if (val.startsWith('06') || val.startsWith('6')) {
+          carrierBadgeContainer.innerHTML = '<span class="phone-carrier-indicator carrier-mobilis">🟢 موبيليس (Mobilis)</span>';
+        } else if (val.startsWith('07') || val.startsWith('7')) {
+          carrierBadgeContainer.innerHTML = '<span class="phone-carrier-indicator carrier-djezzy">🟠 جيزي (Djezzy)</span>';
+        } else {
+          carrierBadgeContainer.innerHTML = '';
+        }
+      }
+    });
+
+    phoneInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') btnRequestOtp.click();
+    });
+  }
+
+  // 1. طلب رمز OTP
+  if (btnRequestOtp) {
+    btnRequestOtp.addEventListener('click', () => {
+      if (!phoneInput) return;
+      const res = sahlaAuth.requestOTP(phoneInput.value);
+      if (!res.success) {
+        if (phoneError) {
+          phoneError.textContent = res.error;
+          phoneError.style.display = 'block';
+        }
+        return;
+      }
+
+      if (phoneError) phoneError.style.display = 'none';
+      if (targetPhoneDisplay) targetPhoneDisplay.textContent = res.phone;
+
+      // الانتقال للخطوة 2
+      stepPhone.style.display = 'none';
+      stepOtp.style.display = 'block';
+      if (otpInput) {
+        otpInput.value = '';
+        otpInput.focus();
+      }
+
+      showToast(`تم إرسال رمز التحقق OTP إلى رقمك! (كود العرض التجريبي السريع: ${res.demoCode})`);
+
+      // تشغيل مؤقت العد التنازلي 60 ثانية
+      let timeLeft = 60;
+      if (btnResendOtp) btnResendOtp.disabled = true;
+      if (countdownSeconds) countdownSeconds.textContent = timeLeft;
+
+      if (resendTimerInterval) clearInterval(resendTimerInterval);
+      resendTimerInterval = setInterval(() => {
+        timeLeft--;
+        if (countdownSeconds) countdownSeconds.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(resendTimerInterval);
+          if (btnResendOtp) btnResendOtp.disabled = false;
+        }
+      }, 1000);
+    });
+  }
+
+  // ملء كود العرض التجريبي بنقرة واحدة
+  if (btnFillDemoOtp) {
+    btnFillDemoOtp.addEventListener('click', () => {
+      if (otpInput) {
+        otpInput.value = '123456';
+        showToast('تم إدراج كود العرض 123456 بنجاح');
+      }
+    });
+  }
+
+  // رجوع للرقم
+  if (btnBackToPhone) {
+    btnBackToPhone.addEventListener('click', () => {
+      stepOtp.style.display = 'none';
+      stepPhone.style.display = 'block';
+      if (phoneInput) phoneInput.focus();
+    });
+  }
+
+  // إعادة إرسال OTP
+  if (btnResendOtp) {
+    btnResendOtp.addEventListener('click', () => {
+      if (btnRequestOtp) btnRequestOtp.click();
+    });
+  }
+
+  // 2. التحقق من كود الـ OTP
+  if (btnVerifyOtp) {
+    btnVerifyOtp.addEventListener('click', () => {
+      if (!otpInput) return;
+      const res = sahlaAuth.verifyOTP(otpInput.value);
+      if (!res.success) {
+        if (otpError) {
+          otpError.textContent = res.error;
+          otpError.style.display = 'block';
+        }
+        return;
+      }
+
+      if (otpError) otpError.style.display = 'none';
+
+      if (res.isNewUser) {
+        // مستخدم جديد -> الانتقال للخطوة 3 لإنشاء المحل
+        verifiedPhoneNumber = res.phone;
+        stepOtp.style.display = 'none';
+        stepShop.style.display = 'block';
+        if (shopNameInput) shopNameInput.focus();
+      } else {
+        // مستخدم مسجل مسبقاً -> تسجيل دخول مباشر
+        closeAuthModal();
+        showToast(`مرحباً بعودتك! تم تسجيل الدخول إلى "${res.shop.name}" بنجاح 🇩🇿`);
+        showAppView();
+      }
+    });
+  }
+
+  if (otpInput) {
+    otpInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') btnVerifyOtp.click();
+    });
+  }
+
+  // 3. إكمال تسجيل المحل والموافقة القانونية (قانون 18-07)
+  if (btnCompleteRegistration) {
+    btnCompleteRegistration.addEventListener('click', () => {
+      const sName = shopNameInput ? shopNameInput.value.trim() : '';
+      const sWilaya = shopWilayaSelect ? shopWilayaSelect.value : 16;
+      const sActivity = shopActivitySelect ? shopActivitySelect.value : 'KIOSK';
+      const oName = ownerNameInput ? ownerNameInput.value.trim() : 'مسير المحل';
+      const consentAgreed = legalConsentCheckbox ? legalConsentCheckbox.checked : false;
+
+      const res = sahlaAuth.completeShopRegistration({
+        phone: verifiedPhoneNumber || '0550000000',
+        shopName: sName,
+        ownerName: oName,
+        wilayaCode: sWilaya,
+        activityType: sActivity,
+        consentAgreed
+      });
+
+      if (!res.success) {
+        if (shopError) {
+          shopError.textContent = res.error;
+          shopError.style.display = 'block';
+        }
+        return;
+      }
+
+      if (shopError) shopError.style.display = 'none';
+      closeAuthModal();
+      showToast(`تهانينا! تم إنشاء حساب "${res.shop.name}" وتفعيل 50 نقطة تجريبية مجانية 🎁`);
+      showAppView();
+      setTimeout(() => openOnboardingModal(), 300);
+    });
+  }
+
+  // الدخول التجريبي السريع المباشر (Demo Quick Login)
+  window.quickDemoLogin = function() {
+    const demoShop = {
+      id: 'shop_demo_16',
+      name: 'كيوسك النور للخدمات',
+      ownerName: 'عمار التاجر',
+      phone: '0555 12 34 56',
+      wilayaCode: 16,
+      activityType: 'KIOSK',
+      legalConsentGivenAt: new Date().toISOString()
+    };
+    sahlaAuth.saveRegisteredUser('0555123456', demoShop);
+    sahlaAuth.saveSession({
+      token: 'sahla_demo_tok',
+      user: { phone: '0555123456', formattedPhone: '0555 12 34 56', role: 'OWNER', name: 'عمار التاجر' },
+      shop: demoShop,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000
+    });
+    closeAuthModal();
+    showToast('تم تسجيل الدخول المباشر بحساب تجريبي 🇩🇿');
+    showAppView();
+  };
+}
+
+// 21. واجهة تجربة أول دخول وقائمة مهام البداية (Onboarding & Checklist UI)
+function initOnboardingUI() {
+  const onboardingModal = document.getElementById('onboardingModal');
+
+  window.openOnboardingModal = function() {
+    if (!onboardingModal) return;
+    const shop = sahlaAuth.getCurrentShop();
+    const nameDisplay = document.getElementById('onboardingShopNameDisplay');
+    if (nameDisplay && shop) {
+      nameDisplay.textContent = shop.name;
+    }
+    nextOnboardingStep(1);
+    onboardingModal.classList.add('open');
+  };
+
+  window.closeOnboardingModal = function() {
+    if (onboardingModal) onboardingModal.classList.remove('open');
+  };
+
+  window.nextOnboardingStep = function(stepNum) {
+    const s1 = document.getElementById('onboardStep1');
+    const s2 = document.getElementById('onboardStep2');
+    const s3 = document.getElementById('onboardStep3');
+
+    const d1 = document.getElementById('onboardDot1');
+    const d2 = document.getElementById('onboardDot2');
+    const d3 = document.getElementById('onboardDot3');
+
+    if (s1) s1.style.display = stepNum === 1 ? 'block' : 'none';
+    if (s2) s2.style.display = stepNum === 2 ? 'block' : 'none';
+    if (s3) s3.style.display = stepNum === 3 ? 'block' : 'none';
+
+    if (d1) d1.classList.toggle('active', stepNum === 1);
+    if (d2) d2.classList.toggle('active', stepNum === 2);
+    if (d3) d3.classList.toggle('active', stepNum === 3);
+
+    sahlaOnboarding.setStep(stepNum);
+  };
+
+  // تفاعل شرائح الخدمات في الخطوة 2
+  const serviceChips = document.querySelectorAll('.service-choice-chip');
+  serviceChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('selected');
+    });
+  });
+
+  window.saveOnboardingServicesAndProceed = function() {
+    const selected = [];
+    document.querySelectorAll('.service-choice-chip.selected').forEach(c => {
+      const key = c.getAttribute('data-service-key');
+      if (key) selected.push(key);
+    });
+    sahlaOnboarding.setSelectedServices(selected);
+    nextOnboardingStep(3);
+  };
+
+  window.startFirstDocumentAction = function() {
+    sahlaOnboarding.markTask('firstDocCreated');
+    sahlaOnboarding.completeOnboarding();
+    closeOnboardingModal();
+    switchTab('cv');
+    showToast('أنت الآن في معالج السيرة الذاتية! القالب جاهز للطباعة الفورية والتعديل 🚀');
+    renderStarterChecklist();
+  };
+
+  window.finishOnboardingToDashboard = function() {
+    sahlaOnboarding.completeOnboarding();
+    closeOnboardingModal();
+    showToast('أهلاً بك في لوحة تحكم محلك!');
+    renderStarterChecklist();
+  };
+
+  window.skipOnboarding = function() {
+    sahlaOnboarding.skipOnboarding();
+    closeOnboardingModal();
+    showToast('تم تخطي الجولة الترحيبية. يمكنك بدء العمل فوراً.');
+    renderStarterChecklist();
+  };
+
+  // رندر بطاقة مهام البداية السريعة في الشاشة الرئيسية
+  window.renderStarterChecklist = function() {
+    const container = document.getElementById('starterChecklistContainer');
+    if (!container) return;
+    container.innerHTML = sahlaOnboarding.renderChecklistHTML();
+  };
+
+  // الاستماع لتحديثات الـ Onboarding
+  window.addEventListener('sahla:onboarding-updated', () => {
+    renderStarterChecklist();
+  });
+
+  // تثبيت الـ PWA
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  window.triggerPwaInstall = function() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          showToast('تم تثبيت تطبيق سهلة على هاتفك بنجاح! 📱');
+          sahlaOnboarding.markTask('pwaInstalled');
+        }
+        deferredPrompt = null;
+      });
+    } else {
+      sahlaOnboarding.markTask('pwaInstalled');
+      showToast('تم تفعيل اختصار تطبيق سهلة على هاتفك ✓');
+    }
+    renderStarterChecklist();
+  };
+}
+
+// 22. تحسينات الشاشة الرئيسية (Dashboard Enhancements)
+function initDashboardEnhancements() {
+  // 1. شريط البحث السريع عن الخدمات (ماذا يطلب زبونك؟)
+  const searchInput = document.getElementById('quickServiceSearchInput');
+  const clearBtn = document.getElementById('clearSearchBtn');
+  const quickGrid = document.querySelector('.services-quick-grid');
+
+  if (searchInput && quickGrid) {
+    searchInput.addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      if (clearBtn) clearBtn.style.display = q ? 'block' : 'none';
+
+      const cards = quickGrid.querySelectorAll('.service-card');
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        const match = !q || text.includes(q);
+        card.style.display = match ? 'flex' : 'none';
+      });
+    });
+  }
+
+  window.clearServiceSearch = function() {
+    if (searchInput) {
+      searchInput.value = '';
+      if (clearBtn) clearBtn.style.display = 'none';
+      if (quickGrid) {
+        quickGrid.querySelectorAll('.service-card').forEach(c => c.style.display = 'flex');
+      }
+      searchInput.focus();
+    }
+  };
+
+  // 2. التحقق من تنبيه الرصيد المنخفض
+  window.checkLowPointsBanner = function() {
+    const banner = document.getElementById('lowPointsBanner');
+    const msg = document.getElementById('lowPointsMsg');
+    const icon = document.getElementById('lowPointsIcon');
+    if (!banner || !window.sahlaWallet) return;
+
+    const points = sahlaWallet.data.points;
+    if (points <= 0) {
+      banner.style.display = 'flex';
+      banner.className = 'low-points-warning-banner banner-alert-red';
+      if (icon) icon.textContent = '🚨';
+      if (msg) msg.textContent = 'تنبيه عاجل: لقد نفذ رصيد نقاط محلك بالكامل (0 نقطة)! اشحن محفظتك للاستمرار في توليد الوثائق.';
+    } else if (points < 20) {
+      banner.style.display = 'flex';
+      banner.className = 'low-points-warning-banner banner-warning-yellow';
+      if (icon) icon.textContent = '⚠️';
+      if (msg) msg.textContent = `تنبيه: رصيد نقاط محلك منخفض (${points} نقطة فقط). اشحن محفظتك لتفادي توقف الخدمة عن زبائنك.`;
+    } else {
+      banner.style.display = 'none';
+    }
+  };
+
+  window.addEventListener('sahla:wallet-updated', () => {
+    checkLowPointsBanner();
+    updateTodaySummary();
+  });
+
+  // 3. تحديث ملخص اليوم (Today's Summary)
+  function updateTodaySummary() {
+    const docsBadge = document.getElementById('todayDocsCount');
+    const pointsBadge = document.getElementById('todayPointsSpent');
+    const profitBadge = document.getElementById('todayEstProfit');
+
+    if (!docsBadge || !window.sahlaWallet) return;
+
+    const history = sahlaWallet.getLedgerHistory();
+    const today = new Date().toDateString();
+    const todayDebits = history.filter(h => h.type === 'DEBIT' && new Date(h.date).toDateString() === today);
+
+    const docsCount = todayDebits.length;
+    const pointsSpent = todayDebits.reduce((acc, h) => acc + h.points, 0);
+    // افتراض متوسط سعر البيع 150 دج للوثيقة مقابل تكلفة النقاط
+    const estProfit = Math.max(0, (docsCount * 150) - (pointsSpent * 10));
+
+    docsBadge.textContent = docsCount;
+    if (pointsBadge) pointsBadge.textContent = pointsSpent;
+    if (profitBadge) profitBadge.textContent = `${estProfit.toLocaleString()} دج`;
+  }
+  updateTodaySummary();
+
+  // 4. نافذة إدارة الحساب والجلسة (Account Modal)
+  const accountModal = document.getElementById('accountModal');
+  window.openAccountModal = function() {
+    if (!accountModal) return;
+    const shop = sahlaAuth.getCurrentShop() || { name: 'كيوسك النور للخدمات', phone: '0555 12 34 56', wilayaCode: 16 };
+    const user = sahlaAuth.getCurrentUser() || { phone: '0555 12 34 56' };
+
+    const nameEl = document.getElementById('accountShopNameDisplay');
+    const phoneEl = document.getElementById('accountPhoneDisplay');
+    const wilayaEl = document.getElementById('accountWilayaDisplay');
+    const avatarEl = document.getElementById('accountAvatarLetter');
+
+    if (nameEl) nameEl.textContent = shop.name;
+    if (phoneEl) phoneEl.textContent = user.formattedPhone || user.phone;
+    if (avatarEl) avatarEl.textContent = shop.name.charAt(0);
+
+    const w = ALGERIAN_WILAYAS.find(item => item.code === Number(shop.wilayaCode));
+    if (wilayaEl && w) wilayaEl.textContent = `${w.code} - ${w.nameAr}`;
+
+    accountModal.classList.add('open');
+  };
+
+  window.closeAccountModal = function() {
+    if (accountModal) accountModal.classList.remove('open');
+  };
+
+  window.logoutShopOwner = function() {
+    if (confirm('هل أنت متأكد من رغبتك في تسجيل الخروج من المحل؟')) {
+      sahlaAuth.logout();
+      closeAccountModal();
+      showLandingView();
+      showToast('تم تسجيل الخروج بنجاح. نراك قريباً!');
+    }
+  };
+
+  // نافذة ضبط الأسعار الافتراضية
+  window.openPricingConfigModal = function() {
+    closeAccountModal();
+    const prices = sahlaOnboarding.state.defaultSalePrices;
+    const cvP = prompt('حدد سعر بيع السيرة الذاتية الافتراضي للزبون (دج):', prices.cv || 250);
+    if (cvP !== null && !isNaN(Number(cvP))) {
+      sahlaOnboarding.state.defaultSalePrices.cv = Number(cvP);
+      sahlaOnboarding.markTask('pricesConfigured');
+      sahlaOnboarding.saveState();
+      renderStarterChecklist();
+      showToast(`تم حفظ سعر بيع السيرة الذاتية: ${cvP} دج ✓`);
+    }
+  };
+
+  // تحديث أسماء الترويسة
+  window.updateDashboardHeaderProfile = function() {
+    const shop = sahlaAuth.getCurrentShop();
+    const headerShortName = document.getElementById('headerShopShortName');
+    const sidebarShopName = document.getElementById('sidebarShopName');
+    const sidebarWilaya = document.getElementById('sidebarWilaya');
+
+    if (shop) {
+      if (headerShortName) headerShortName.textContent = shop.name.length > 12 ? shop.name.substring(0, 12) + '…' : shop.name;
+      if (sidebarShopName) sidebarShopName.textContent = shop.name;
+      const w = ALGERIAN_WILAYAS.find(item => item.code === Number(shop.wilayaCode));
+      if (sidebarWilaya && w) sidebarWilaya.textContent = `${w.code} - ${w.nameAr}`;
+    }
+  };
+
+  // ترتيب الخدمات وفق تفضيلات الـ Onboarding
+  sahlaOnboarding.applyServiceOrder();
+}
+
 
 

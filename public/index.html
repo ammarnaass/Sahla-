@@ -12,6 +12,360 @@
 </head>
 <body>
 
+  <!-- ============================================================
+       الصفحة التعريفية العامة لمنصة سهلة (Landing Page)
+       ============================================================ -->
+  <div id="view-landing" class="landing-view-wrapper" style="display:none;">
+    <!-- الشريط العلوي للزوار -->
+    <header class="landing-nav-bar">
+      <div class="landing-brand">
+        <div class="landing-brand-logo">س</div>
+        <div>
+          <h1>سهلة · Sahla</h1>
+          <p>كل وثيقة في دقائق 🇩🇿</p>
+        </div>
+      </div>
+      <div class="landing-nav-actions" style="display:flex; align-items:center; gap:10px;">
+        <select id="landingLangSelect" class="form-select" style="width:auto; padding:6px 10px; font-size:12px; font-weight:700;">
+          <option value="ar">العربية (Alger)</option>
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+        </select>
+        <button class="theme-toggle-btn" id="landingThemeBtn" title="تبديل السمة">🌙</button>
+        <button class="btn-secondary" onclick="openAuthModal('login')" style="padding:8px 16px; font-size:13px; font-weight:800;">
+          <span>دخول</span>
+        </button>
+        <button class="btn-primary" onclick="openAuthModal('signup')" style="padding:8px 18px; font-size:13px; font-weight:800;">
+          <span>ابدأ مجاناً 🚀</span>
+        </button>
+        <button class="btn-secondary" onclick="showAppView()" title="الدخول المباشر إلى المنصة" style="padding:8px 14px; font-size:12px; border-color:var(--primary); color:var(--primary);">
+          <span>لوحة التحكم ←</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- قسم الـ Hero الرئيسي -->
+    <section class="landing-hero-section">
+      <div class="hero-badge-pill">
+        <span>🇩🇿</span>
+        <span>المنصة الرقمية الأولى لأصحاب الكيوسكات، المكتبات، ومقاهي الإنترنت في الجزائر</span>
+      </div>
+      <h2 class="landing-hero-title">
+        سهلة… <span class="highlight-text">كل وثيقة في دقائق</span>
+      </h2>
+      <p class="landing-hero-subtitle">
+        أنجز سيرة ذاتية أو فاتورة قانونية أو استمارة رسمية لزبونك مباشرة من هاتفك، واطبعها في ثوانٍ.
+        ادفع فقط عند الاستعمال بنظام النقاط المرن دون أي اشتراك شهري وبدون بطاقة بنكية.
+      </p>
+      <div class="landing-hero-ctas">
+        <button class="landing-btn-hero-primary" onclick="openAuthModal('signup')">
+          <span>ابدأ مجاناً الآن (50 نقطة هدية) 🚀</span>
+        </button>
+        <button class="landing-btn-hero-secondary" onclick="document.getElementById('landingHowItWorks').scrollIntoView({behavior:'smooth'})">
+          <span>شاهد كيف تعمل (3 خطوات) 📹</span>
+        </button>
+      </div>
+      <div class="hero-trust-notes">
+        <span>🎁 رصيد تجريبي 50 نقطة مجاناً</span>
+        <span>•</span>
+        <span>⚡ بدون اشتراك شهري إطلاقاً</span>
+        <span>•</span>
+        <span>🔒 بدون الحاجة لبطاقة بنكية</span>
+        <span>•</span>
+        <span>📱 تعمل بسلاسة على الهواتف الضعيفة (3G)</span>
+      </div>
+    </section>
+
+    <!-- كيف تعمل في 3 خطوات -->
+    <section class="landing-steps-section" id="landingHowItWorks">
+      <div class="section-head-center">
+        <h3>كيف تعمل منصة سهلة في محلك؟</h3>
+        <p>3 خطوات بسيطة فقط تفصلك عن تسليم الوثيقة لزبونك وتحقيق ربحك الفوري</p>
+      </div>
+      <div class="steps-cards-grid">
+        <div class="step-guide-card">
+          <div class="step-number-bubble">1</div>
+          <h4>سجّل برقم هاتفك</h4>
+          <p>في أقل من 30 ثانية برمز OTP فقط بدون كلمات مرور معقدة، واحصل فوراً على 50 نقطة تجريبية مجانية لتبدأ العمل مباشرة.</p>
+        </div>
+        <div class="step-guide-card">
+          <div class="step-number-bubble">2</div>
+          <h4>اختر الخدمة واملأ البيانات</h4>
+          <p>اختر ما يطلبه زبونك: سيرة ذاتية، فاتورة معتمدة بـ NIF، صور بيومترية 35×45، أو استمارة رسمية مطابقة للقانون الجزائري.</p>
+        </div>
+        <div class="step-guide-card">
+          <div class="step-number-bubble">3</div>
+          <h4>اطبع الـ PDF وبِعه بسعرك</h4>
+          <p>حمّل الملف فوراً أو أرسله لطابعة المحل بضغطة زر عبر جسر الطباعة اللاسلكي، وسلّم الوثيقة واقبض ثمنها كاش.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- شبكة الخدمات المتوفرة -->
+    <section class="landing-steps-section" style="padding-top:10px;">
+      <div class="section-head-center">
+        <h3>خدمات رقمية جاهزة لمضاعفة مداخيل محلك</h3>
+        <p>كل ما يطلبه المواطن والطالب والتاجر في مكان واحد</p>
+      </div>
+      <div class="services-quick-grid">
+        <div class="service-card" onclick="openAuthModal('signup')">
+          <div class="service-card-top">
+            <div class="service-icon-box">📄</div>
+            <span class="service-price-tag tag-paid">15 نقطة</span>
+          </div>
+          <h3>سيرة ذاتية ورسائل تحفيز</h3>
+          <p>قوالب احترافية بثلاث لغات مع رسائل تحفيز بالذكاء الاصطناعي وتنسيق A4 فوري.</p>
+          <span class="service-action-link">جرّب مجاناً ←</span>
+        </div>
+        <div class="service-card" onclick="openAuthModal('signup')">
+          <div class="service-card-top">
+            <div class="service-icon-box">📸</div>
+            <span class="service-price-tag tag-free">مجاني دائم</span>
+          </div>
+          <h3>صور الهوية الرسمية 35×45 مم</h3>
+          <p>مصفوفة 4 أو 8 صور على ورق فوتوغرافي مع خطوط التقطيع لبطاقة التعريف وجواز السفر.</p>
+          <span class="service-action-link">استوديو الصور ←</span>
+        </div>
+        <div class="service-card" onclick="openAuthModal('signup')">
+          <div class="service-card-top">
+            <div class="service-icon-box">🧾</div>
+            <span class="service-price-tag tag-paid">10 نقاط</span>
+          </div>
+          <h3>فواتير تجارية رسمية</h3>
+          <p>مطابقة للتشريع الجزائري (NIF, NIS, RC, Article) مع حساب آلي للـ TVA والتفقيط.</p>
+          <span class="service-action-link">إصدار فاتورة ←</span>
+        </div>
+        <div class="service-card" onclick="openAuthModal('signup')">
+          <div class="service-card-top">
+            <div class="service-icon-box">🎓</div>
+            <span class="service-price-tag tag-paid">10 نقاط</span>
+          </div>
+          <h3>بحوث مدرسية وامتحانات BEM/BAC</h3>
+          <p>توليد بحوث متكاملة مع صفحة واجهة رسمية وبنك مواضيع وحلول الامتحانات الوطنية.</p>
+          <span class="service-action-link">تصفح البحوث ←</span>
+        </div>
+        <div class="service-card" onclick="openAuthModal('signup')">
+          <div class="service-card-top">
+            <div class="service-icon-box">📋</div>
+            <span class="service-price-tag tag-paid">10 نقاط</span>
+          </div>
+          <h3>ملء النماذج الرسمية بالـ OCR</h3>
+          <p>تعبئة استمارات الحالة المدنية وجواز السفر آلياً بمسح بطاقة التعريف البيومترية.</p>
+          <span class="service-action-link">معالج الاستمارات ←</span>
+        </div>
+        <div class="service-card" onclick="openAuthModal('signup')">
+          <div class="service-card-top">
+            <div class="service-icon-box">🏛️</div>
+            <span class="service-price-tag tag-paid">20 نقطة</span>
+          </div>
+          <h3>التصاريح الجبائية G50 و G12</h3>
+          <p>حساب وإعداد التصريح الشهري والجزافي وفق نماذج المديرية العامة للضرائب DGI.</p>
+          <span class="service-action-link">إعداد تصريح ←</span>
+        </div>
+        <div class="service-card" onclick="openAuthModal('signup')">
+          <div class="service-card-top">
+            <div class="service-icon-box">👥</div>
+            <span class="service-price-tag tag-free">مجاني دائم</span>
+          </div>
+          <h3>دفتر الزبائن وسجل الكريدي</h3>
+          <p>متابعة ديون الزبائن والمؤسسات والمصروفات دون الحاجة إلى دفاتر ورقية معرضة للتلف.</p>
+          <span class="service-action-link">سجل الكريدي ←</span>
+        </div>
+        <div class="service-card" onclick="openAuthModal('signup')">
+          <div class="service-card-top">
+            <div class="service-icon-box">💳</div>
+            <span class="service-price-tag tag-free" style="background:#10b981; color:#fff;">شحن فوري</span>
+          </div>
+          <h3>دفع إلكتروني بالذهبية و CIB</h3>
+          <p>شحن رصيد المحل وتوليد وصولات رسمية عبر شبكة الدفع الإلكتروني الوطنية SATIM.</p>
+          <span class="service-action-link">شحن المحفظة ←</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- لماذا سهلة؟ -->
+    <section class="landing-steps-section" style="background:var(--bg-card); border-radius:var(--radius-lg); margin-top:20px; padding:36px 28px;">
+      <div class="section-head-center">
+        <h3>لماذا يفضل أصحاب المحلات منصة «سهلة»؟</h3>
+        <p>مصممة خصيصاً وفق واقع العمل اليومي في الكيوسكات والمكتبات بالجزائر</p>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px;">
+        <div style="text-align:right;">
+          <div style="font-size:26px; margin-bottom:8px;">🪙</div>
+          <h4 style="font-size:15px; font-weight:800; margin:0 0 6px 0;">بلا اشتراك شهري ملزم</h4>
+          <p style="font-size:12px; color:var(--text-muted); line-height:1.6; margin:0;">ادفع فقط عند الاستعمال بنظام النقاط. إذا كان المحل هادئاً، لن تدفع أي سنتيم، ولا وجود لأي فواتير شهرية ثابتة.</p>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:26px; margin-bottom:8px;">🇩🇿</div>
+          <h4 style="font-size:15px; font-weight:800; margin:0 0 6px 0;">قوالب رسمية معتمدة</h4>
+          <p style="font-size:12px; color:var(--text-muted); line-height:1.6; margin:0;">كل وثيقة مصممة ومراجعة قانونياً وفق المراسيم التنفيذية الجزائرية وبمراعاة معايير DGI والحالة المدنية.</p>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:26px; margin-bottom:8px;">📱</div>
+          <h4 style="font-size:15px; font-weight:800; margin:0 0 6px 0;">هاتف أولاً وخفيفة جداً</h4>
+          <p style="font-size:12px; color:var(--text-muted); line-height:1.6; margin:0;">حجم الصفحة أقل من 800KB وتعمل بكفاءة عالية على شبكة 3G وهواتف أندرويد الاقتصادية مع تقنية PWA.</p>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:26px; margin-bottom:8px;">🔒</div>
+          <h4 style="font-size:15px; font-weight:800; margin:0 0 6px 0;">أمان وخصوصية البيانات</h4>
+          <p style="font-size:12px; color:var(--text-muted); line-height:1.6; margin:0;">امتثال كامل للقانون الجزائري 18-07 لحماية المعطيات الشخصية مع تشفير آمن لبيانات زبائنك.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- حاسبة الأرباح التفاعلية (كم تربح في محلك؟) -->
+    <section class="profit-calculator-card">
+      <div style="text-align:center; margin-bottom:28px;">
+        <span style="display:inline-block; background:rgba(16, 185, 129, 0.12); color:#059669; font-weight:800; font-size:12px; padding:4px 14px; border-radius:9999px; margin-bottom:8px;">حاسبة الأرباح التقديرية 💰</span>
+        <h3 style="font-size:24px; font-weight:900; margin:0 0 6px 0;">كم تربح شهرياً مع سهلة؟</h3>
+        <p style="font-size:13px; color:var(--text-muted); margin:0;">حرّك المؤشرات لاكتشاف مدخولك الإضافي الشهري المتوقع مقابل استهلاك نقاط سهلة البسيط:</p>
+      </div>
+
+      <div class="calc-grid-layout">
+        <!-- عناصر التحكم -->
+        <div class="calc-controls-pane">
+          <div class="calc-control-group">
+            <label>
+              <span>عدد الوثائق المنجزة يومياً:</span>
+              <strong id="calcDocsCountDisplay" style="color:var(--primary); font-size:15px;">15 وثيقة / يوم</strong>
+            </label>
+            <input type="range" id="calcDocsRange" min="1" max="100" value="15" class="calc-slider-input">
+            <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); margin-top:4px;">
+              <span>وثيقة واحدة</span>
+              <span>50 وثيقة</span>
+              <span>100 وثيقة</span>
+            </div>
+          </div>
+
+          <div class="calc-control-group">
+            <label>
+              <span>متوسط سعر بيع الوثيقة للزبون:</span>
+              <strong id="calcPriceDisplay" style="color:#2563eb; font-size:15px;">150 دج</strong>
+            </label>
+            <input type="range" id="calcPriceRange" min="50" max="500" step="10" value="150" class="calc-slider-input">
+            <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); margin-top:4px;">
+              <span>50 دج</span>
+              <span>250 دج</span>
+              <span>500 دج</span>
+            </div>
+          </div>
+
+          <div class="calc-control-group">
+            <label>
+              <span>متوسط تكلفة النقاط لكل وثيقة:</span>
+              <strong id="calcCostDisplay" style="color:#ef4444; font-size:15px;">12 دج (نقاط)</strong>
+            </label>
+            <input type="range" id="calcCostRange" min="5" max="30" step="1" value="12" class="calc-slider-input">
+            <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); margin-top:4px;">
+              <span>5 دج</span>
+              <span>15 دج</span>
+              <span>30 دج</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- صندوق النتائج الصافية -->
+        <div class="calc-results-pane">
+          <span style="font-size:13px; font-weight:800; color:var(--text-muted);">صافي ربح محلك الشهري التقريبي:</span>
+          <div class="calc-profit-highlight" id="calcMonthlyProfitVal">+62,100 دج</div>
+          <small style="display:block; font-size:11px; color:#059669; font-weight:700; margin-bottom:16px;">هامش ربح صافي: <span id="calcMarginVal">92%</span></small>
+
+          <div class="calc-breakdown-row">
+            <span>إجمالي الإيرادات النقدية المقبوضة (30 يوماً):</span>
+            <strong id="calcGrossRevVal" style="color:var(--text-main);">67,500 دج</strong>
+          </div>
+          <div class="calc-breakdown-row">
+            <span>تكلفة رصيد نقاط سهلة المستهلكة:</span>
+            <strong id="calcTotalCostVal" style="color:#ef4444;">-5,400 دج</strong>
+          </div>
+          <div class="calc-breakdown-row" style="border:none;">
+            <span>معدل الوثائق المنجزة شهرياً:</span>
+            <strong id="calcTotalDocsVal" style="color:var(--text-main);">450 وثيقة</strong>
+          </div>
+
+          <button class="btn-primary" onclick="openAuthModal('signup')" style="width:100%; margin-top:16px; padding:12px; font-weight:800; font-size:14px;">
+            <span>ابدأ تحقيق هذه الأرباح الآن 🚀</span>
+          </button>
+        </div>
+      </div>
+      <p style="text-align:center; font-size:11px; color:var(--text-muted); margin:18px 0 0 0;">* هذه الأرقام تقديرية بناءً على تسعيرات الكيوسكات المعتادة ومعدة للاسترشاد فقط.</p>
+    </section>
+
+    <!-- قسم الأسئلة الشائعة (FAQ Accordion) -->
+    <section class="faq-section-wrapper">
+      <div class="section-head-center">
+        <h3>الأسئلة الشائعة (FAQ)</h3>
+        <p>إجابات سريعة وواضحة على كل ما يدور في ذهنك قبل البدء</p>
+      </div>
+
+      <div class="faq-accordion-item open">
+        <button class="faq-question-btn">
+          <span>كيف أشحن رصيد المحفظة بالنقاط؟</span>
+          <span class="faq-toggle-icon">▼</span>
+        </button>
+        <div class="faq-answer-pane">
+          يمكنك شحن رصيد محلك فورياً عبر بطاقات التعبئة المسبقة الدفع المتوفرة لدى موزعينا المعتمدين، أو مباشرة وبشكل آمن عبر بطاقتك الذهبية أو بطاقة CIB البنكية من داخل حسابك، وتصل النقاط إلى محفظتك في أقل من 10 ثوانٍ.
+        </div>
+      </div>
+
+      <div class="faq-accordion-item">
+        <button class="faq-question-btn">
+          <span>هل أحتاج إلى بطاقة بنكية للتسجيل أو التجربة؟</span>
+          <span class="faq-toggle-icon">▼</span>
+        </button>
+        <div class="faq-answer-pane">
+          لا إطلاقاً! التسجيل مجاني تماماً برقم هاتفك فقط، ونمنحك 50 نقطة تجريبية مجانية عند أول دخول لتبدأ في تقديم الخدمات لزبائنك وإنجاز أول وثائقك دون دفع أي دينار.
+        </div>
+      </div>
+
+      <div class="faq-accordion-item">
+        <button class="faq-question-btn">
+          <span>هل بيانات زبائني والمحل آمنة؟</span>
+          <span class="faq-toggle-icon">▼</span>
+        </button>
+        <div class="faq-answer-pane">
+          نعم وبشكل قطعي. منصة سهلة ممتثلة تماماً لأحكام القانون الجزائري رقم 18-07 المتعلق بحماية المعطيات ذات الطابع الشخصي. كل البيانات مشفرة ولا يتم تخزين أي معطيات حساسة على خوادم غير آمنة أو مشاركتها مع أطراف خارجية.
+        </div>
+      </div>
+
+      <div class="faq-accordion-item">
+        <button class="faq-question-btn">
+          <span>هل يعمل التطبيق بدون إنترنت قوي أو حاسوب؟</span>
+          <span class="faq-toggle-icon">▼</span>
+        </button>
+        <div class="faq-answer-pane">
+          نعم! يمكنك إنجاز كل شيء من هاتفك الشخصي فقط. المنصة مصممة بأحدث تقنيات الـ PWA الخفيفة وتعمل بسلاسة على شبكات الجيل الثالث (3G)، كما يمكنك ربط هاتف المحل بحاسوب الطابعة بسهولة تامة عبر جسر الطباعة اللاسلكي.
+        </div>
+      </div>
+    </section>
+
+    <!-- تذييل الصفحة (Landing Footer) -->
+    <footer style="background:var(--bg-card); border-top:1px solid var(--border-color); padding:32px 20px; text-align:center; font-size:12px; color:var(--text-muted); margin-top:40px;">
+      <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:12px;">
+        <div class="landing-brand-logo" style="width:28px; height:28px; font-size:14px;">س</div>
+        <strong style="color:var(--text-main); font-size:15px;">منصة سهلة للخدمات الرقمية 🇩🇿</strong>
+      </div>
+      <p style="max-width:650px; margin:0 auto 16px; line-height:1.6;">
+        الحل الجزائري الرائد لأصحاب الكيوسكات، المكتبات، ومقاهي الإنترنت. امتثال كامل لأحكام القانون 18-07 لحماية المعطيات الشخصية والقانون 18-05 المتعلق بالتجارة الإلكترونية.
+      </p>
+      <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-bottom:16px;">
+        <a href="#" onclick="alert('شروط الاستخدام متوفرة وفق القوانين الجزائرية السارية.'); return false;" style="color:var(--text-muted); text-decoration:none;">شروط الاستخدام</a>
+        <span>•</span>
+        <a href="#" onclick="alert('سياسة الخصوصية ممتثلة لأحكام القانون 18-07.'); return false;" style="color:var(--text-muted); text-decoration:none;">سياسة الخصوصية</a>
+        <span>•</span>
+        <a href="https://wa.me/213555000000" target="_blank" style="color:#10b981; text-decoration:none; font-weight:700;">واتساب الدعم الفني: +213 555 00 00 00 💬</a>
+      </div>
+      <p style="font-size:11px; color:var(--text-muted); margin:0;">© 2026 سهلة · Sahla. جميع الحقوق محفوظة للجمهورية الجزائرية الديمقراطية الشعبية.</p>
+    </footer>
+
+    <!-- الشريط الثابت أسفل الشاشة على الهاتف (Sticky Mobile Bottom CTA) -->
+    <div class="sticky-mobile-cta">
+      <button class="landing-btn-hero-primary" onclick="openAuthModal('signup')">
+        <span>ابدأ مجاناً واحصل على 50 نقطة 🚀</span>
+      </button>
+    </div>
+  </div>
+
   <div class="app-layout">
     <!-- الشريط الجانبي (Desktop Sidebar) -->
     <aside class="app-sidebar no-print">
@@ -171,6 +525,17 @@
             <span style="font-size:11px; color:var(--text-muted);">نقطة</span>
           </button>
 
+          <!-- زر حساب المحل والجلسة -->
+          <button class="btn-secondary" onclick="openAccountModal()" style="display:flex; align-items:center; gap:6px;" title="إدارة حساب المحل والجلسة">
+            <span style="font-size:15px;">👤</span>
+            <span style="font-size:12px; font-weight:700;" id="headerShopShortName">محلي</span>
+          </button>
+
+          <!-- زر الصفحة التعريفية -->
+          <button class="btn-secondary" onclick="showLandingView()" title="استعراض الصفحة التعريفية العامة">
+            <span>🌐</span>
+          </button>
+
           <!-- زر تبديل المظهر -->
           <button class="theme-toggle-btn" id="themeToggleBtn" title="تبديل السمة الليلية / النهارية">🌙</button>
         </div>
@@ -193,6 +558,47 @@
             </div>
             <button class="btn-primary" onclick="switchTab('cv')">
               <span>ابدأ إنجاز أول وثيقة 🚀</span>
+            </button>
+          </div>
+
+          <!-- شريط تنبيه الرصيد المنخفض (< 20 نقطة) أو النفاد (0 نقطة) -->
+          <div id="lowPointsBanner" style="display:none;" class="low-points-warning-banner banner-warning-yellow">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span id="lowPointsIcon" style="font-size:18px;">⚠️</span>
+              <span id="lowPointsMsg">تنبيه: رصيد نقاط محلك منخفض (أقل من 20 نقطة). اشحن محفظتك لمواصلة تقديم الخدمات دون انقطاع.</span>
+            </div>
+            <button class="btn-primary" onclick="openWalletModal()" style="padding:6px 14px; font-size:12px; font-weight:800;">
+              <span>اشحن الآن 💳</span>
+            </button>
+          </div>
+
+          <!-- بطاقة قائمة مهام البداية السريعة (Starter Checklist) -->
+          <div id="starterChecklistContainer"></div>
+
+          <!-- شريط البحث السريع عن الخدمات (ماذا يطلب زبونك؟) -->
+          <div class="dashboard-quick-search-box">
+            <div style="position:relative; width:100%;">
+              <input type="text" id="quickServiceSearchInput" class="form-input" style="padding-right:44px; padding-left:40px; font-size:14px; height:48px; border-radius:var(--radius-lg); border-color:var(--border-color); background:var(--bg-card);" placeholder="🔍 ماذا يطلب زبونك؟ (سيرة ذاتية، فاتورة، صور هوية، بحث مدرسي، تصريح جبائي...)">
+              <button id="clearSearchBtn" onclick="clearServiceSearch()" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; display:none; font-size:16px;">✕</button>
+            </div>
+          </div>
+
+          <!-- بطاقة ملخص اليوم وأرباح المحل (Today's Summary) -->
+          <div class="today-summary-card" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:16px 24px; margin-bottom:24px; display:flex; justify-content:space-around; align-items:center; flex-wrap:wrap; gap:16px; box-shadow:var(--shadow-sm);">
+            <div style="text-align:center;">
+              <span style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:2px;">وثائق اليوم المنجزة:</span>
+              <strong style="font-size:24px; font-weight:900; color:var(--text-main);" id="todayDocsCount">0</strong>
+            </div>
+            <div style="text-align:center; border-right:1px solid var(--border-color); padding-right:24px;">
+              <span style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:2px;">النقاط المستهلكة اليوم:</span>
+              <strong style="font-size:24px; font-weight:900; color:#ef4444;" id="todayPointsSpent">0</strong>
+            </div>
+            <div style="text-align:center; border-right:1px solid var(--border-color); padding-right:24px;">
+              <span style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:2px;">الأرباح النقدية التقريبية:</span>
+              <strong style="font-size:24px; font-weight:900; color:#10b981;" id="todayEstProfit">0 دج</strong>
+            </div>
+            <button class="btn-secondary" onclick="switchTab('accounting')" style="font-size:12px; font-weight:800; padding:8px 16px;">
+              <span>📊 كشف الحساب والديون ←</span>
             </button>
           </div>
 
@@ -1695,12 +2101,332 @@
     </div>
   </div>
 
+  <!-- ============================================================
+       11. نافذة المصادقة والتسجيل بالهاتف و OTP (Modal: Auth & OTP)
+       ============================================================ -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-card auth-modal-card">
+      <div class="modal-head">
+        <h3 id="authModalTitle">تسجيل الدخول / إنشاء حساب المحل 🇩🇿</h3>
+        <button class="modal-close-btn" onclick="closeAuthModal()">✕</button>
+      </div>
+
+      <!-- الخطوة 1: إدخال رقم الهاتف الجزائري -->
+      <div id="authStepPhone">
+        <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+          أدخل رقم هاتفك لتسجيل الدخول أو فتح حساب جديد مباشرة. سيصلك رمز سري (OTP) للتحقق دون الحاجة لكلمة مرور.
+        </p>
+
+        <div class="form-group">
+          <label style="font-size:13px; font-weight:800;">رقم الهاتف الجزائري:</label>
+          <div style="display:flex; align-items:center; gap:8px; direction:ltr;">
+            <span style="background:var(--bg-app); border:1px solid var(--border-color); padding:10px 14px; border-radius:var(--radius-md); font-weight:800; font-size:14px; color:var(--text-main);">+213</span>
+            <input type="tel" id="authPhoneInput" class="form-input" style="direction:ltr; font-weight:800; font-size:15px; letter-spacing:1px;" placeholder="0555 12 34 56" maxlength="14">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+            <div id="carrierBadgeContainer"></div>
+            <small style="font-size:11px; color:var(--text-muted);">يقبل أرقام: 05، 06، أو 07</small>
+          </div>
+        </div>
+
+        <div id="authPhoneError" style="display:none; color:#ef4444; font-size:12px; font-weight:700; margin-bottom:14px; background:rgba(239,68,68,0.1); padding:8px 12px; border-radius:var(--radius-sm);"></div>
+
+        <button class="btn-primary" id="btnRequestOtp" style="width:100%; padding:12px; font-size:15px; font-weight:800; margin-top:8px;">
+          <span>أرسل رمز التحقق (OTP) ←</span>
+        </button>
+
+        <div style="text-align:center; margin-top:14px;">
+          <button class="btn-secondary" onclick="quickDemoLogin()" style="font-size:11px; padding:6px 12px; border-style:dashed;">
+            <span>⚡ تجربة سريعة: دخول مباشر بحساب تجريبي</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- الخطوة 2: إدخال كود OTP من 6 أرقام -->
+      <div id="authStepOtp" style="display:none;">
+        <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:12px;">
+          أرسلنا رمز تحقق من 6 أرقام إلى الرقم: <strong id="otpTargetPhoneDisplay" style="color:var(--text-main); direction:ltr; display:inline-block;"></strong>
+        </p>
+
+        <div class="form-group">
+          <label style="font-size:13px; font-weight:800; text-align:center; display:block;">أدخل رمز التحقق (OTP):</label>
+          <input type="text" id="authOtpInput" class="form-input otp-box-digit-input" placeholder="••••••" maxlength="6" inputmode="numeric">
+          <div class="resend-countdown-text" id="otpTimerDisplay">يمكنك إعادة طلب الرمز بعد <span id="otpCountdownSeconds">60</span> ثانية</div>
+        </div>
+
+        <div id="authOtpError" style="display:none; color:#ef4444; font-size:12px; font-weight:700; margin-bottom:14px; background:rgba(239,68,68,0.1); padding:8px 12px; border-radius:var(--radius-sm);"></div>
+
+        <div style="display:flex; gap:10px; margin-bottom:12px;">
+          <button class="btn-secondary" id="btnBackToPhone" style="flex:1;">← تغيير الرقم</button>
+          <button class="btn-secondary" id="btnResendOtp" style="flex:1;" disabled>🔄 إعادة الإرسال</button>
+        </div>
+
+        <!-- زر ملء الكود التجريبي السريع -->
+        <div style="background:rgba(16,185,129,0.1); border:1px dashed #10b981; padding:8px 12px; border-radius:var(--radius-md); text-align:center; margin-bottom:14px;">
+          <span style="font-size:11px; color:#059669; font-weight:700; display:block; margin-bottom:4px;">🔑 رمز العرض التجريبي السريع: <strong>123456</strong></span>
+          <button class="btn-secondary" id="btnFillDemoOtp" style="padding:4px 10px; font-size:11px; color:#059669; border-color:#10b981;">تعبئة الرمز التجريبي تلقائياً</button>
+        </div>
+
+        <button class="btn-primary" id="btnVerifyOtp" style="width:100%; padding:12px; font-size:15px; font-weight:800;">
+          <span>تأكيد الرمز ومتابعة ✓</span>
+        </button>
+      </div>
+
+      <!-- الخطوة 3: إنشاء بيانات المحل (أول مرة فقط) -->
+      <div id="authStepShop" style="display:none;">
+        <div style="background:rgba(16,185,129,0.12); padding:10px 14px; border-radius:var(--radius-md); margin-bottom:16px;">
+          <h4 style="margin:0 0 4px 0; color:#059669; font-size:14px; font-weight:800;">🎉 مرحباً بك! خطوة أخيرة لتهيئة محلك</h4>
+          <p style="margin:0; font-size:12px; color:var(--text-muted);">ستحصل فوراً على 50 نقطة تجريبية مجانية لتبدأ العمل</p>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size:13px; font-weight:800;">اسم المحل أو المكتبة: <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="newShopNameInput" class="form-input" placeholder="مثال: كيوسك الأمل للخدمات">
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label style="font-size:13px; font-weight:800;">الولاية: <span style="color:#ef4444;">*</span></label>
+            <select id="newShopWilayaSelect" class="form-select">
+              <!-- يُملأ من ALGERIAN_WILAYAS -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label style="font-size:13px; font-weight:800;">نوع النشاط:</label>
+            <select id="newShopActivitySelect" class="form-select">
+              <option value="KIOSK">كيوسك وخدمات هاتفية</option>
+              <option value="BOOKSHOP">مكتبة ووراقة</option>
+              <option value="CYBER">مقهى إنترنت (Cybercafé)</option>
+              <option value="PUBLIC_WRITER">مكتب خدمات عمومية وكتابة</option>
+              <option value="PHOTO_STUDIO">استوديو تصوير</option>
+              <option value="OTHER">أخرى</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size:13px; font-weight:800;">اسم صاحب المحل / المسير:</label>
+          <input type="text" id="newOwnerNameInput" class="form-input" placeholder="مثال: عمار بن ناصر">
+        </div>
+
+        <!-- خانة الموافقة القانونية الإلزامية وفق قانون 18-07 وقانون 18-05 -->
+        <div style="background:var(--bg-app); border:1px solid var(--border-color); padding:10px 14px; border-radius:var(--radius-md); margin-bottom:16px;">
+          <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; font-size:12px; line-height:1.5; color:var(--text-main);">
+            <input type="checkbox" id="legalConsentCheckbox" style="margin-top:2px;" checked>
+            <span>
+              أوافق على <strong>شروط الاستخدام</strong> و<strong>سياسة حماية البيانات الشخصية</strong> وفق القانون الجزائري رقم 18-07 المنظم للمعطيات ذات الطابع الشخصي والقانون 18-05 المتعلق بالتجارة الإلكترونية.
+            </span>
+          </label>
+        </div>
+
+        <div id="authShopError" style="display:none; color:#ef4444; font-size:12px; font-weight:700; margin-bottom:14px; background:rgba(239,68,68,0.1); padding:8px 12px; border-radius:var(--radius-sm);"></div>
+
+        <button class="btn-primary" id="btnCompleteRegistration" style="width:100%; padding:12px; font-size:15px; font-weight:800;">
+          <span>إتمام التسجيل والدخول للوحة التحكم 🚀</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       12. نافذة تجربة أول زيارة (Onboarding Wizard Modal)
+       ============================================================ -->
+  <div class="modal-overlay" id="onboardingModal">
+    <div class="modal-card onboarding-card-wrapper">
+      <div class="modal-head" style="justify-content:center; position:relative;">
+        <h3 id="onboardingModalHeadTitle">مرحباً بك في سهلة 🇩🇿</h3>
+        <button class="modal-close-btn" onclick="skipOnboarding()" style="position:absolute; left:16px;" title="تخطي">✕</button>
+      </div>
+
+      <!-- مؤشر الخطوات الثلاث -->
+      <div class="onboarding-steps-indicator">
+        <div class="onboard-step-dot active" id="onboardDot1"></div>
+        <div class="onboard-step-dot" id="onboardDot2"></div>
+        <div class="onboard-step-dot" id="onboardDot3"></div>
+      </div>
+
+      <!-- الخطوة 1: ترحيب ورصيد تجريبي -->
+      <div id="onboardStep1">
+        <div style="font-size:48px; margin-bottom:12px;">🎉</div>
+        <h3 style="font-size:22px; font-weight:900; margin-bottom:8px;">أهلاً بك، <span id="onboardingShopNameDisplay" style="color:var(--primary);">صاحب المحل</span>!</h3>
+        <p style="font-size:14px; color:var(--text-muted); line-height:1.6; max-width:440px; margin:0 auto 20px;">
+          لقد أضفنا <strong>50 نقطة تجريبية مجانية</strong> إلى محفظتك لتبدأ فوراً في إنجاز أول وثائق لزبائنك دون دفع أي دينار.
+        </p>
+        <div style="background:linear-gradient(135deg, rgba(16,185,129,0.1), rgba(37,99,235,0.1)); border:1px solid rgba(16,185,129,0.25); border-radius:var(--radius-lg); padding:16px; margin-bottom:24px;">
+          <span style="font-size:12px; color:var(--text-muted); display:block;">رصيدك التجريبي الحالي:</span>
+          <span style="font-size:32px; font-weight:900; color:#10b981;">50 نقطة</span>
+          <small style="display:block; font-size:11px; color:var(--text-muted); margin-top:4px;">يكفي لإنجاز 3 سير ذاتية، أو 5 فواتير رسمية، وصور هوية غير محدودة</small>
+        </div>
+        <button class="btn-primary" onclick="nextOnboardingStep(2)" style="width:100%; padding:12px; font-size:15px; font-weight:800;">
+          <span>متابعة لتخصيص محلك ←</span>
+        </button>
+      </div>
+
+      <!-- الخطوة 2: ماذا تقدم في محلك؟ -->
+      <div id="onboardStep2" style="display:none;">
+        <h3 style="font-size:20px; font-weight:900; margin-bottom:6px;">ما هي أبرز الخدمات التي تقدمها في محلك؟</h3>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+          اختر ما يطلبه زبائنك لترتيب واجهة لوحة التحكم حسب أولوياتك:
+        </p>
+
+        <div class="onboarding-chips-grid">
+          <div class="service-choice-chip selected" data-service-key="cv">
+            <span>📄</span>
+            <span>سير ذاتية وطلبات عمل</span>
+          </div>
+          <div class="service-choice-chip selected" data-service-key="photo">
+            <span>📸</span>
+            <span>صور الهوية 35×45 مم</span>
+          </div>
+          <div class="service-choice-chip selected" data-service-key="invoice">
+            <span>🧾</span>
+            <span>فواتير تجارية رسمية</span>
+          </div>
+          <div class="service-choice-chip selected" data-service-key="school">
+            <span>🎓</span>
+            <span>بحوث وامتحانات BEM/BAC</span>
+          </div>
+          <div class="service-choice-chip" data-service-key="ocr">
+            <span>📋</span>
+            <span>ملء النماذج الرسمية بالـ OCR</span>
+          </div>
+          <div class="service-choice-chip" data-service-key="tax">
+            <span>🏛️</span>
+            <span>تصاريح جبائية G50 / G12</span>
+          </div>
+          <div class="service-choice-chip" data-service-key="customers">
+            <span>👥</span>
+            <span>دفتر الزبائن وسجل الكريدي</span>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="btn-secondary" onclick="nextOnboardingStep(1)" style="flex:1;">← السابق</button>
+          <button class="btn-primary" onclick="saveOnboardingServicesAndProceed()" style="flex:2; font-weight:800;">
+            <span>حفظ وتخصيص الواجهة ←</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- الخطوة 3: إنجاز أول وثيقة فوراً -->
+      <div id="onboardStep3" style="display:none;">
+        <div style="font-size:44px; margin-bottom:10px;">🚀</div>
+        <h3 style="font-size:20px; font-weight:900; margin-bottom:6px;">محلك جاهز الآن للعمل!</h3>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">
+          جرّب الآن إنشاء أول سيرة ذاتية بقالب جاهز ومملوء، وتأكد من سهولة وسرعة النظام:
+        </p>
+
+        <div style="background:var(--bg-app); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:20px; text-align:right; margin-bottom:20px;">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+            <div style="width:40px; height:40px; border-radius:8px; background:rgba(16,185,129,0.15); color:#059669; display:flex; align-items:center; justify-content:center; font-size:20px;">📄</div>
+            <div>
+              <h4 style="margin:0; font-size:15px; font-weight:800;">سيرة ذاتية نموذجية A4</h4>
+              <span style="font-size:11px; color:#10b981; font-weight:700;">رصيد تجريبي مجاني مشمول (0 دج)</span>
+            </div>
+          </div>
+          <p style="font-size:12px; color:var(--text-muted); margin:0; line-height:1.5;">
+            قالب إداري جزائري جاهز، يمكنك تعديل الاسم والبيانات بنقرة واحدة، ومعاينة وطباعة الـ PDF في ثوانٍ.
+          </p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button class="btn-primary" onclick="startFirstDocumentAction()" style="width:100%; padding:12px; font-size:15px; font-weight:800;">
+            <span>أنشئ أول وثيقة لزبونك الآن 🚀</span>
+          </button>
+          <button class="btn-secondary" onclick="finishOnboardingToDashboard()" style="width:100%; font-size:13px;">
+            <span>الانتقال مباشرة للوحة التحكم</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       13. نافذة إدارة الحساب والجلسة (Modal: Account & Session)
+       ============================================================ -->
+  <div class="modal-overlay" id="accountModal">
+    <div class="modal-card" style="max-width:500px;">
+      <div class="modal-head">
+        <h3>👤 إدارة حساب المحل والجلسة</h3>
+        <button class="modal-close-btn" onclick="closeAccountModal()">✕</button>
+      </div>
+
+      <div style="background:var(--bg-app); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:16px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+          <div style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, #10b981, #059669); color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:900;">
+            <span id="accountAvatarLetter">س</span>
+          </div>
+          <div>
+            <h4 style="margin:0; font-size:16px; font-weight:900;" id="accountShopNameDisplay">كيوسك النور للخدمات</h4>
+            <span style="font-size:12px; color:var(--text-muted);" id="accountPhoneDisplay">0555 12 34 56</span>
+          </div>
+        </div>
+        <div class="calc-breakdown-row" style="font-size:12px;">
+          <span>الولاية:</span>
+          <strong id="accountWilayaDisplay" style="color:var(--text-main);">16 - الجزائر العاصمة</strong>
+        </div>
+        <div class="calc-breakdown-row" style="font-size:12px;">
+          <span>دور المستخدم:</span>
+          <strong style="color:#059669;">مالك المحل (Owner)</strong>
+        </div>
+        <div class="calc-breakdown-row" style="font-size:12px;">
+          <span>الأجهزة النشطة:</span>
+          <strong style="color:var(--text-main);">جهاز واحد (هذا الهاتف/المتصفح) · الحد الأقصى: جهازين</strong>
+        </div>
+        <div class="calc-breakdown-row" style="font-size:12px; border:none;">
+          <span>الموافقة القانونية:</span>
+          <strong style="color:#10b981;">مفعلة (القانون 18-07) ✓</strong>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button class="btn-secondary" onclick="showLandingView(); closeAccountModal();" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+          <span>🌐 استعراض الصفحة التعريفية العامة</span>
+        </button>
+        <button class="btn-secondary" onclick="openPricingConfigModal()" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+          <span>⚙️ ضبط أسعار بيع الخدمات الافتراضية</span>
+        </button>
+        <button class="btn-secondary" onclick="logoutShopOwner()" style="color:#ef4444; border-color:rgba(239,68,68,0.3); display:flex; align-items:center; justify-content:center; gap:8px;">
+          <span>🚪 تسجيل الخروج من المحل</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       الشريط السفلي للهواتف المحمولة (Mobile Bottom Navigation)
+       ============================================================ -->
+  <nav class="mobile-bottom-nav no-print">
+    <button class="mob-nav-btn active" onclick="switchTab('hub')">
+      <span class="mob-nav-icon">⚡</span>
+      <span>الرئيسية</span>
+    </button>
+    <button class="mob-nav-btn" onclick="switchTab('cv')">
+      <span class="mob-nav-icon">📄</span>
+      <span>الوثائق</span>
+    </button>
+    <button class="mob-nav-btn" onclick="switchTab('accounting')">
+      <span class="mob-nav-icon">📊</span>
+      <span>الأرباح</span>
+    </button>
+    <button class="mob-nav-btn" onclick="openWalletModal()">
+      <span class="mob-nav-icon">💳</span>
+      <span>المحفظة</span>
+    </button>
+    <button class="mob-nav-btn" onclick="openAccountModal()">
+      <span class="mob-nav-icon">👤</span>
+      <span>حسابي</span>
+    </button>
+  </nav>
+
   <!-- حاوية إشعارات التوست -->
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Scripts -->
   <script src="/scripts/data.js"></script>
   <script src="/scripts/wallet.js"></script>
+  <script src="/scripts/auth.js"></script>
+  <script src="/scripts/onboarding.js"></script>
   <script src="/scripts/cv-builder.js"></script>
   <script src="/scripts/id-photo.js"></script>
   <script src="/scripts/invoice.js"></script>
