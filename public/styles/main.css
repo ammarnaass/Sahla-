@@ -4215,3 +4215,187 @@ body {
   }
 }
 
+/* ========================================================
+   تحسينات PRD الإضافية: مركز الإشعارات، آخر الوثائق، واحتفال الإنجاز
+   ======================================================== */
+
+/* 1. مركز الإشعارات المنسدل */
+.notification-dropdown-box {
+  animation: fadeInDown 0.2s ease;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.notif-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg-app);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  font-size: 12px;
+  transition: all var(--transition-fast);
+}
+
+.notif-item-row:hover {
+  border-color: var(--primary);
+}
+
+.notif-icon-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.notif-content-title {
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+
+.notif-content-desc {
+  color: var(--text-muted);
+  line-height: 1.4;
+  font-size: 11px;
+}
+
+/* 2. بطاقة آخر الوثائق في الشاشة الرئيسية (Recent Documents) */
+.recent-docs-section-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.recent-docs-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.recent-doc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-app);
+  border: 1px solid var(--border-color);
+  margin-bottom: 8px;
+  transition: all var(--transition-fast);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.recent-doc-row:hover {
+  border-color: var(--primary);
+}
+
+.recent-doc-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.recent-doc-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.recent-doc-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* بطاقة الحساب الجديد الخالي من الوثائق */
+.empty-docs-welcome-box {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(37, 99, 235, 0.06));
+  border: 1px dashed rgba(16, 185, 129, 0.35);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  text-align: center;
+}
+
+/* 3. نافذة الاحتفال بإنجاز أول وثيقة (First Document Celebration) */
+.celebration-card-wrapper {
+  max-width: 520px;
+  text-align: center;
+  border: 2px solid #10b981;
+}
+
+.celebration-badge-hero {
+  font-size: 54px;
+  animation: bounce 1.2s infinite alternate;
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-8px); }
+}
+
+/* 4. نافذة العرض التوضيحي السريع (30-sec Interactive Walkthrough) */
+.demo-video-modal-card {
+  max-width: 650px;
+}
+
+.demo-step-slider-box {
+  background: #0f172a;
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.demo-slider-indicator-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.demo-slider-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+}
+
+.demo-slider-dot.active {
+  background: #10b981;
+  width: 24px;
+  border-radius: 9999px;
+}
+

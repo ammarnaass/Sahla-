@@ -5,10 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>سهلة · Sahla — كل وثيقة في دقائق 🇩🇿</title>
   <meta name="description" content="منصة الخدمات الرقمية الأولى لأصحاب الكيوسكات، المكتبات ومقاهي الإنترنت في الجزائر. أنجز وثائق زبائنك من الهاتف في دقائق.">
+  <meta name="description" lang="fr" content="La première plateforme de services numériques pour les cybercafés, librairies et kiosques en Algérie. Réalisez les documents de vos clients en quelques minutes.">
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="/styles/main.css">
   <link rel="stylesheet" href="/styles/print.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23059669'/><text x='50%' y='65%' font-size='50' font-weight='bold' text-anchor='middle' fill='white'>س</text></svg>">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Sahla · سهلة",
+    "operatingSystem": "All (Web, Android, iOS, Windows)",
+    "applicationCategory": "BusinessApplication",
+    "description": "منصة الخدمات الرقمية المتكاملة لأصحاب الكيوسكات والمكتبات ومقاهي الإنترنت في الجزائر. أنجز كل وثيقة في دقائق وادفع بنظام النقاط المرن دون اشتراك شهري.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "DZD",
+      "description": "50 نقطة تجريبية مجانية عند التسجيل"
+    },
+    "inLanguage": ["ar", "fr", "en"],
+    "countryOfOrigin": "DZ"
+  }
+  </script>
 </head>
 <body>
 
@@ -61,8 +80,8 @@
         <button class="landing-btn-hero-primary" onclick="openAuthModal('signup')">
           <span>ابدأ مجاناً الآن (50 نقطة هدية) 🚀</span>
         </button>
-        <button class="landing-btn-hero-secondary" onclick="document.getElementById('landingHowItWorks').scrollIntoView({behavior:'smooth'})">
-          <span>شاهد كيف تعمل (3 خطوات) 📹</span>
+        <button class="landing-btn-hero-secondary" onclick="openDemoVideoModal()">
+          <span>شاهد كيف تعمل (فيديو توضيحي 30 ثانية) 📹</span>
         </button>
       </div>
       <div class="hero-trust-notes">
@@ -536,10 +555,33 @@
             <span>🌐</span>
           </button>
 
+          <!-- زر قائمة الإشعارات والتنبيهات (جرس) -->
+          <div style="position:relative;">
+            <button class="btn-secondary" id="notifBellBtn" onclick="toggleNotificationDrawer()" title="الإشعارات والتنبيهات" style="position:relative; padding:8px 12px;">
+              <span>🔔</span>
+              <span id="notifBadgeCount" style="position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; font-size:10px; font-weight:900; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center;">2</span>
+            </button>
+            <div id="notificationDrawer" class="notification-dropdown-box" style="display:none; position:absolute; left:0; top:calc(100% + 8px); width:320px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); z-index:100; padding:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:8px; margin-bottom:10px;">
+                <h4 style="margin:0; font-size:13px; font-weight:800;">🔔 مركز الإشعارات والتحديثات</h4>
+                <button onclick="toggleNotificationDrawer()" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">✕</button>
+              </div>
+              <div id="notificationsList" style="display:flex; flex-direction:column; gap:8px; max-height:280px; overflow-y:auto;">
+                <!-- يُملأ ديناميكياً من app.js -->
+              </div>
+            </div>
+          </div>
+
           <!-- زر تبديل المظهر -->
           <button class="theme-toggle-btn" id="themeToggleBtn" title="تبديل السمة الليلية / النهارية">🌙</button>
         </div>
       </header>
+
+      <!-- شريط تنبيه وضع العمل بدون اتصال بالإنترنت -->
+      <div id="offlineStatusBanner" style="display:none; background:#fffbeb; border-bottom:1px solid #fde68a; color:#92400e; padding:10px 16px; font-size:13px; font-weight:700; text-align:center; align-items:center; justify-content:center; gap:8px;">
+        <span>⚡</span>
+        <span>أنت تعمل حالياً في وضع عدم الاتصال (Offline) · الوثائق المحفوظة ورصيد المحفظة متاح محلياً.</span>
+      </div>
 
       <!-- محتوى الصفحات الديناميكي -->
       <div class="page-container">
@@ -767,6 +809,41 @@
               <p>توليد دفعات بطاقات الشحن المادية بأكواد سرية مشفرة، تتبع أرباح المحل، ومراقبة مؤشرات الاستهلاك وهامش الربح.</p>
               <span class="service-action-link">فتح لوحة الإدارة ←</span>
             </div>
+          </div>
+
+          <!-- بطاقة آخر الوثائق المنجزة في المحل (Recent Documents) -->
+          <div class="recent-docs-section-card" id="recentDocsSection">
+            <div class="recent-docs-head">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:20px;">📂</span>
+                <div>
+                  <h4 style="margin:0; font-size:15px; font-weight:800;">آخر الوثائق المنجزة في محلك</h4>
+                  <p style="margin:0; font-size:11px; color:var(--text-muted);">إعادة طباعة فورية أو تعديل بيانات الزبون بنقرة واحدة</p>
+                </div>
+              </div>
+              <button class="btn-secondary" onclick="switchTab('cv')" style="font-size:11px; padding:6px 12px;">
+                <span>+ وثيقة جديدة</span>
+              </button>
+            </div>
+
+            <!-- قائمة آخر 5 وثائق أو بطاقة الحساب الجديد -->
+            <div id="recentDocsContainer">
+              <!-- يُملأ ديناميكياً من app.js -->
+            </div>
+          </div>
+
+          <!-- بطاقة دعم المحل المباشر عبر واتساب -->
+          <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:40px; height:40px; border-radius:50%; background:rgba(16,185,129,0.15); color:#10b981; display:flex; align-items:center; justify-content:center; font-size:22px;">💬</div>
+              <div>
+                <h4 style="margin:0; font-size:14px; font-weight:800;">هل واجهت أي استفسار أو مشكلة في محلك؟</h4>
+                <p style="margin:0; font-size:11px; color:var(--text-muted);">فريق دعم سهلة في الجزائر معك طيلة أيام الأسبوع لمساعدتك فورياً</p>
+              </div>
+            </div>
+            <a href="https://wa.me/213555000000" target="_blank" class="btn-primary" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; background:#10b981; padding:8px 16px; font-size:13px;">
+              <span>مراسلة الدعم عبر واتساب 💬</span>
+            </a>
           </div>
         </section>
 
@@ -2170,6 +2247,11 @@
         <button class="btn-primary" id="btnVerifyOtp" style="width:100%; padding:12px; font-size:15px; font-weight:800;">
           <span>تأكيد الرمز ومتابعة ✓</span>
         </button>
+
+        <!-- زر البدائل (يظهر بعد 30 ثانية أو عند الطلب) -->
+        <button type="button" class="btn-secondary" id="btnDidNotReceiveCode" onclick="openOtpHelpModal()" style="display:none; width:100%; font-size:12px; margin-top:8px; border-style:dashed;">
+          <span>❓ لم يصلني رمز التحقق؟ (بدائل واتساب ومكالمة)</span>
+        </button>
       </div>
 
       <!-- الخطوة 3: إنشاء بيانات المحل (أول مرة فقط) -->
@@ -2207,6 +2289,13 @@
         <div class="form-group">
           <label style="font-size:13px; font-weight:800;">اسم صاحب المحل / المسير:</label>
           <input type="text" id="newOwnerNameInput" class="form-input" placeholder="مثال: عمار بن ناصر">
+        </div>
+
+        <!-- صورة شعار المحل الاختيارية -->
+        <div class="form-group">
+          <label style="font-size:13px; font-weight:800;">شعار المحل أو الختم (اختياري):</label>
+          <input type="file" id="newShopLogoInput" accept="image/*" class="form-input" style="font-size:12px;">
+          <small style="font-size:11px; color:var(--text-muted);">يُضاف الشعار تلقائياً إلى ترويسة الفواتير والسير الذاتية الصادرة</small>
         </div>
 
         <!-- خانة الموافقة القانونية الإلزامية وفق قانون 18-07 وقانون 18-05 -->
@@ -2386,8 +2475,161 @@
         <button class="btn-secondary" onclick="openPricingConfigModal()" style="display:flex; align-items:center; justify-content:center; gap:8px;">
           <span>⚙️ ضبط أسعار بيع الخدمات الافتراضية</span>
         </button>
+
+        <!-- إدارة موظفي المحل (Staff Members) -->
+        <button class="btn-secondary" onclick="toggleStaffDrawer()" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+          <span>👥 إدارة عمال وموظفي المحل</span>
+        </button>
+        <div id="staffManagementDrawer" style="display:none; background:var(--bg-app); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:12px; margin-top:4px;">
+          <h5 style="margin:0 0 8px 0; font-size:12px; font-weight:800;">إضافة موظف للمحل:</h5>
+          <div style="display:flex; gap:6px; margin-bottom:8px;">
+            <input type="tel" id="staffPhoneInput" class="form-input" style="font-size:12px;" placeholder="رقم الهاتف: 0555...">
+            <select id="staffRoleSelect" class="form-select" style="font-size:12px; width:auto;">
+              <option value="STAFF">موظف (خدمات فقط)</option>
+              <option value="MANAGER">مدير (رصيد وتقارير)</option>
+            </select>
+            <button class="btn-primary" onclick="addNewEmployeeAction()" style="font-size:12px; padding:6px 10px;">إضافة</button>
+          </div>
+          <div id="staffListContainer" style="display:flex; flex-direction:column; gap:4px; max-height:120px; overflow-y:auto;">
+            <!-- يُملأ ديناميكياً -->
+          </div>
+        </div>
+
+        <!-- تسجيل الخروج من كل الأجهزة النشطة -->
+        <button class="btn-secondary" onclick="logoutAllDevices()" style="color:#d97706; border-color:rgba(217,119,6,0.3); display:flex; align-items:center; justify-content:center; gap:8px;">
+          <span>🔒 تسجيل الخروج من كل الأجهزة النشطة</span>
+        </button>
+
         <button class="btn-secondary" onclick="logoutShopOwner()" style="color:#ef4444; border-color:rgba(239,68,68,0.3); display:flex; align-items:center; justify-content:center; gap:8px;">
-          <span>🚪 تسجيل الخروج من المحل</span>
+          <span>🚪 تسجيل الخروج من هذا الجهاز</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       14. نافذة العرض التوضيحي السريع (30-sec Interactive Walkthrough)
+       ============================================================ -->
+  <div class="modal-overlay" id="demoVideoModal">
+    <div class="modal-card demo-video-modal-card">
+      <div class="modal-head">
+        <h3>📹 شاهد كيف تعمل سهلة في محلك (30 ثانية)</h3>
+        <button class="modal-close-btn" onclick="closeDemoVideoModal()">✕</button>
+      </div>
+
+      <div class="demo-step-slider-box" id="demoWalkthroughFrame">
+        <div id="demoStepContent1">
+          <div style="font-size:44px; margin-bottom:12px;">📱</div>
+          <span style="background:rgba(16,185,129,0.2); color:#10b981; font-weight:800; font-size:11px; padding:3px 12px; border-radius:9999px;">الخطوة 1 من 3</span>
+          <h3 style="font-size:20px; font-weight:900; margin:8px 0 6px 0;">سجّل برقم الهاتف في 20 ثانية</h3>
+          <p style="font-size:13px; color:#cbd5e1; max-width:440px; margin:0 auto; line-height:1.6;">
+            أدخل رقم هاتفك (موبيليس، جيزي، أو أوريدو)، ليصلك كود OTP فوري دون الحاجة لكلمة مرور، وتحصل فوراً على 50 نقطة تجريبية مجانية.
+          </p>
+        </div>
+
+        <div id="demoStepContent2" style="display:none;">
+          <div style="font-size:44px; margin-bottom:12px;">⚡</div>
+          <span style="background:rgba(37,99,235,0.2); color:#60a5fa; font-weight:800; font-size:11px; padding:3px 12px; border-radius:9999px;">الخطوة 2 من 3</span>
+          <h3 style="font-size:20px; font-weight:900; margin:8px 0 6px 0;">اختر الخدمة واملأ البيانات بسرعة</h3>
+          <p style="font-size:13px; color:#cbd5e1; max-width:440px; margin:0 auto; line-height:1.6;">
+            سيرة ذاتية احترافية، فاتورة تجارية بـ NIF، صور هوية بيومترية، أو استمارة رسمية. القوالب جاهزة ومطابقة للقوانين الجزائرية.
+          </p>
+        </div>
+
+        <div id="demoStepContent3" style="display:none;">
+          <div style="font-size:44px; margin-bottom:12px;">🖨️</div>
+          <span style="background:rgba(245,158,11,0.2); color:#fbbf24; font-weight:800; font-size:11px; padding:3px 12px; border-radius:9999px;">الخطوة 3 من 3</span>
+          <h3 style="font-size:20px; font-weight:900; margin:8px 0 6px 0;">اطبع فوري واقبض ثمن الوثيقة كاش</h3>
+          <p style="font-size:13px; color:#cbd5e1; max-width:440px; margin:0 auto; line-height:1.6;">
+            أرسل الملف لطابعة المحل بنقرة واحدة عبر جسر الطباعة اللاسلكي، سلّم الوثيقة لزبونك، واقبض السعر الذي تحدده أنت.
+          </p>
+        </div>
+      </div>
+
+      <div class="demo-slider-indicator-dots">
+        <div class="demo-slider-dot active" id="demoDot1" onclick="switchDemoSlide(1)"></div>
+        <div class="demo-slider-dot" id="demoDot2" onclick="switchDemoSlide(2)"></div>
+        <div class="demo-slider-dot" id="demoDot3" onclick="switchDemoSlide(3)"></div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+        <button class="btn-secondary" id="btnPrevDemoSlide" onclick="prevDemoSlide()">السابق</button>
+        <button class="btn-primary" id="btnNextDemoSlide" onclick="nextDemoSlide()">التالي ←</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       15. نافذة بدائل استلام رمز الـ OTP (Modal: OTP Alternatives)
+       ============================================================ -->
+  <div class="modal-overlay" id="otpHelpModal">
+    <div class="modal-card" style="max-width:440px;">
+      <div class="modal-head">
+        <h3>❓ خيارات بديلة لاستلام كود التحقق</h3>
+        <button class="modal-close-btn" onclick="closeOtpHelpModal()">✕</button>
+      </div>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+        إذا تأخرت رسالة الـ SMS بسبب شبكة الاتصال، يمكنك اختيار إحدى القنوات البديلة المعتمدة في الجزائر:
+      </p>
+
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+        <button class="btn-secondary" onclick="requestOtpViaWhatsApp()" style="display:flex; align-items:center; justify-content:flex-start; gap:10px; padding:12px 14px; text-align:right;">
+          <span style="font-size:22px; color:#10b981;">💬</span>
+          <div>
+            <strong style="display:block; font-size:13px; color:var(--text-main);">إرسال الكود عبر تطبيق واتساب (WhatsApp)</strong>
+            <small style="color:var(--text-muted); font-size:11px;">يصل فورياً حتى مع ضعف تغطية شبكة الـ GSM</small>
+          </div>
+        </button>
+
+        <button class="btn-secondary" onclick="requestOtpViaVoiceCall()" style="display:flex; align-items:center; justify-content:flex-start; gap:10px; padding:12px 14px; text-align:right;">
+          <span style="font-size:22px; color:#2563eb;">📞</span>
+          <div>
+            <strong style="display:block; font-size:13px; color:var(--text-main);">اتصال صوتي آلي (Appel vocal)</strong>
+            <small style="color:var(--text-muted); font-size:11px;">مكالمة آلية سريعة تملي عليك الأرقام الستة</small>
+          </div>
+        </button>
+
+        <a href="https://wa.me/213555000000?text=أحتاج%20مساعدة%20في%20استلام%20كود%20OTP%20منصة%20سهلة" target="_blank" class="btn-secondary" style="display:flex; align-items:center; justify-content:flex-start; gap:10px; padding:12px 14px; text-align:right; text-decoration:none;">
+          <span style="font-size:22px; color:#f59e0b;">👨‍💼</span>
+          <div>
+            <strong style="display:block; font-size:13px; color:var(--text-main);">التواصل مع فريق الدعم الفني المباشر</strong>
+            <small style="color:var(--text-muted); font-size:11px;">تفعيل فوري لحسابك من قبل فريق سهلة في الجزائر</small>
+          </div>
+        </a>
+      </div>
+
+      <button class="btn-primary" onclick="closeOtpHelpModal()" style="width:100%;">
+        <span>العودة لإدخال الكود ←</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       16. نافذة الاحتفال بإنجاز أول وثيقة (First Document Celebration)
+       ============================================================ -->
+  <div class="modal-overlay" id="docCelebrationModal">
+    <div class="modal-card celebration-card-wrapper">
+      <div class="celebration-badge-hero">🎉</div>
+      <h3 style="font-size:22px; font-weight:900; margin:10px 0 6px 0; color:var(--text-main);">أول وثيقة جاهزة بنجاح!</h3>
+      <p style="font-size:14px; color:var(--text-muted); margin-bottom:18px;">
+        تم توليد الوثيقة وتجهيزها للطباعة عبر رصيدك المجاني. كم سعر بيعها لزبونك؟
+      </p>
+
+      <div style="background:var(--bg-app); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:16px; margin-bottom:18px;">
+        <label style="font-size:13px; font-weight:800; display:block; margin-bottom:8px;">حدد سعر البيع الافتراضي لهذه الخدمة في محلك:</label>
+        <div style="display:flex; align-items:center; justify-content:center; gap:8px;">
+          <input type="number" id="celebrationPriceInput" value="250" class="form-input" style="width:120px; font-size:20px; font-weight:900; text-align:center;">
+          <span style="font-size:16px; font-weight:800; color:var(--text-main);">دج</span>
+        </div>
+        <small style="display:block; font-size:11px; color:var(--text-muted); margin-top:6px;">تكلفة سهلة: 15 نقطة (~15 دج) · ربحك الصافي المتوقع: ~235 دج كاش</small>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button class="btn-primary" onclick="saveCelebrationPriceAndPWA()" style="padding:12px; font-size:15px; font-weight:800;">
+          <span>حفظ السعر وإضافة التطبيق للشاشة الرئيسية 📱</span>
+        </button>
+        <button class="btn-secondary" onclick="closeCelebrationModal()" style="font-size:12px;">
+          <span>إغلاق والمتابعة</span>
         </button>
       </div>
     </div>

@@ -309,6 +309,108 @@ class AuthManager {
       console.error('Failed to clear session', e);
     }
   }
+
+  // تسجيل الخروج من كل الأجهزة
+  logoutAllDevices() {
+    const shop = this.getCurrentShop();
+    if (shop) {
+      try {
+        const db = JSON.parse(localStorage.getItem(this.usersDbKey) || '{}');
+        if (db[shop.phone]) {
+          db[shop.phone].sessionSecret = Date.now().toString(36);
+          localStorage.setItem(this.usersDbKey, JSON.stringify(db));
+        }
+      } catch (e) {}
+    }
+    this.logout();
+  }
+
+  // إدارة موظفي المحل (Staff Management) وفق القسم 5.5
+  getEmployees() {
+    try {
+      const db = JSON.parse(localStorage.getItem('sahla_shop_members') || '{}');
+      const shop = this.getCurrentShop();
+      if (!shop) return [];
+      return db[shop.phone] || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  addEmployee(phone, role = 'STAFF') {
+    const norm = this.normalizeAlgerianPhone(phone);
+    if (!norm.valid) return { success: false, error: norm.error };
+
+    const shop = this.getCurrentShop();
+    if (!shop) return { success: false, error: 'يجب تسجيل الدخول كمالك المحل لإضافة موظف' };
+
+    try {
+      const db = JSON.parse(localStorage.getItem('sahla_shop_members') || '{}');
+      if (!db[shop.phone]) db[shop.phone] = [];
+
+      const exists = db[shop.phone].some(m => m.phone === norm.raw);
+      if (exists) return { success: false, error: 'هذا الموظف مسجل مسبقاً في المحل' };
+
+      const member = {
+        phone: norm.raw,
+        formattedPhone: norm.formatted,
+        carrier: norm.carrier,
+        role: role || 'STAFF',
+        addedAt: new Date().toISOString()
+      };
+
+      db[shop.phone].push(member);
+      localStorage.setItem('sahla_shop_members', JSON.stringify(db));
+      return { success: true, member };
+    } catch (e) {
+      return { success: false, error: 'فشل حفظ بيانات الموظف' };
+    }
+  }
+
+  removeEmployee(rawPhone) {
+    const shop = this.getCurrentShop();
+    if (!shop) return;
+    try {
+      const db = JSON.parse(localStorage.getItem('sahla_shop_members') || '{}');
+      if (db[shop.phone]) {
+        db[shop.phone] = db[shop.phone].filter(m => m.phone !== rawPhone);
+        localStorage.setItem('sahla_shop_members', JSON.stringify(db));
+      }
+    } catch (e) {}
+  }
+}
+
+// -------------------------------------------------------------
+// محرك الأحداث والتحليلات (Sahla Analytics Engine - PRD Section 9)
+// -------------------------------------------------------------
+class AnalyticsManager {
+  constructor() {
+    this.storageKey = 'sahla_analytics_events';
+    this.events = this.loadEvents();
+  }
+
+  loadEvents() {
+    try {
+      return JSON.parse(localStorage.getItem(this.storageKey) || '[]');
+    } catch (e) {
+      return [];
+    }
+  }
+
+  track(eventName, eventData = {}) {
+    const entry = {
+      event: eventName,
+      timestamp: new Date().toISOString(),
+      url: window.location.pathname,
+      data: eventData
+    };
+    this.events.push(entry);
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(this.events.slice(-100)));
+    } catch (e) {}
+    console.log(`[Sahla Analytics] 📊 ${eventName}`, eventData);
+  }
 }
 
 window.sahlaAuth = new AuthManager();
+window.sahlaAnalytics = new AnalyticsManager();

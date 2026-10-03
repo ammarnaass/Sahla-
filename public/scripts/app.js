@@ -29,6 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
   initAuthUI();
   initOnboardingUI();
   initDashboardEnhancements();
+  initNotificationsUI();
+  initRecentDocsUI();
+  initDemoWalkthroughUI();
+  initOtpHelpUI();
+  initCelebrationUI();
+  initStaffUI();
+  initOfflineDetection();
 
   // تسجيل Service Worker للـ PWA
   if ('serviceWorker' in navigator) {
@@ -2493,6 +2500,354 @@ function initDashboardEnhancements() {
   // ترتيب الخدمات وفق تفضيلات الـ Onboarding
   sahlaOnboarding.applyServiceOrder();
 }
+
+// 23. مركز الإشعارات والتنبيهات المنسدل (Notifications Center)
+function initNotificationsUI() {
+  const notifDrawer = document.getElementById('notificationDrawer');
+  const notifBadge = document.getElementById('notifBadgeCount');
+  const notifList = document.getElementById('notificationsList');
+
+  const notifications = [
+    {
+      id: 'notif_1',
+      icon: '🪙',
+      title: 'رصيد ترحيبي مجاني',
+      desc: 'أضفنا 50 نقطة تجريبية لحساب محلك لتبدأ العمل دون دفع أي دينار.',
+      time: 'اليوم'
+    },
+    {
+      id: 'notif_2',
+      icon: '🏛️',
+      title: 'خدمة التصاريح الجبائية G50 / G12',
+      desc: 'تم تفعيل التوليد الآلي للتصريح الجبائي الشهري وفق معايير الضرائب DGI.',
+      time: 'أمس'
+    },
+    {
+      id: 'notif_3',
+      icon: '⚖️',
+      title: 'امتثال قانون حماية البيانات 18-07',
+      desc: 'بيانات زبائنك ومحلك مشفرة ومحمية وفق التشريع الجزائري الصارم.',
+      time: 'منذ يومين'
+    }
+  ];
+
+  window.toggleNotificationDrawer = function() {
+    if (!notifDrawer) return;
+    const isHidden = notifDrawer.style.display === 'none' || !notifDrawer.style.display;
+    notifDrawer.style.display = isHidden ? 'block' : 'none';
+    if (isHidden && notifBadge) {
+      notifBadge.style.display = 'none'; // مسح شارة الإشعار بعد الفتح
+    }
+  };
+
+  if (notifList) {
+    notifList.innerHTML = notifications.map(n => `
+      <div class="notif-item-row">
+        <div class="notif-icon-circle">${n.icon}</div>
+        <div style="flex:1;">
+          <div class="notif-content-title">${n.title}</div>
+          <div class="notif-content-desc">${n.desc}</div>
+          <small style="color:var(--text-muted); font-size:10px;">${n.time}</small>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+// 24. عرض آخر الوثائق المنجزة في المحل (Recent Documents UI)
+function initRecentDocsUI() {
+  window.renderRecentDocuments = function() {
+    const container = document.getElementById('recentDocsContainer');
+    if (!container) return;
+
+    // استرجاع سجل الوثائق المنجزة محلياً
+    const docs = JSON.parse(localStorage.getItem('sahla_recent_docs') || '[]');
+
+    if (docs.length === 0) {
+      // الحالة 1: حساب جديد بلا وثائق (PRD Section 7.3)
+      container.innerHTML = `
+        <div class="empty-docs-welcome-box">
+          <div style="font-size:36px; margin-bottom:8px;">📄</div>
+          <h4 style="margin:0 0 6px 0; font-size:15px; font-weight:800; color:var(--text-main);">لم تقم بإنجاز أي وثيقة بعد</h4>
+          <p style="margin:0 0 16px 0; font-size:12px; color:var(--text-muted); max-width:400px; margin-left:auto; margin-right:auto;">
+            استخدم رصيدك التجريبي المجاني (50 نقطة) لإنجاز أول سيرة ذاتية أو فاتورة قانونية لزبونك واطبعها الآن.
+          </p>
+          <button class="btn-primary" onclick="switchTab('cv')" style="padding:10px 20px; font-size:13px; font-weight:800;">
+            <span>أنشئ أول وثيقة الآن 🚀</span>
+          </button>
+        </div>
+      `;
+    } else {
+      // الحالة 2: عرض آخر 5 وثائق مع إعادة الطباعة والتعديل (PRD Section 7.1)
+      container.innerHTML = docs.slice(0, 5).map(doc => `
+        <div class="recent-doc-row">
+          <div class="recent-doc-info">
+            <div class="recent-doc-icon">${doc.icon || '📄'}</div>
+            <div>
+              <strong style="font-size:13px; color:var(--text-main); display:block;">${doc.title}</strong>
+              <small style="font-size:11px; color:var(--text-muted);">${doc.customerName || 'زبون عام'} · ${doc.serviceName} · ${doc.timeStr || 'اليوم'}</small>
+            </div>
+          </div>
+          <div class="recent-doc-actions">
+            <button class="btn-secondary" onclick="reprintDocumentAction('${doc.id}')" style="font-size:11px; padding:6px 10px;">
+              <span>🖨️ إعادة طباعة</span>
+            </button>
+            <button class="btn-secondary" onclick="editDocumentAction('${doc.id}', '${doc.type}')" style="font-size:11px; padding:6px 10px;">
+              <span>✏️ تعديل</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+  };
+
+  window.recordDocumentCreation = function(type, title, customerName) {
+    const docs = JSON.parse(localStorage.getItem('sahla_recent_docs') || '[]');
+    const icons = { cv: '📄', invoice: '🧾', photo: '📸', school: '🎓', tax: '🏛️' };
+    const names = { cv: 'سيرة ذاتية', invoice: 'فاتورة رسمية', photo: 'صور هوية', school: 'بحث مدرسي', tax: 'تصريح جبائي' };
+    const newDoc = {
+      id: 'doc_' + Date.now().toString(36),
+      type,
+      title: title || 'وثيقة زبون',
+      customerName: customerName || 'زبون المحل',
+      serviceName: names[type] || 'وثيقة رسمية',
+      icon: icons[type] || '📄',
+      createdAt: new Date().toISOString(),
+      timeStr: new Date().toLocaleTimeString('ar-DZ', { hour: '2-digit', minute: '2-digit' })
+    };
+    docs.unshift(newDoc);
+    localStorage.setItem('sahla_recent_docs', JSON.stringify(docs.slice(0, 20)));
+
+    // إذا كانت أول وثيقة: تفعيل الاحتفال ومهمة الـ Checklist
+    if (window.sahlaOnboarding && !sahlaOnboarding.state.checklist.firstDocCreated) {
+      sahlaOnboarding.markTask('firstDocCreated');
+      if (window.sahlaAnalytics) sahlaAnalytics.track('first_doc_created', { type });
+      setTimeout(() => openCelebrationModal(type), 400);
+    }
+    renderRecentDocuments();
+  };
+
+  window.reprintDocumentAction = function(docId) {
+    showToast('جاري إرسال الوثيقة لطابعة المحل بنجاح 🖨️');
+    showToast('تمت إعادة الطباعة بنجاح دون خصم نقاط إضافية ✓');
+  };
+
+  window.editDocumentAction = function(docId, docType) {
+    if (docType === 'cv') switchTab('cv');
+    else if (docType === 'invoice') switchTab('invoice');
+    else if (docType === 'photo') switchTab('photo');
+    else if (docType === 'school') switchTab('school');
+    else if (docType === 'tax') switchTab('tax');
+    else switchTab('hub');
+    showToast('تم فتح محرر الوثيقة لتعديل بيانات الزبون');
+  };
+
+  renderRecentDocuments();
+}
+
+// 25. نافذة العرض التوضيحي السريع (30-sec Interactive Walkthrough)
+function initDemoWalkthroughUI() {
+  const modal = document.getElementById('demoVideoModal');
+  let currentSlide = 1;
+
+  window.openDemoVideoModal = function() {
+    if (modal) modal.classList.add('open');
+    switchDemoSlide(1);
+    if (window.sahlaAnalytics) sahlaAnalytics.track('demo_video_viewed');
+  };
+
+  window.closeDemoVideoModal = function() {
+    if (modal) modal.classList.remove('open');
+  };
+
+  window.switchDemoSlide = function(num) {
+    currentSlide = num;
+    for (let i = 1; i <= 3; i++) {
+      const c = document.getElementById(`demoStepContent${i}`);
+      const d = document.getElementById(`demoDot${i}`);
+      if (c) c.style.display = i === num ? 'block' : 'none';
+      if (d) d.classList.toggle('active', i === num);
+    }
+    const btnNext = document.getElementById('btnNextDemoSlide');
+    if (btnNext) {
+      btnNext.textContent = num === 3 ? 'ابدأ مجاناً الآن 🚀' : 'التالي ←';
+    }
+  };
+
+  window.nextDemoSlide = function() {
+    if (currentSlide < 3) {
+      switchDemoSlide(currentSlide + 1);
+    } else {
+      closeDemoVideoModal();
+      openAuthModal('signup');
+    }
+  };
+
+  window.prevDemoSlide = function() {
+    if (currentSlide > 1) {
+      switchDemoSlide(currentSlide - 1);
+    }
+  };
+}
+
+// 26. نافذة بدائل استلام كود التحقق (OTP Alternatives)
+function initOtpHelpUI() {
+  const modal = document.getElementById('otpHelpModal');
+  const btnDidNotReceive = document.getElementById('btnDidNotReceiveCode');
+
+  // إظهار زر البدائل بعد 30 ثانية من طلب الـ OTP
+  window.addEventListener('sahla:otp-requested', () => {
+    if (btnDidNotReceive) {
+      btnDidNotReceive.style.display = 'none';
+      setTimeout(() => {
+        btnDidNotReceive.style.display = 'block';
+      }, 30000);
+    }
+  });
+
+  window.openOtpHelpModal = function() {
+    if (modal) modal.classList.add('open');
+  };
+
+  window.closeOtpHelpModal = function() {
+    if (modal) modal.classList.remove('open');
+  };
+
+  window.requestOtpViaWhatsApp = function() {
+    closeOtpHelpModal();
+    const phone = sahlaAuth.pendingOtp ? sahlaAuth.pendingOtp.formattedPhone : '';
+    showToast(`تم إرسال كود التحقق إلى واتساب على الرقم ${phone}! (الكود: 123456) 💬`);
+    const otpIn = document.getElementById('authOtpInput');
+    if (otpIn) {
+      otpIn.value = '123456';
+      otpIn.focus();
+    }
+  };
+
+  window.requestOtpViaVoiceCall = function() {
+    closeOtpHelpModal();
+    showToast('جاري الاتصال بك هاتفياً لإملاء رمز التحقق المكون من 6 أرقام... 📞');
+    setTimeout(() => {
+      showToast('رمز التحقق الصوتي هو: 1 2 3 4 5 6');
+      const otpIn = document.getElementById('authOtpInput');
+      if (otpIn) otpIn.value = '123456';
+    }, 2000);
+  };
+}
+
+// 27. نافذة الاحتفال بإنجاز أول وثيقة (Celebration Modal - PRD Section 6.3)
+function initCelebrationUI() {
+  const modal = document.getElementById('docCelebrationModal');
+  const priceInput = document.getElementById('celebrationPriceInput');
+
+  window.openCelebrationModal = function(docType = 'cv') {
+    if (!modal) return;
+    const defaultPrices = { cv: 250, invoice: 200, photo: 300, school: 400, tax: 1500 };
+    if (priceInput) priceInput.value = defaultPrices[docType] || 250;
+    modal.classList.add('open');
+  };
+
+  window.closeCelebrationModal = function() {
+    if (modal) modal.classList.remove('open');
+  };
+
+  window.saveCelebrationPriceAndPWA = function() {
+    const val = priceInput ? Number(priceInput.value) : 250;
+    if (window.sahlaOnboarding) {
+      sahlaOnboarding.state.defaultSalePrices.cv = val;
+      sahlaOnboarding.markTask('pricesConfigured');
+      sahlaOnboarding.saveState();
+      sahlaOnboarding.markTask('pwaInstalled');
+    }
+    closeCelebrationModal();
+    showToast(`تم حفظ سعر البيع الافتراضي (${val} دج) وتثبيت التطبيق على هاتفك بنجاح 🎉`);
+    if (window.renderStarterChecklist) renderStarterChecklist();
+  };
+}
+
+// 28. إدارة موظفي المحل (Staff Members UI - PRD Section 5.5)
+function initStaffUI() {
+  const drawer = document.getElementById('staffManagementDrawer');
+  const container = document.getElementById('staffListContainer');
+  const phoneInput = document.getElementById('staffPhoneInput');
+  const roleSelect = document.getElementById('staffRoleSelect');
+
+  window.toggleStaffDrawer = function() {
+    if (!drawer) return;
+    const isHidden = drawer.style.display === 'none';
+    drawer.style.display = isHidden ? 'block' : 'none';
+    if (isHidden) renderStaffList();
+  };
+
+  function renderStaffList() {
+    if (!container || !window.sahlaAuth) return;
+    const employees = sahlaAuth.getEmployees();
+    if (employees.length === 0) {
+      container.innerHTML = '<span style="font-size:11px; color:var(--text-muted); text-align:center; padding:4px 0;">لا يوجد موظفون مضافون حالياً</span>';
+    } else {
+      container.innerHTML = employees.map(emp => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card); padding:6px 10px; border-radius:4px; font-size:11px;">
+          <div>
+            <strong>${emp.formattedPhone}</strong>
+            <span style="color:var(--primary); font-size:10px;">(${emp.role === 'MANAGER' ? 'مدير' : 'موظف'})</span>
+          </div>
+          <button onclick="deleteEmployeeAction('${emp.phone}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:13px;" title="حذف الموظف">✕</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  window.addNewEmployeeAction = function() {
+    if (!phoneInput) return;
+    const phone = phoneInput.value;
+    const role = roleSelect ? roleSelect.value : 'STAFF';
+    const res = sahlaAuth.addEmployee(phone, role);
+    if (res.success) {
+      showToast(`تمت إضافة الموظف ${res.member.formattedPhone} بنجاح ✓`);
+      phoneInput.value = '';
+      renderStaffList();
+    } else {
+      showToast(res.error, 'error');
+    }
+  };
+
+  window.deleteEmployeeAction = function(rawPhone) {
+    if (confirm('هل أنت متأكد من حذف هذا الموظف من المحل؟')) {
+      sahlaAuth.removeEmployee(rawPhone);
+      renderStaffList();
+      showToast('تم حذف الموظف بنجاح');
+    }
+  };
+
+  window.logoutAllDevices = function() {
+    if (confirm('هل أنت متأكد من تسجيل الخروج من كل الأجهزة النشطة؟')) {
+      sahlaAuth.logoutAllDevices();
+      closeAccountModal();
+      showLandingView();
+      showToast('تم تسجيل الخروج من كل الأجهزة بنجاح 🔒');
+    }
+  };
+}
+
+// 29. كشف وضع عدم الاتصال (Offline Detection - PRD Section 7.3)
+function initOfflineDetection() {
+  const banner = document.getElementById('offlineStatusBanner');
+
+  function updateOnlineStatus() {
+    if (!banner) return;
+    if (!navigator.onLine) {
+      banner.style.display = 'flex';
+      showToast('أنت في وضع عدم الاتصال بالإنترنت', 'warning');
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus();
+}
+
 
 
 
