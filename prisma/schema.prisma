@@ -37,14 +37,18 @@ enum JobStatus {
 
 // 1. المستخدمين
 model User {
-  id            String       @id @default(cuid())
-  phone         String       @unique
-  fullName      String?
-  role          UserRole     @default(OWNER)
-  shopId        String?
-  shop          Shop?        @relation(fields: [shopId], references: [id])
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id              String           @id @default(cuid())
+  phone           String           @unique
+  fullName        String?
+  role            UserRole         @default(OWNER)
+  shopId          String?
+  shop            Shop?            @relation(fields: [shopId], references: [id])
+  sessions        Session[]
+  consents        Consent[]
+  onboardingState OnboardingState?
+  notifications   Notification[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 }
 
 // 2. المحلات
@@ -199,3 +203,64 @@ model BoundDevice {
   deviceLabel   String
   lastActive    DateTime     @default(now())
 }
+
+// طلبات OTP والأمان
+model OtpRequest {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  channel   String   @default("SMS") // SMS, WHATSAPP, VOICE
+  attempts  Int      @default(0)
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  ip        String?
+  createdAt DateTime @default(now())
+}
+
+// جلسات الأجهزة النشطة (حد أقصى جهازين)
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  deviceId     String
+  deviceLabel  String
+  refreshToken String   @unique
+  ip           String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+}
+
+// الموافقات القانونية (قانون 18-07 وقانون 18-05)
+model Consent {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // TERMS, PRIVACY
+  version   String
+  givenAt   DateTime @default(now())
+}
+
+// حالة الـ Onboarding وتفضيلات الخدمات
+model OnboardingState {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id])
+  completed        Boolean  @default(false)
+  currentStep      Int      @default(1)
+  selectedServices Json     @default("[]")
+  checklist        Json     @default("{}")
+  updatedAt        DateTime @updatedAt
+}
+
+// إشعارات التطبيق
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // LOW_BALANCE, DOC_READY, NEW_SERVICE, LEGAL_UPDATE
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "user_super_admin",
+    "name": "مدير منصة سهلة المركزي",
+    "phone": "0550000000",
+    "role": "SUPER_ADMIN",
+    "shopId": null,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "user_shop_admin",
+    "name": "أحمد بن علي",
+    "phone": "0555123456",
+    "role": "SHOP_ADMIN",
+    "shopId": "shop_1",
+    "createdAt": "2026-02-15T00:00:00.000Z"
+  },
+  {
+    "id": "user_staff",
+    "name": "سفيان بلقاسم (موظف)",
+    "phone": "0661998877",
+    "role": "STAFF",
+    "shopId": "shop_1",
+    "createdAt": "2026-03-10T00:00:00.000Z"
+  }
+]

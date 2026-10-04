@@ -1,0 +1,46 @@
+[
+  {
+    "id": "shop_1",
+    "name": "مكتبة النجاح الرقمية",
+    "owner": "أحمد بن علي",
+    "phone": "0555123456",
+    "wilaya": "16 - الجزائر العاصمة",
+    "wilayaCode": 16,
+    "activity": "KIOSK",
+    "points": 190,
+    "status": "ACTIVE",
+    "staff": [
+      {
+        "id": "staff_1",
+        "name": "سفيان بلقاسم",
+        "phone": "0661998877",
+        "role": "STAFF",
+        "addedAt": "2026-03-10"
+      }
+    ]
+  },
+  {
+    "id": "shop_2",
+    "name": "سيبار الأمل وهران",
+    "owner": "عبد القادر بلحاج",
+    "phone": "0770112233",
+    "wilaya": "31 - وهران",
+    "wilayaCode": 31,
+    "activity": "CYBER",
+    "points": 85,
+    "status": "ACTIVE",
+    "staff": []
+  },
+  {
+    "id": "shop_3",
+    "name": "فضاء الخدمات الرقمية سطيف",
+    "owner": "مراد قرفي",
+    "phone": "0660445566",
+    "wilaya": "19 - سطيف",
+    "wilayaCode": 19,
+    "activity": "PUBLIC_WRITER",
+    "points": 210,
+    "status": "ACTIVE",
+    "staff": []
+  }
+]
