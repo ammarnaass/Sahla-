@@ -1,0 +1,38 @@
+[
+  {
+    "id": "card_1",
+    "batchNumber": "BATCH-2026-A",
+    "serialNumber": "SHL-100-8849",
+    "pin": "88492026",
+    "points": 100,
+    "priceDZD": 1000,
+    "status": "UNREDEEMED",
+    "shopId": null,
+    "redeemedAt": null,
+    "createdAt": "2026-10-05 14:57:09"
+  },
+  {
+    "id": "card_2",
+    "batchNumber": "BATCH-2026-A",
+    "serialNumber": "SHL-250-9912",
+    "pin": "99122026",
+    "points": 250,
+    "priceDZD": 2200,
+    "status": "UNREDEEMED",
+    "shopId": null,
+    "redeemedAt": null,
+    "createdAt": "2026-10-05 14:57:09"
+  },
+  {
+    "id": "card_3",
+    "batchNumber": "BATCH-2026-A",
+    "serialNumber": "SHL-500-4431",
+    "pin": "44312026",
+    "points": 500,
+    "priceDZD": 4000,
+    "status": "UNREDEEMED",
+    "shopId": null,
+    "redeemedAt": null,
+    "createdAt": "2026-10-05 14:57:09"
+  }
+]

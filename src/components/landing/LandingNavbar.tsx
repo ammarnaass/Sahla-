@@ -40,6 +40,9 @@ export function LandingNavbar({ onOpenAuth }: LandingNavbarProps) {
 
         {/* Desktop Nav Links */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
+          <Link href="/pricing" className="text-emerald-400 font-bold hover:text-emerald-300 transition-colors">
+            باقات الاشتراك SaaS
+          </Link>
           <a href="#how-it-works" className="hover:text-emerald-400 transition-colors">
             {t("landing.howItWorksTitle")}
           </a>

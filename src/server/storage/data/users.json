@@ -1,0 +1,50 @@
+[
+  {
+    "id": "user_super_admin",
+    "name": "مدير منصة سهلة المركزي",
+    "email": "admin@sahla.dz",
+    "secondaryEmail": "superadmin@gmail.com",
+    "phone": "0550000000",
+    "password": "e0a56bb8483d1eea8f2bfdae47c5fa9f:c6a1e06f18ccb043623cdc97c41f634f60f29a6c9319dab3a42ff176f0f1ca1c18f4e3bd67cb778fe9898cb78ef79164272cfad65dcf83037c71be9637744b09",
+    "role": "SUPER_ADMIN",
+    "shopId": null,
+    "createdAt": "2026-10-05 14:57:08",
+    "updatedAt": "2026-10-05 14:57:08"
+  },
+  {
+    "id": "user_shop_admin",
+    "name": "أحمد بن علي",
+    "email": "najah.kiosk@gmail.com",
+    "secondaryEmail": null,
+    "phone": "0555123456",
+    "password": "2ac3048d415790b9ef1189b96de73c36:510685aa0677ad94c3c59ff6c6105d58d6b6c6e4bff0a6001c230bd8d08edbb4960219ec889bc127d31ba5e63499d35a25e6c32352e9fc8e205c9139c5f1a550",
+    "role": "SHOP_ADMIN",
+    "shopId": "shop_1",
+    "createdAt": "2026-10-05 14:57:08",
+    "updatedAt": "2026-10-05 14:57:08"
+  },
+  {
+    "id": "user_staff",
+    "name": "سفيان بلقاسم (موظف)",
+    "email": "staff.soufiane@gmail.com",
+    "secondaryEmail": null,
+    "phone": "0661998877",
+    "password": "36152c56b808571fe10a069d28dfd6f6:c3d909effe632359c4d1728a1ee14a8de959810ff482a7e57ff80f5ff86221a8b92148fa1551b74ae3fe6c419084d64f68306dbe5d2e505cc2f5874fd9ac1ef8",
+    "role": "STAFF",
+    "shopId": "shop_1",
+    "createdAt": "2026-10-05 14:57:08",
+    "updatedAt": "2026-10-05 14:57:08"
+  },
+  {
+    "id": "user_1791222058365",
+    "name": "admin",
+    "email": "admin@dante.com",
+    "secondaryEmail": null,
+    "phone": "0555 00 00 00",
+    "password": "2289e59cf6d2ebeb5a5e66fe9b6e060b:a5c6143f64b228e5259d4083a914a08ac3870212734d3a64000d9d2143be70110d20a82cb46364608f6565b5827bca310e001e86563bde1c2a941d8ce2174d16",
+    "role": "SHOP_ADMIN",
+    "shopId": "shop_1791222058320",
+    "createdAt": "2026-10-05T17:40:58.365Z",
+    "updatedAt": "2026-10-05 17:40:58"
+  }
+]

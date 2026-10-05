@@ -8,15 +8,17 @@ import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { OfflineBanner } from "@/components/dashboard/OfflineBanner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { DashboardTabProvider, useDashboardTab } from "@/contexts/DashboardTabContext";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const { session } = useAuth();
   const { locale, setLocale } = useLanguage();
+  const { activeTab, setActiveTab } = useDashboardTab();
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row selection:bg-emerald-500 selection:text-white">
-      {/* Desktop Right Sidebar (RTL) */}
-      <DesktopSidebar />
+      {/* Desktop Right Sidebar (RTL) with Tab sync */}
+      <DesktopSidebar activeTab={activeTab} onSelectTab={(t) => setActiveTab(t as any)} />
 
       {/* Main Body */}
       <div className="flex-1 flex flex-col min-w-0 pb-20 md:pb-8">
@@ -39,7 +41,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </h2>
               <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>متصل · 50 نقطة تجريبية</span>
+                <span>
+                  {session?.user?.role === "SUPER_ADMIN"
+                    ? "👑 مدير النظام العام"
+                    : session?.user?.role === "EMPLOYEE"
+                    ? "👤 موظف كاونتر"
+                    : "🛡️ متصل · رصيد النقاط نشط"}
+                </span>
               </span>
             </div>
           </div>
@@ -67,8 +75,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <BottomNavBar />
+      {/* Mobile Bottom Navigation Bar with Tab sync */}
+      <BottomNavBar activeTab={activeTab} onSelectTab={(t) => setActiveTab(t as any)} />
     </div>
+  );
+}
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <DashboardTabProvider>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </DashboardTabProvider>
   );
 }

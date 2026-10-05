@@ -10,11 +10,15 @@ export type SahlaEvent =
   | "onboarding_step_1"
   | "onboarding_step_2"
   | "onboarding_step_3"
+  | "onboarding_completed"
   | "onboarding_skipped"
   | "first_doc_created"
   | "first_topup"
   | "service_used"
-  | "pwa_installed";
+  | "points_recharged"
+  | "document_generated"
+  | "pwa_installed"
+  | (string & {});
 
 interface AnalyticsEntry {
   event: SahlaEvent;
@@ -70,3 +74,6 @@ export function track(event: SahlaEvent, data: Record<string, unknown> = {}) {
     console.log(`[Sahla Analytics] 📊 ${event}`, data);
   }
 }
+
+export const trackEvent = track;
+

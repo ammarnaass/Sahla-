@@ -1,30 +1,33 @@
 import type { Metadata, Viewport } from "next";
-import { Cairo, Tajawal, Outfit } from "next/font/google";
-import { ThemeProvider } from "@/components/ui/ThemeProvider";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import "./globals.css";
+import localFont from "next/font/local";
 
-const cairo = Cairo({
-  subsets: ["arabic", "latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+const cairo = localFont({
+  src: [
+    { path: "../../public/fonts/Cairo-Regular.ttf", weight: "400", style: "normal" },
+    { path: "../../public/fonts/Cairo-SemiBold.ttf", weight: "600", style: "normal" },
+    { path: "../../public/fonts/Cairo-Bold.ttf", weight: "700", style: "normal" },
+    { path: "../../public/fonts/Cairo-ExtraBold.ttf", weight: "800", style: "normal" },
+    { path: "../../public/fonts/Cairo-Black.ttf", weight: "900", style: "normal" },
+  ],
   variable: "--font-cairo",
   display: "swap",
 });
 
-const tajawal = Tajawal({
-  subsets: ["arabic", "latin"],
-  weight: ["400", "500", "700", "800"],
+const tajawal = localFont({
+  src: [
+    { path: "../../public/fonts/Tajawal-Regular.ttf", weight: "400", style: "normal" },
+    { path: "../../public/fonts/Tajawal-Medium.ttf", weight: "500", style: "normal" },
+    { path: "../../public/fonts/Tajawal-Bold.ttf", weight: "700", style: "normal" },
+    { path: "../../public/fonts/Tajawal-ExtraBold.ttf", weight: "800", style: "normal" },
+  ],
   variable: "--font-tajawal",
   display: "swap",
 });
 
-const outfit = Outfit({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-outfit",
-  display: "swap",
-});
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "سهلة · Sahla — كل وثيقة في دقائق 🇩🇿",
@@ -65,7 +68,7 @@ export default function RootLayout({
       lang="ar"
       dir="rtl"
       suppressHydrationWarning
-      className={`${cairo.variable} ${tajawal.variable} ${outfit.variable}`}
+      className={`${cairo.variable} ${tajawal.variable}`}
     >
       <head>
         <script

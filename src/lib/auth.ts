@@ -54,14 +54,15 @@ export function normalizeAlgerianPhone(rawPhone: string): PhoneValidationResult 
  * Generate a 6-digit OTP code.
  * Demo codes: numbers ending in 0000 always get "123456"
  */
-export function generateOTP(phone: string): string {
-  if (phone.endsWith("0000")) return "123456";
+export function generateOTP(phone: string = ""): string {
+  if (phone && phone.endsWith("0000")) return "123456";
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 // Rate limiting constants (PRD Section 5.4)
 export const OTP_CONFIG = {
   CODE_LENGTH: 6,
+  EXPIRY_MINUTES: 5,
   CODE_VALIDITY_MS: 5 * 60 * 1000,         // 5 minutes
   RESEND_COOLDOWN_MS: 60 * 1000,            // 60 seconds
   MAX_VERIFY_ATTEMPTS: 5,

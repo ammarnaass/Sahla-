@@ -1,192 +1,239 @@
 # 🏛️ Sahla Enterprise Architecture (المعمارية المؤسساتية لمنصة سهلة)
 
-This document provides a comprehensive technical overview of the architecture of **Sahla (سهلة)** — the premier digital services platform for cybercafés, public writers, and stationery kiosks across Algeria's 58 Wilayas.
+وثيقة المعمارية التقنية والهندسية المعتمدة لمنصة **سهلة (Sahla)** — المنصة الرقمية الوطنية المتكاملة لأصحاب الكيوسكات، المكتبات، مقاهي الإنترنت ومكاتب الخدمات العامة عبر الـ 58 ولاية جزائرية.
 
 ---
 
-## 📑 Table of Contents
-1. [Architectural Overview](#1-architectural-overview)
-2. [Layered Design & Folder Structure](#2-layered-design--folder-structure)
-3. [Role-Based Access Control (RBAC)](#3-role-based-access-control-rbac)
-4. [Persistence & Data Layer](#4-persistence--data-layer)
-5. [Real-Time Print Bridge (SSE)](#5-real-time-print-bridge-sse)
-6. [Algerian Regulatory Compliance](#6-algerian-regulatory-compliance)
-7. [API Specification](#7-api-specification)
+## 🛠️ المعمارية التقنية (Tech Stack)
+
+- **الواجهة الأمامية (Frontend):** Next.js (App Router), React, Tailwind CSS (RTL First), PWA (Offline/Weak Connection Ready).
+- **الخطوط والتصميم:** خط Cairo وTajawal عبر Google Fonts، واجهات داكنة وفاتحة عصرية (Glassmorphism & Micro-interactions).
+- **الخادم وقاعدة البيانات (Backend & DB):** Next.js Server Actions / API Routes + PostgreSQL + Prisma ORM + Redis (Queues & Rate Limiting).
+- **محرك معالجة الوثائق (PDF Engine):** HTML to PDF (A4 300DPI) + Coordinates Overlay للنماذج الرسمية.
+- **التخزين الآمن (Storage):** متوافق مع S3 مع روابط موقعة مؤقتة وحذف آلي بعد 24-72 ساعة (وفق قانون 18-07).
+- **الذكاء الاصطناعي (AI & Vision):** نماذج Google Gemini لتوليد المحتوى، الترجمة الاحترافية، التعرف الضوئي OCR، وتجهيز صور الهوية.
 
 ---
 
-## 1. Architectural Overview
+## 📑 فهرس المحتويات (Table of Contents)
 
-Sahla adheres to **Clean Layered Architecture (Onion Architecture)** principles, establishing strict separation of concerns across presentation, routing, application services, domain models, and data persistence layers.
+1. [المعمارية التقنية (Tech Stack)](#️-المعمارية-التقنية-tech-stack)
+2. [المخطط المعماري للنظام (System Architecture Diagram)](#1-المخطط-المعماري-للنظام-system-architecture-diagram)
+3. [هيكلية المشروع والمجلدات (Project & Directory Structure)](#2-هيكلية-المشروع-والمجلدات-project--directory-structure)
+4. [إدارة الصلاحيات والأدوار (Role-Based Access Control - RBAC)](#3-إدارة-الصلاحيات-والأدوار-role-based-access-control---rbac)
+5. [طبقة البيانات والتخزين (Persistence, PostgreSQL & S3)](#4-طبقة-البيانات-والتخزين-persistence-postgresql--s3)
+6. [محرك الوثائق وجسر الطباعة الفوري (PDF Engine & Real-Time Print Bridge)](#5-محرك-الوثائق-وجسر-الطباعة-الفوري-pdf-engine--real-time-print-bridge)
+7. [محرك الذكاء الاصطناعي والرؤية الحاسوبية (Google Gemini AI & Vision)](#6-محرك-الذكاء-الاصطناعي-والرؤية-الحاسوبية-google-gemini-ai--vision)
+8. [الامتثال للقوانين والتنظيمات الجزائرية (Algerian Regulatory Compliance)](#7-الامتثال-للقوانين-والتنظيمات-الجزائرية-algerian-regulatory-compliance)
+9. [دليل واجهات البرمجة (API Specification & Server Actions)](#8-دليل-واجهات-البرمجة-api-specification--server-actions)
+
+---
+
+## 1. المخطط المعماري للنظام (System Architecture Diagram)
+
+تعتمد منصة سهلة على معمارية طبقية حديثة تجمع بين أداء **Next.js App Router**، والمعالجة اللحظية لمهام الخلفية عبر **Redis Queues**، ومرونة **Server Actions** و **Prisma ORM** مع قاعدة بيانات **PostgreSQL** الموزعة.
 
 ```mermaid
 graph TD
-    Client[📱 Client PWA / Mobile Web Browser]
-    
-    subgraph Infrastructure_Layer [Infrastructure & Entry]
-        Entry[server.js - HTTP Bootstrap]
-        Router[server/router.js - Request Dispatcher]
-        Static[Static PWA Asset Server]
+    UserClient[📱 Client PWA / Phone Browser / Desktop PC]
+
+    subgraph Presentation_Layer [طبقة العرض والواجهات (Frontend & PWA)]
+        AppRouter[Next.js App Router - RTL First]
+        DesignSystem[Tailwind CSS + Cairo / Tajawal + Glassmorphism]
+        PWAEngine[PWA Service Worker - Offline & Weak 3G/4G Cache]
     end
 
-    subgraph Middleware_Layer [Security & Validation Middleware]
-        CORS[CORS & Security Headers]
+    subgraph Security_Middleware [طبقة الأمان والتحقق (Security & Guards)]
         AuthGuard[RBAC Guard: SUPER_ADMIN | SHOP_ADMIN | STAFF]
+        RateLimiter[Redis Rate Limiting - 5 req/min OTP]
+        SessionMgr[JOSE JWT & HttpOnly Cookies]
     end
 
-    subgraph Controller_Layer [Controllers]
-        AuthCtrl[AuthController]
-        ShopCtrl[ShopController]
-        StaffCtrl[StaffController]
-        WalletCtrl[WalletController]
-        AdminCtrl[AdminController]
-        PrintCtrl[PrintController]
+    subgraph Application_Layer [طبقة الخدمات ومنطق الأعمال (Application & Business Logic)]
+        ServerActions[Next.js Server Actions & API Routes]
+        AuthSvc[Phone OTP & Algerian Carriers Engine]
+        WalletSvc[Atomic Points Engine & Scratch Cards]
+        DocSvc[Document Processing Service]
+        PrintBridge[SSE Real-Time Print Bridge /events]
     end
 
-    subgraph Service_Layer [Business Logic & Domain Services]
-        AuthSvc[AuthService]
-        ShopSvc[ShopService]
-        WalletSvc[WalletService]
-        AdminSvc[AdminService]
-        PrintSvc[PrintBridgeService]
+    subgraph Async_Engine [المعالجة غير المتزامنة والذكاء الاصطناعي (Async & AI)]
+        RedisQueue[(Redis Queues & Worker Jobs)]
+        GeminiAI[Google Gemini Models - OCR & Generation & Vision]
+        PDFRenderer[HTML to PDF A4 300DPI + Coordinates Overlay]
     end
 
-    subgraph Repository_Layer [Persistence & Repositories]
-        UserRepo[UserRepository]
-        ShopRepo[ShopRepository]
-        WalletRepo[WalletRepository]
-        DocRepo[DocumentRepository]
-        Storage[(Atomic JSON Store / Prisma Aligned)]
+    subgraph Persistence_Storage [قواعد البيانات والتخزين الآمن (Data & Storage)]
+        PrismaORM[Prisma ORM Client]
+        PostgreSQL[(PostgreSQL Enterprise Database)]
+        S3Storage[(S3 Compatible Storage - 24-72h Auto-Purge TTL)]
     end
 
-    Client --> Entry --> Router
-    Router --> Static
-    Router --> CORS --> AuthGuard
-    AuthGuard --> AuthCtrl & ShopCtrl & StaffCtrl & WalletCtrl & AdminCtrl & PrintCtrl
+    UserClient --> AppRouter
+    AppRouter --> DesignSystem & PWAEngine
+    AppRouter --> Security_Middleware
+    Security_Middleware --> Application_Layer
     
-    AuthCtrl --> AuthSvc
-    ShopCtrl & StaffCtrl --> ShopSvc
-    WalletCtrl --> WalletSvc
-    AdminCtrl --> AdminSvc
-    PrintCtrl --> PrintSvc
+    Application_Layer --> ServerActions
+    ServerActions --> AuthSvc & WalletSvc & DocSvc & PrintBridge
     
-    AuthSvc & ShopSvc & WalletSvc & AdminSvc --> UserRepo & ShopRepo & WalletRepo & DocRepo
-    UserRepo & ShopRepo & WalletRepo & DocRepo --> Storage
+    DocSvc --> RedisQueue
+    RedisQueue --> GeminiAI & PDFRenderer
+    PDFRenderer --> S3Storage
+    
+    Application_Layer --> PrismaORM
+    PrismaORM --> PostgreSQL
+    
+    PrintBridge -.->|Server-Sent Events| UserClient
 ```
 
 ---
 
-## 2. Layered Design & Folder Structure
+## 2. هيكلية المشروع والمجلدات (Project & Directory Structure)
+
+تم تنظيم المشروع ليفصل بين شفرة واجهات وتطبيقات Next.js الحديثة، ونماذج قاعدة البيانات، والخدمات المركزية:
 
 ```
 Sahla/
-├── public/                     # Client Presentation Layer (PWA UI)
-│   ├── index.html              # Single-Page Application (HTML5, Modern CSS, Cairo 900)
-│   ├── manifest.json           # Web App Manifest (PWA installable)
-│   └── sw.js                   # Service Worker (Offline caching & PWA)
-│
-├── server/                     # Core Backend Application
-│   ├── config/
-│   │   └── constants.js        # National constants (58 Wilayas, Telecom operators, Roles)
-│   ├── storage/
-│   │   ├── jsonStore.js        # Atomic file-backed JSON persistence engine
-│   │   └── data/               # Persistent data collections (users, shops, ledger, cards)
-│   ├── repositories/
-│   │   ├── userRepository.js   # User data access & identity queries
-│   │   ├── shopRepository.js   # Shop data access, points, & staff management
-│   │   ├── walletRepository.js # Ledger history & scratch cards redemption
-│   │   └── documentRepository.js # Documents with Law 18-07 auto-purge
-│   ├── services/
-│   │   ├── authService.js      # Phone normalization, operator detection, OTP verify
-│   │   ├── shopService.js      # Shop lifecycle & staff delegation
-│   │   ├── walletService.js    # Edahabia/BaridiMob e-pay & scratch card PINs
-│   │   ├── adminService.js     # Super Admin 58-Wilaya aggregation & control
-│   │   └── printBridgeService.js # Server-Sent Events (SSE) wireless printer engine
-│   ├── middleware/
-│   │   ├── cors.js             # CORS & XSS/Security Headers
-│   │   └── authGuard.js        # Session verification & role authorization
-│   ├── controllers/
-│   │   ├── authController.js   # /api/auth/* endpoints
-│   │   ├── shopController.js   # /api/shops/* endpoints
-│   │   ├── staffController.js  # /api/shop/staff/* endpoints
-│   │   ├── walletController.js # /api/wallet/* endpoints
-│   │   ├── adminController.js  # /api/admin/* endpoints
-│   │   └── printController.js  # /api/send-print & /events endpoints
-│   └── router.js               # Central HTTP request routing & static file handler
+├── src/                              # الجذر الموحد للتطبيق والواجهات (Root Directory)
+│   ├── app/                          # Next.js App Router (الصفحات، المسارات، ونقاط النهاية)
+│   │   ├── auth/                     # مصادقة الدخول السريع برمز الهاتف (OTP)
+│   │   ├── onboarding/               # إعداد وتخصيص المحل للزيارة الأولى
+│   │   ├── dashboard/                # لوحة التحكم المركزية واستوديو الوثائق
+│   │   │   ├── layout.tsx            # مخطط اللوحة مع مزامنة التبويبات وSidebar
+│   │   │   └── page.tsx              # صفحة التحكم المركزية لجميع الخدمات
+│   │   ├── legacy/                   # صفحة المحاكي المحولة (Next.js Legacy Converted Page)
+│   │   ├── api/                      # مسارات Next.js API Routes (JSON Endpoints)
+│   │   │   ├── auth/                 # طلب والتحقق من رمز OTP
+│   │   │   ├── shops/                # بيانات المحل والموظفين
+│   │   │   ├── wallet/               # عمليات الشحن والخصم الذري
+│   │   │   └── print/                # جسر الطباعة اللاسلكي
+│   │   ├── layout.tsx                # المخطط العام (RTL, Cairo Font, Themes Provider)
+│   │   └── globals.css               # أنماط Tailwind CSS v4 ومتغيرات الألوان والتأثيرات
+│   │
+│   ├── components/                   # مكونات React المعيارية
+│   │   ├── dashboard/                # تبويبات اللوحة (WalletTab, DocumentsTab, StaffAccountTab, SettingsTab, SuperAdminTab, StudioModal)
+│   │   ├── landing/                  # أقسام الصفحة التعريفية (Hero, Calculator, FAQ)
+│   │   └── ui/                       # عناصر التصميم والأزرار والنوافذ
+│   │
+│   ├── contexts/                     # سياقات الحالة المشتركة (AuthContext, DashboardTabContext, LanguageContext)
+│   ├── hooks/                        # خطافات React المخصصة (useOnline, usePrintBridge)
+│   ├── lib/                          # المكتبات والأدوات المساعدة (auth, constants, db, gemini, analytics)
+│   ├── manifest.json                 # Web App Manifest (PWA Installable)
+│   └── sw.js                         # Service Worker (Offline First Caching)
 │
 ├── prisma/
-│   └── schema.prisma           # Enterprise PostgreSQL database schema
-├── server.js                   # Lightweight application entrypoint & bootstrap
-├── package.json                # Project manifest & run scripts
-└── ARCHITECTURE.md             # This document
+│   └── schema.prisma                 # المخطط الهيكلي لقاعدة بيانات PostgreSQL
+│
+├── server/                           # المحرك الخلفي الموسع وجسر SSE للطباعة (يخدم من src/)
+│   ├── config/                       # الثوابت المؤسساتية والإعدادات الوطنية
+│   ├── controllers/                  # وحدات التحكم المنطقية
+│   ├── middleware/                   # حراس الأمان والتحقق من الصلاحيات (RBAC)
+│   ├── repositories/                 # مستودعات الاستعلام والبيانات
+│   └── services/                     # الخدمات المركزية (Auth, Shop, Wallet, Print)
+│
+├── docs/                             # مستندات متطلبات المنتج (PRD) والأدلة التفصيلية
+├── package.json                      # تبعيات المشروع (Next.js 15, React 19, Tailwind, Prisma)
+├── ARCHITECTURE.md                   # وثيقة المعمارية التقنية الرسمية (هذا الملف)
+└── README.md                         # الدليل التعريفي الشامل للمنصة
 ```
 
 ---
 
-## 3. Role-Based Access Control (RBAC)
+## 3. إدارة الصلاحيات والأدوار (Role-Based Access Control - RBAC)
 
-The platform enforces a strict three-tier role hierarchy:
+تعتمد المنصة نموذج أمان صارم يتكون من ثلاثة أدوار رئيسية لحماية العمليات وموارد المحل:
 
-| Role | Default Test Account | Primary Responsibilities | Scope of Access |
+| الرتبة (Role) | حساب الاختبار الافتراضي | الصلاحيات والمسؤوليات | نطاق الوصول |
 | :--- | :---: | :--- | :--- |
-| **👑 Super Admin (مدير النظام)** | `0550 00 00 00`<br>`OTP: 123456` | Platform administration, national statistics, distributor management | Full access to all 58 Wilayas, administrative topups, shop activation/suspension |
-| **🛡️ Shop Admin (أدمن المحل)** | `0555 12 34 56`<br>`OTP: 123456` | Shop owner / registered public writer / kiosk manager | Shop ledger, financials, staff hiring/firing, printer binding, settings |
-| **👤 Staff Member (موظف المحل)** | `0661 99 88 77`<br>`OTP: 123456` | Counter clerk, document designer, printer operator | Restricted exclusively to customer service & document generation. Forbidden from altering shop settings or ledger |
+| **👑 مدير النظام (SUPER_ADMIN)** | `0550 00 00 00`<br>`OTP: 123456` | إدارة المنصة الوطنية، مراقبة استهلاك الذكاء الاصطناعي، شحن الأرصدة الإدارية، توليد دفعات بطاقات الشحن | تحكم كامل عبر كافة الـ 58 ولاية، تفعيل أو تجميد المحلات |
+| **🛡️ أدمن المحل (SHOP_ADMIN / OWNER)** | `0555 12 34 56`<br>`OTP: 123456` | مالك المحل أو الكيوسك أو مقهى الإنترنت المعتمد | إدارة الخزينة والمحفظة، إضافة/حذف الموظفين، ربط الطابعات، وتعديل إعدادات المحل |
+| **👤 موظف المحل (STAFF / EMPLOYEE)** | `0661 99 88 77`<br>`OTP: 123456` | كاتب عمومي، مصمم وثائق، عامل الكاونتر | مخصص حصرياً لاستوديو الوثائق، إدخال بيانات الزبائن، والطباعة. ممنوع من الاطلاع على السجل المالي للمحل أو تغيير الإعدادات |
 
 ---
 
-## 4. Persistence & Data Layer
+## 4. طبقة البيانات والتخزين (Persistence, PostgreSQL & S3)
 
-1. **Atomic File-Backed Persistence**:
-   - Implemented via `JsonStore`, guaranteeing data safety across restarts by writing to atomic `.tmp` files before renaming.
-   - Collections stored in `server/storage/data/`:
-     - `users.json`: Identity, phone, role, and shop associations.
-     - `shops.json`: Shop profiles, wilaya codes, active status, and staff lists.
-     - `ledger.json`: Immutable transaction log (`CREDIT`, `DEBIT`, `REFUND`).
-     - `cards.json`: 16-digit scratch cards (`XXXX-XXXX-XXXX-XXXX`).
-     - `documents.json`: Generated documents with customer records.
+### 4.1 قاعدة البيانات العلائقية (PostgreSQL + Prisma ORM)
+- تم بناء نماذج البيانات وفق المخطط الرسمي في [`prisma/schema.prisma`](file:///home/ammar/Sahla%20/prisma/schema.prisma).
+- **الخصم الذري (Atomic Transactions):** عمليات سحب النقاط وشحنها تُنفذ حصرياً داخل معاملات ذرية (`prisma.$transaction`) لضمان عدم ضياع أي نقطة تحت أي ظرف.
+- **سجل الحركات المالي (Immutable Ledger):** تسجيل كل عملية استهلاك أو شحن بنوعها (`CREDIT`, `DEBIT`, `REFUND`) ورقم المعاملة الفريد وقيمة الرصيد بعد العملية.
 
-2. **Prisma ORM Alignment**:
-   - The data models in `JsonStore` 100% reflect the PostgreSQL relational schema defined in `prisma/schema.prisma`.
+### 4.2 التخزين السحابي الآمن المتوافق مع S3 (Secure Storage)
+- رفع ملفات الـ PDF وصور الهوية على مخزن متوافق مع S3 مشفر أثناء النقل والتخزين (SSE-S3).
+- استخدام **الروابط الموقعة المؤقتة (Pre-signed URLs)** بمدة صلاحية قصيرة للمعاينة والتحميل.
+- **الحذف الآلي (Lifecycle TTL):** تفعيل قاعدة حذف آلية للمستندات بعد مدة تتراوح بين **24 إلى 72 ساعة** امتثالاً لأحكام القانون الجزائري رقم 18-07.
 
----
-
-## 5. Real-Time Print Bridge (SSE)
-
-Sahla bridges mobile phones to counter desktop printers without third-party drivers:
-- **Protocol**: HTTP Server-Sent Events (`GET /events?pin=XXXX`).
-- **Mechanism**: The counter desktop computer opens an SSE connection with the shop's printer PIN. When a staff member hits "Print" from a smartphone or tablet, `POST /api/send-print` immediately streams the raw document payload to the desktop browser for zero-delay printing.
+### 4.3 إدارة قوائم الانتظار ومعدل الطلبات (Redis Queues & Rate Limiting)
+- إدارة طوابير المعالجة (Background Worker Queues) للمهام الثقيلة (توليد الـ PDF عالي الدقة، استدعاءات نماذج الرؤية).
+- تطبيق محدد الطلبات الذكي: منع تجاوز 5 طلبات OTP في الساعة لكل رقم هاتف، وحظر لمدة 15 دقيقة بعد 5 محاولات إدخال خاطئة.
 
 ---
 
-## 6. Algerian Regulatory Compliance
+## 5. محرك الوثائق وجسر الطباعة الفوري (PDF Engine & Real-Time Print Bridge)
 
-1. **Law 18-07 (حماية المعطيات ذات الطابع الشخصي)**:
-   - Automated expiration and privacy controls preventing long-term retention of citizen identity records.
-2. **Law 18-05 (التجارة الإلكترونية والدفع الإلكتروني)**:
-   - Full compliance with Algerian e-commerce frameworks via reference-numbered transactions (`ALG-XXXXXX`) compatible with SATIM, BaridiMob, and Edahabia.
-3. **58 Wilayas Administrative Coding**:
-   - Canonical Algerian Wilaya numbering (01 Adrar to 58 El Menia).
+### 5.1 محرك توليد الوثائق (A4 300DPI Engine)
+- **HTML to PDF Rendering:** تحويل تصاميم الوثائق المجهزة بـ HTML وTailwind CSS بدقة طباعة مطبعية 300DPI قياس A4 (210×297 مم).
+- **Coordinates Overlay:** إسقاط البيانات المتغيرة ديناميكياً بالإحداثيات المليمترية الدقيقة فوق الاستمارات الإدارية الرسمية الممسوحة ضوئياً (مثل استمارات الحالة المدنية، تصاريح الضرائب Série G N° 50 وG N° 12 IFU).
+
+### 5.2 جسر الطباعة اللاسلكي الفوري (Phone-to-PC Print Bridge)
+- **البروتوكول:** Server-Sent Events (SSE) عبر نقطة النهاية `GET /events?pin=XXXX`.
+- **آلية العمل:** يقوم العامل بفتح صفحة الاستقبال على حاسوب المحل الموصول بالطابعة وإدخال رمز PIN المكون من 4 أرقام (أو مسح رمز QR). عند النقر على «طباعة» من الهاتف، يتم إرسال حمولة الوثيقة فوراً عبر خادم SSE لتفتح نافذة الطباعة التلقائية على الحاسوب دون تثبيت أي برامج أو تعريفات إضافية.
 
 ---
 
-## 7. API Specification
+## 6. محرك الذكاء الاصطناعي والرؤية الحاسوبية (Google Gemini AI & Vision)
 
-| Method | Endpoint | Description | Role Required |
+توظف منصة سهلة نماذج **Google Gemini** متعددة الوسائط (Multimodal) لإنجاز المهام الذكية التالية:
+
+1. **التعرف الضوئي على المستندات الرسمية (Multimodal OCR):**
+   - استخراج بيانات بطاقات التعريف الوطنية وجوازات السفر ورخص السياقة البيومترية الجزائرية بدقة عالية وتعبئة الاستمارات الإدارية تلقائياً.
+   - استخراج بيانات السير الذاتية القديمة المكتوبة بخط اليد أو الممسوحة ضوئياً وإعادة هيكلتها في قوالب حديثة.
+2. **تجهيز صور الهوية البيومترية (ID Photo Processing):**
+   - عزل خلفية الوجه بدقة واستبدالها بالخلفية الرمادية الفاتحة أو البيضاء الرسمية.
+   - ضبط القياسات على المعيار الجزائري المعتمد (35×45 مم) مع مصفوفة طباعة فورية (شبكة 4 أو 8 صور على ورق الصور A6 أو A4).
+3. **التوليد والترجمة الإدارية الاحترافية:**
+   - صياغة رسائل التحفيز (Motivation Letters)، الطعون الإدارية، وعقود البيع والإيجار وفق الصياغات القانونية الجزائرية باللغات الثلاث (عربية، فرنسية، إنجليزية).
+
+---
+
+## 7. الامتثال للقوانين والتنظيمات الجزائرية (Algerian Regulatory Compliance)
+
+1. **القانون رقم 18-07 (حماية المعطيات ذات الطابع الشخصي):**
+   - تشفير بيانات المواطنين الحساسة.
+   - سياسة الاحتفاظ المؤقت: حذف ملفات الهوية والمستندات نهائياً بعد انتهاء صلاحيتها (24–72 ساعة).
+   - طلب موافقة الزبون والمستخدم الصريحة قبل معالجة أي وثيقة شخصية.
+2. **القانون رقم 18-05 (التجارة الإلكترونية والدفع الإلكتروني):**
+   - مطابقة متطلبات الفوترة الرسمية للمحلات (NIF, NIS, RC, Article d'imposition, TVA, Timbre Fiscal).
+   - دعم المعاملات المرجعية عبر شبكة الدفع الإلكتروني الوطنية (SATIM, BaridiMob, Edahabia).
+3. **نظام الترميز الإداري للـ 58 ولاية:**
+   - اعتماد الترقيم الوطني الموحد من الولاية 01 (أدرار) إلى الولاية 58 (المنيعة).
+
+---
+
+## 8. دليل واجهات البرمجة (API Specification & Server Actions)
+
+| الطريقة | المسار (Endpoint) | الوظيفة | الصلاحية المطلوبة |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/otp/request` | Request OTP via SMS/WhatsApp | Public |
-| `POST` | `/api/auth/otp/verify` | Verify OTP code & establish session | Public |
-| `POST` | `/api/auth/logout` | Terminate session & clear cookies | Authenticated |
-| `POST` | `/api/shops` | Register new shop | Authenticated |
-| `GET` | `/api/shops/profile` | Get current shop profile | `SHOP_ADMIN` |
-| `GET` | `/api/shop/staff` | List staff members for shop | `SHOP_ADMIN` |
-| `POST` | `/api/shop/staff` | Add new staff member | `SHOP_ADMIN` |
-| `DELETE` | `/api/shop/staff/:id` | Remove staff member & revoke access | `SHOP_ADMIN` |
-| `GET` | `/api/wallet/ledger` | Get immutable ledger history | `SHOP_ADMIN` |
-| `POST` | `/api/wallet/pay-gateway` | Electronic recharge (BaridiMob/Edahabia) | `SHOP_ADMIN` |
-| `POST` | `/api/wallet/redeem-scratch` | Redeem 16-digit scratch card PIN | `SHOP_ADMIN` |
-| `GET` | `/api/admin/overview` | Platform-wide KPIs & 58-Wilaya table | `SUPER_ADMIN` |
-| `POST` | `/api/admin/shops/topup` | Administrative points topup (+50) | `SUPER_ADMIN` |
-| `POST` | `/api/admin/shops/toggle` | Freeze or activate shop | `SUPER_ADMIN` |
-| `GET` | `/events?pin=XXXX` | SSE printer connection stream | Counter PC |
-| `POST` | `/api/send-print` | Dispatch print job to counter PC | Authenticated |
+| `POST` | `/api/auth/otp/request` | إرسال رمز OTP للتحقق عبر SMS أو WhatsApp | عام (Public) |
+| `POST` | `/api/auth/otp/verify` | مطابقة رمز OTP وإنشاء جلسة آمنة (JWT / Cookie) | عام (Public) |
+| `POST` | `/api/auth/logout` | إنهاء الجلسة ومسح ملفات تعريف الارتباط | مصادق عليه |
+| `GET` | `/api/shops/profile` | جلب الملف التعريفي وإعدادات المحل | `SHOP_ADMIN` |
+| `POST` | `/api/shops/profile` | تحديث بيانات المحل (الولاية، البلدية، الطابعات) | `SHOP_ADMIN` |
+| `GET` | `/api/shop/staff` | استعراض قائمة الموظفين التابعين للمحل | `SHOP_ADMIN` |
+| `POST` | `/api/shop/staff` | إضافة موظف جديد وتعيين صلاحيات الكاونتر | `SHOP_ADMIN` |
+| `DELETE` | `/api/shop/staff/:id` | إلغاء وصول موظف وإبطال جلسته | `SHOP_ADMIN` |
+| `GET` | `/api/wallet/ledger` | استخراج كشف الحركات المالية غير القابل للتعديل | `SHOP_ADMIN` |
+| `POST` | `/api/wallet/redeem-scratch` | شحن الرصيد الفوري عبر كود بطاقة الشحن (16 رقماً) | `SHOP_ADMIN` |
+| `POST` | `/api/wallet/pay-gateway` | شحن إلكتروني عبر بريدي موب / البطاقة الذهبية (SATIM) | `SHOP_ADMIN` |
+| `POST` | `/api/jobs/create` | إنشاء مهمة توليد وثيقة واقتطاع النقاط ذرياً | مصادق عليه |
+| `GET` | `/events?pin=XXXX` | مجرى أحداث SSE لاستقبال أوامر الطباعة بالحاسوب | حاسوب المحل المربوط |
+| `POST` | `/api/send-print` | إرسال أمر طباعة مباشر من الهاتف إلى حاسوب الكاونتر | مصادق عليه |
+| `GET` | `/api/admin/overview` | لوحة المؤشرات الوطنية وتوزيع الـ 58 ولاية | `SUPER_ADMIN` |
+| `POST` | `/api/admin/shops/topup` | شحن رصيد إداري استثنائي لمحطة معتمدة | `SUPER_ADMIN` |
+| `POST` | `/api/admin/shops/toggle` | تجميد أو إعادة تفعيل اشتراك محل | `SUPER_ADMIN` |
+
+---
+
+> [!NOTE]
+> تمثل هذه الوثيقة المرجع الأساسي للتطوير والتكامل الهندسي لمنصة سهلة. يتم تحديثها دورياً لتواكب تطورات المنصة والتحسينات المعمارية المستمرة.

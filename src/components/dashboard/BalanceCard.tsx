@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { AlertTriangleIcon, CardEpayIcon } from "@/components/ui/Icons";
 
 interface BalanceCardProps {
   points: number;
@@ -166,7 +167,12 @@ export function BalanceCard({ points, onRecharge }: BalanceCardProps) {
                 }}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-3 text-sm text-white font-mono focus:outline-none focus:border-emerald-500"
               />
-              {topupError && <p className="text-xs text-red-400 mt-1">⚠️ {topupError}</p>}
+              {topupError && (
+                <p className="text-xs text-rose-400 mt-1 flex items-center gap-1.5 font-bold">
+                  <AlertTriangleIcon className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                  <span>{topupError}</span>
+                </p>
+              )}
             </div>
 
             <Button
@@ -174,7 +180,7 @@ export function BalanceCard({ points, onRecharge }: BalanceCardProps) {
               variant="primary"
               size="md"
               isLoading={isProcessing}
-              className="w-full font-bold"
+              className="w-full font-bold cursor-pointer"
             >
               تأكيد وتعبئة البطاقة
             </Button>
@@ -182,8 +188,11 @@ export function BalanceCard({ points, onRecharge }: BalanceCardProps) {
 
           {/* Electronic Payments info */}
           <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 text-xs text-slate-400 space-y-1">
-            <div className="font-bold text-slate-200">💳 الدفع الإلكتروني (بريدي موب / CIB):</div>
-            <p>
+            <div className="font-bold text-slate-200 flex items-center gap-1.5">
+              <CardEpayIcon className="w-4 h-4 text-emerald-400" />
+              <span>الدفع الإلكتروني (بريدي موب / الذهبية / CIB):</span>
+            </div>
+            <p className="leading-relaxed">
               يمكنك أيضاً الشحن التلقائي بربط حسابك مع خدمة الدفع المباشر بالبطاقة الذهبية أو CIB.
             </p>
           </div>

@@ -4,10 +4,9 @@
   "private": true,
   "description": "منصة سهلة للخدمات الرقمية للمكتبات والكيوسكات في الجزائر",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "next:dev": "next dev",
-    "next:build": "next build",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {

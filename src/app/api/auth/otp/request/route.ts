@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate 6-digit OTP
-    const code = generateOTP();
+    const code = generateOTP(normalized);
 
     // In a production environment with SMS gateway credentials:
     // await sendSmsGateway(normalized, `رمز التحقق الخاص بك في سهلة: ${code}`);

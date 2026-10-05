@@ -88,6 +88,8 @@ export interface ServiceDefinition {
   isFree: boolean;
 }
 
+export type ServiceItem = ServiceDefinition;
+
 export const SERVICES_CATALOG: ServiceDefinition[] = [
   { code: "CV_GEN", nameAr: "سيرة ذاتية ورسائل تحفيز", nameFr: "CV & Lettre de motivation", icon: "📄", pointsCost: 15, category: "documents", isActive: true, isFree: false },
   { code: "ID_PHOTO", nameAr: "صور الهوية 35×45 مم", nameFr: "Photos d'identité 35×45mm", icon: "📸", pointsCost: 0, category: "tools", isActive: true, isFree: true },

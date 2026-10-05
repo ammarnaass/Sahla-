@@ -1,7 +1,6 @@
-"use client";
-
 import React from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PhoneIcon, BoltIcon, WirelessPrintIcon, CheckCircleIcon } from "@/components/ui/Icons";
 
 export function HowItWorksSection() {
   const { t } = useLanguage();
@@ -9,24 +8,24 @@ export function HowItWorksSection() {
   const steps = [
     {
       num: "01",
-      icon: "📱",
+      icon: <PhoneIcon size={26} className="text-emerald-400" />,
       title: t("landing.step1Title"),
       desc: t("landing.step1Desc"),
-      detail: "برقم هاتفك (05/06/07) فقط، دون تعقيد كلمات المرور",
+      detail: "بحسابك أو برقم هاتفك الجزائري (05/06/07) في ثوانٍ",
     },
     {
       num: "02",
-      icon: "⚡",
+      icon: <BoltIcon size={26} className="text-amber-400" />,
       title: t("landing.step2Title"),
       desc: t("landing.step2Desc"),
-      detail: "حقول واضحة، تدقيق آلي، وقوالب تحترم الإدارة الجزائرية",
+      detail: "حقول واضحة، تدقيق آلي، وقوالب تحترم المعايير الإدارية الجزائرية",
     },
     {
       num: "03",
-      icon: "🖨️",
+      icon: <WirelessPrintIcon size={26} className="text-teal-400" />,
       title: t("landing.step3Title"),
       desc: t("landing.step3Desc"),
-      detail: "ملف PDF عالي الدقة جاهز للطباعة أو الإرسال بالواتساب للزبون",
+      detail: "ملف PDF عالي الدقة جاهز للطباعة المباشرة أو الإرسال الفوري للزبون",
     },
   ];
 
@@ -53,9 +52,9 @@ export function HowItWorksSection() {
             >
               {/* Step number badge */}
               <div className="flex items-center justify-between mb-6">
-                <span className="text-3xl p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                   {step.icon}
-                </span>
+                </div>
                 <span className="text-4xl font-black text-slate-800 group-hover:text-emerald-500/20 transition-colors font-mono">
                   {step.num}
                 </span>
@@ -67,8 +66,8 @@ export function HowItWorksSection() {
               <p className="text-slate-300 text-sm leading-relaxed mb-3">
                 {step.desc}
               </p>
-              <div className="text-xs text-slate-400 font-medium pt-3 border-t border-slate-800/80 flex items-center gap-1.5">
-                <span className="text-emerald-400">✓</span>
+              <div className="text-xs text-slate-400 font-medium pt-3 border-t border-slate-800/80 flex items-center gap-2">
+                <CheckCircleIcon size={15} className="text-emerald-400 shrink-0" />
                 <span>{step.detail}</span>
               </div>
             </div>

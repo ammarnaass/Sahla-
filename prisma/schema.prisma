@@ -1,266 +1,172 @@
 // Prisma Schema for Sahla (سهلة) Platform
-// Database: PostgreSQL
+// Database: SQLite (Self-contained, fast, zero-dependency embedded database)
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./sahla.db"
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
-enum UserRole {
-  OWNER
-  EMPLOYEE
-  SUPER_ADMIN
-}
-
-enum LedgerType {
-  CREDIT
-  DEBIT
-  REFUND
-}
-
-enum CardStatus {
-  UNREDEEMED
-  REDEEMED
-  REVOKED
-}
-
-enum JobStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  FAILED
-}
-
-// 1. المستخدمين
+// 1. جدول المستخدمين (مديرو النظام، أصحاب الأكشاك، الموظفون)
 model User {
   id              String           @id @default(cuid())
-  phone           String           @unique
-  fullName        String?
-  role            UserRole         @default(OWNER)
+  name            String
+  email           String           @unique
+  secondaryEmail  String?
+  phone           String?
+  password        String           // التجزئة المشفرة salt:hash
+  role            String           @default("SHOP_ADMIN") // SUPER_ADMIN, SHOP_ADMIN, STAFF
   shopId          String?
   shop            Shop?            @relation(fields: [shopId], references: [id])
   sessions        Session[]
-  consents        Consent[]
-  onboardingState OnboardingState?
-  notifications   Notification[]
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 }
 
-// 2. المحلات
+// 2. جدول المحلات والمكتبات والكيوسكات
 model Shop {
   id            String        @id @default(cuid())
   name          String
-  wilayaCode    Int           // 1 to 58
-  commune       String
-  address       String?
-  wallet        Wallet?
+  owner         String
+  phone         String
+  wilaya        String        // e.g. "16 - الجزائر العاصمة"
+  wilayaCode    Int           @default(16) // 1 to 58
+  activity      String        @default("KIOSK")
+  plan          String        @default("STARTER") // STARTER, PRO_KIOSK, ENTERPRISE
+  points        Int           @default(50) // رصيد النقاط
+  status        String        @default("ACTIVE") // ACTIVE, SUSPENDED
   users         User[]
-  customers     Customer[]
+  invoices      Invoice[]
+  cards         Card[]
   documents     Document[]
-  invoices      Invoice[]
-  devices       BoundDevice[]
+  researchDocs  ResearchDoc[]
   createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
-// 3. المحفظة (رصيد النقاط)
-model Wallet {
-  id            String       @id @default(cuid())
-  shopId        String       @unique
-  shop          Shop         @relation(fields: [shopId], references: [id])
-  balancePoints Int          @default(50) // رصيد تجريبي ترحيبي
-  transactions  Ledger[]
-  updatedAt     DateTime     @updatedAt
-}
-
-// 4. دفتر الحركات المالية الذري (Ledger)
-model Ledger {
-  id            String         @id @default(cuid())
-  walletId      String
-  wallet        Wallet         @relation(fields: [walletId], references: [id])
-  type          LedgerType     // CREDIT, DEBIT, REFUND
-  points        Int
-  balanceAfter  Int
-  serviceCode   String?        // CV_GEN, INVOICE_PDF, PHOTO_ID...
-  jobId         String?
-  cardCode      String?
-  description   String
-  createdAt     DateTime       @default(now())
-}
-
-// 5. بطاقات الشحن المادية (Scratch Cards)
-model Card {
-  id               String       @id @default(cuid())
-  batchNumber      String
-  pinCodeHash      String       @unique
-  serialNumber     String       @unique
-  pointsValue      Int          // 100, 300, 1000
-  priceDZD         Decimal      // 1000, 2500, 7000 DZD
-  status           CardStatus   @default(UNREDEEMED)
-  redeemedAt       DateTime?
-  redeemedByShopId String?
-  createdAt        DateTime     @default(now())
-}
-
-// 6. قائمة الخدمات والأسعار
-model ServiceRate {
-  id               String       @id @default(cuid())
-  code             String       @unique
-  nameAr           String
-  nameFr           String
-  pointsCost       Int          // 0 = free
-  estimatedCostDZD Decimal
-  isActive         Boolean      @default(true)
-}
-
-// 7. مهام التوليد (Jobs)
-model Job {
-  id            String       @id @default(cuid())
-  shopId        String
-  serviceCode   String
-  status        JobStatus    @default(PENDING)
-  pointsLocked  Int          @default(0)
-  errorMessage  String?
-  metadata      Json?
-  createdAt     DateTime     @default(now())
-  completedAt   DateTime?
-}
-
-// 8. سجل الوثائق المنجزة
-model Document {
-  id            String       @id @default(cuid())
-  shopId        String
-  shop          Shop         @relation(fields: [shopId], references: [id])
-  type          String       // CV, INVOICE, ID_PHOTO, REQUEST_LETTER
-  title         String
-  customerName  String?
-  templateId    String?
-  fileUrl       String?
-  dataSnapshot  Json
-  salePriceDZD  Decimal?
-  expiresAt     DateTime     // حذف آلي بعد 24-72 ساعة امتثالاً لقانون 18-07
-  createdAt     DateTime     @default(now())
-}
-
-// 9. القوالب الرسمية (Templates)
-model Template {
-  id            String       @id @default(cuid())
-  code          String       @unique
-  nameAr        String
-  category      String
-  language      String
-  layoutConfig  Json
-  isOfficial    Boolean      @default(false)
-  isActive      Boolean      @default(true)
-}
-
-// 10. دفتر الزبائن (Customers)
-model Customer {
-  id            String       @id @default(cuid())
-  shopId        String
-  shop          Shop         @relation(fields: [shopId], references: [id])
-  fullName      String
-  phone         String?
-  nif           String?
-  nis           String?
-  rc            String?
-  address       String?
-  invoices      Invoice[]
-  createdAt     DateTime     @default(now())
-}
-
-// 11. الفواتير التجارية الرسمية (Invoices)
-model Invoice {
-  id            String       @id @default(cuid())
-  shopId        String
-  shop          Shop         @relation(fields: [shopId], references: [id])
-  customerId    String?
-  customer      Customer?    @relation(fields: [customerId], references: [id])
-  invoiceNumber String
-  date          DateTime     @default(now())
-  dueDate       DateTime?
-  items         Json
-  subtotalHT    Decimal
-  tvaAmount     Decimal
-  timbreFiscal  Decimal
-  totalTTC      Decimal
-  amountInWords String
-  notes         String?
-  status        String       @default("PAID")
-  createdAt     DateTime     @default(now())
-}
-
-// ربط الأجهزة (Device Binding لمنع مشاركة الحساب خارج المحل)
-model BoundDevice {
-  id            String       @id @default(cuid())
-  shopId        String
-  shop          Shop         @relation(fields: [shopId], references: [id])
-  deviceId      String
-  deviceLabel   String
-  lastActive    DateTime     @default(now())
-}
-
-// طلبات OTP والأمان
-model OtpRequest {
-  id        String   @id @default(cuid())
-  phone     String
-  code      String
-  channel   String   @default("SMS") // SMS, WHATSAPP, VOICE
-  attempts  Int      @default(0)
-  expiresAt DateTime
-  verified  Boolean  @default(false)
-  ip        String?
-  createdAt DateTime @default(now())
-}
-
-// جلسات الأجهزة النشطة (حد أقصى جهازين)
+// 3. جدول جلسات المصادقة الآمنة
 model Session {
   id           String   @id @default(cuid())
+  token        String   @unique
   userId       String
-  user         User     @relation(fields: [userId], references: [id])
-  deviceId     String
-  deviceLabel  String
-  refreshToken String   @unique
-  ip           String?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shopId       String?
   expiresAt    DateTime
   createdAt    DateTime @default(now())
 }
 
-// الموافقات القانونية (قانون 18-07 وقانون 18-05)
-model Consent {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  type      String   // TERMS, PRIVACY
-  version   String
-  givenAt   DateTime @default(now())
+// 4. جدول الفواتير الرسمية للشركات والمحلات B2B
+model Invoice {
+  id            String    @id @default(cuid())
+  invoiceNumber String    @unique // e.g. "FAC-2026-0001"
+  shopId        String
+  shop          Shop      @relation(fields: [shopId], references: [id])
+  date          String
+  dueDate       String
+  itemsJson     String    // JSON stringified items
+  subtotalDZD   Float
+  taxDZD        Float     @default(0)
+  stampDutyDZD  Float     @default(0)
+  totalDZD      Float
+  status        String    @default("PENDING") // PAID, PENDING, CANCELLED
+  paymentMethod String    @default("EDAHABIA_CIB")
+  notes         String?
+  createdAt     DateTime  @default(now())
 }
 
-// حالة الـ Onboarding وتفضيلات الخدمات
-model OnboardingState {
-  id               String   @id @default(cuid())
-  userId           String   @unique
-  user             User     @relation(fields: [userId], references: [id])
-  completed        Boolean  @default(false)
-  currentStep      Int      @default(1)
-  selectedServices Json     @default("[]")
-  checklist        Json     @default("{}")
-  updatedAt        DateTime @updatedAt
+// 5. جدول بطاقات الشحن المادية بالجملة (Scratch Cards)
+model Card {
+  id               String       @id @default(cuid())
+  batchNumber      String
+  serialNumber     String       @unique
+  pin              String       // PIN السري للشحن
+  points           Int
+  priceDZD         Float
+  status           String       @default("UNREDEEMED") // UNREDEEMED, REDEEMED, REVOKED
+  shopId           String?
+  shop             Shop?        @relation(fields: [shopId], references: [id])
+  redeemedAt       DateTime?
+  createdAt        DateTime     @default(now())
 }
 
-// إشعارات التطبيق
-model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  type      String   // LOW_BALANCE, DOC_READY, NEW_SERVICE, LEGAL_UPDATE
-  title     String
-  body      String
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
+// 6. سجل الوثائق والمطبوعات
+model Document {
+  id            String       @id @default(cuid())
+  shopId        String
+  shop          Shop         @relation(fields: [shopId], references: [id])
+  type          String       // CV, INVOICE, ID_PHOTO, REQUEST_LETTER, SCHOOL_RESEARCH, EXAM
+  title         String
+  customerName  String?
+  fileUrl       String?
+  dataSnapshot  String?      // JSON data
+  salePriceDZD  Float?
+  expiresAt     DateTime     // حذف آلي بعد 24-72 ساعة امتثالاً لقانون 18-07
+  createdAt     DateTime     @default(now())
 }
 
+// 7. جدول البحوث المدرسية والأكاديمية (PRD v1.0)
+model ResearchDoc {
+  id                  String       @id @default(cuid())
+  shopId              String
+  shop                Shop         @relation(fields: [shopId], references: [id])
+  title               String
+  type                String       @default("RESEARCH") // RESEARCH, PRESENTATION, SUMMARY
+  level               String       // PRIMARY, MIDDLE, SECONDARY, UNIVERSITY
+  grade               String       // e.g. "4AM", "3AS"
+  subject             String       // e.g. "HISTORY_GEO", "PHYSICS"
+  topic               String
+  language            String       @default("ar") // ar, fr, en
+  pageCount           Int          @default(3)
+  styleLevel          String       @default("MODERATE") // SIMPLE, MODERATE, ADVANCED
+  coverTemplate       String       @default("OFFICIAL") // OFFICIAL, CLASSIC, MODERN
+  studentName         String?
+  schoolName          String?
+  teacherName         String?
+  outlineJson         String       // JSON stringified outline array
+  contentJson         String       // JSON stringified sections and content
+  referencesJson      String       // JSON stringified verified ONPS references
+  reviewQuestionsJson String?      // أسئلة مراجعة ومفردات الدرس لتشجيع الفهم
+  pointsCost          Int          @default(15)
+  salePriceDZD        Float        @default(250)
+  status              String       @default("COMPLETED") // PLAN_CREATED, GENERATING, COMPLETED
+  expiresAt           DateTime     // حذف آلي بعد 72 ساعة امتثالاً لقانون حماية البيانات 18-07
+  createdAt           DateTime     @default(now())
+}
+
+// 8. مكتبة الامتحانات والاختبارات الوطنية والفصلية (PRD v1.0)
+model Exam {
+  id             String       @id @default(cuid())
+  title          String
+  level          String       // PRIMARY, MIDDLE, SECONDARY
+  grade          String       // e.g. "5AP", "4AM", "3AS"
+  stream         String?      // e.g. "SCIENTIFIC", "MATHS", "TECHNO", "MANAGEMENT", "LITERATURE", "LANGUAGES"
+  subject        String       // e.g. "MATHS", "PHYSICS", "ARABIC"
+  trimester      Int?         // 1, 2, 3 (null if national official exam)
+  year           Int          // 2020 to 2025
+  session        String?      // "REGULAR", "RETAKE"
+  type           String       // "OFFICIAL" (BEM/BAC/SEP), "TERM_EXAM", "QUIZ"
+  pagesCount     Int          @default(2)
+  hasSolution    Boolean      @default(true)
+  examContent    String       // نص ومسائل الامتحان (Markdown/HTML/JSON)
+  solutionContent String?     // الحل النموذجي المفصل خطوة بخطوة
+  markingRubric  String?      // سلم التنقيط التفصيلي الرسمي
+  isFree         Boolean      @default(true) // الموضوع مجاني
+  pointsCost     Int          @default(0)    // نقاط فتح الحل النموذجي (مثلاً 2 نقاط)
+  downloadsCount Int          @default(0)
+  createdAt      DateTime     @default(now())
+}
+
+// 9. جدول بلاغات الأخطاء العلمية والمنهجية (PRD v1.0)
+model ErrorReport {
+  id             String       @id @default(cuid())
+  shopId         String?
+  docId          String?
+  examId         String?
+  issueType      String       // SCIENTIFIC_ERROR, TYPO, FORMATTING, COPYRIGHT
+  description    String
+  status         String       @default("PENDING") // PENDING, REVIEWED, RESOLVED
+  createdAt      DateTime     @default(now())
+}

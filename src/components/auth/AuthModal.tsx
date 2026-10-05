@@ -3,12 +3,17 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/Modal";
-import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
-import { PhoneInput } from "./PhoneInput";
-import { OTPInput } from "./OTPInput";
-import { ShopRegistrationForm } from "./ShopRegistrationForm";
-import { trackEvent } from "@/lib/analytics";
+import { ALGERIAN_WILAYAS, ACTIVITY_TYPES } from "@/lib/constants";
+import {
+  MailIcon,
+  LockIcon,
+  StoreIcon,
+  SparklesIcon,
+  AlertTriangleIcon,
+  EyeIcon,
+  EyeOffIcon,
+} from "@/components/ui/Icons";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -16,254 +21,338 @@ interface AuthModalProps {
   initialMode?: "login" | "register";
 }
 
-export function AuthModal({ isOpen, onClose, initialMode = "register" }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalProps) {
   const router = useRouter();
-  const {
-    requestOTP,
-    verifyOTP,
-    completeShopRegistration,
-    pendingOTP,
-    failedAttempts,
-    lockoutUntil,
-  } = useAuth();
+  const { loginWithEmail, registerWithEmail } = useAuth();
 
-  const [step, setStep] = useState<"phone" | "otp" | "shop">("phone");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [otpCode, setOtpCode] = useState("");
+  const [mode, setMode] = useState<"login" | "register">(initialMode);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState("");
+  const [shopName, setShopName] = useState("");
+  const [wilaya, setWilaya] = useState("16 - الجزائر");
+  const [activity, setActivity] = useState("KIOSK");
   const [errorMsg, setErrorMsg] = useState("");
-  const [demoCode, setDemoCode] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [verifiedPhone, setVerifiedPhone] = useState("");
 
-  const isLockedOut = lockoutUntil && Date.now() < lockoutUntil;
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
 
-  const handleRequestOTP = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (isLockedOut) {
-      setErrorMsg("تم قفل الحساب مؤقتاً بسبب تكرار المحاولات الخاطئة. يرجى الانتظار 15 دقيقة.");
+    if (!email.trim() || !password) {
+      setErrorMsg("يرجى إدخال البريد الإلكتروني وكلمة المرور");
       return;
     }
 
-    setErrorMsg("");
     setIsSubmitting(true);
-    trackEvent("signup_start");
-
-    const res = requestOTP(phoneNumber);
+    const res = await loginWithEmail(email.trim(), password);
     setIsSubmitting(false);
 
     if (!res.success) {
-      setErrorMsg(res.error || "تعذر إرسال الرمز، تأكد من الرقم");
+      setErrorMsg(res.error || "البريد الإلكتروني أو كلمة المرور غير صحيحة");
       return;
     }
 
-    setDemoCode(res.demoCode);
-    setStep("otp");
-    trackEvent("otp_sent", { phone: res.phone });
-  };
-
-  const handleVerifyOTP = (codeToVerify: string) => {
-    if (isLockedOut) {
-      setErrorMsg("تم قفل الحساب مؤقتاً لمدة 15 دقيقة.");
-      return;
-    }
-
-    setErrorMsg("");
-    setIsSubmitting(true);
-
-    const res = verifyOTP(codeToVerify);
-    setIsSubmitting(false);
-
-    if (!res.success) {
-      setErrorMsg(res.error || "رمز غير صحيح");
-      return;
-    }
-
-    trackEvent("otp_verified");
-
-    if (res.isNewUser) {
-      setVerifiedPhone(res.phone || phoneNumber);
-      setStep("shop");
+    onClose();
+    if (res.user?.role === "SUPER_ADMIN") {
+      router.push("/admin");
     } else {
-      // Returning user directly to dashboard
-      onClose();
       router.push("/dashboard");
     }
   };
 
-  const handleShopSubmit = (data: {
-    phone: string;
-    shopName: string;
-    ownerName: string;
-    wilayaCode: number;
-    activityType: string;
-    consentAgreed: boolean;
-  }) => {
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
     setErrorMsg("");
-    setIsSubmitting(true);
 
-    const res = completeShopRegistration(data);
-    setIsSubmitting(false);
-
-    if (!res.success) {
-      setErrorMsg(res.error || "حدث خطأ أثناء حفظ بيانات المحل");
+    if (!name.trim() || !email.trim() || !password || !shopName.trim()) {
+      setErrorMsg("يرجى ملء جميع الحقول المطلوبة");
       return;
     }
 
-    trackEvent("shop_created", { wilaya: data.wilayaCode, activity: data.activityType });
-    onClose();
-    // New users navigate to onboarding wizard
-    router.push("/onboarding");
-  };
-
-  const handleResend = (channel: "SMS" | "WHATSAPP" = "SMS") => {
-    setErrorMsg("");
-    const res = requestOTP(phoneNumber);
-    if (res.success) {
-      setDemoCode(res.demoCode);
-    } else {
-      setErrorMsg(res.error || "تعذر إعادة الإرسال حالياً");
+    if (password.length < 6) {
+      setErrorMsg("كلمة المرور يجب أن لا تقل عن 6 خانات");
+      return;
     }
+
+    setIsSubmitting(true);
+    const res = await registerWithEmail({
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      password,
+      shopName: shopName.trim(),
+      wilaya,
+      activity,
+    });
+    setIsSubmitting(false);
+
+    if (!res.success) {
+      setErrorMsg(res.error || "تعذر إتمام التسجيل");
+      return;
+    }
+
+    onClose();
+    router.push("/dashboard");
   };
 
-  const modalTitle =
-    step === "phone"
-      ? initialMode === "login"
-        ? "تسجيل الدخول إلى محلك"
-        : "ابدأ مع سهلة مجاناً"
-      : step === "otp"
-      ? "تأكيد رقم الهاتف"
-      : "إنشاء ملف محلك التجاري";
-
-  const modalDesc =
-    step === "phone"
-      ? "بدون كلمة مرور وبدون تعقيد. رمز تحقق OTP فوري على هاتفك."
-      : step === "otp"
-      ? "أدخل الرمز للتحقق من ملكية الرقم والدخول الفوري."
-      : "أدخل معلومات محلك لتخصيص القوالب وتوليد الوثائق الرسمية.";
+  const handleQuickFill = (demoEmail: string, demoPass: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
+    setErrorMsg("");
+  };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={modalTitle}
-      description={modalDesc}
+      title={
+        <div className="flex items-center gap-2">
+          {mode === "login" ? (
+            <>
+              <LockIcon className="w-5 h-5 text-emerald-400" />
+              <span>تسجيل الدخول إلى المحل</span>
+            </>
+          ) : (
+            <>
+              <SparklesIcon className="w-5 h-5 text-emerald-400" />
+              <span>فتح حساب محل جديد (50 نقطة هدية)</span>
+            </>
+          )}
+        </div>
+      }
+      description={
+        mode === "login"
+          ? "أدخل بريدك الإلكتروني (جيميل) وكلمة المرور للوصول إلى لوحة التحكم."
+          : "سجّل محلك في شبكة سهلة واحصل على 50 نقطة ترحيبية مجانية."
+      }
       maxWidth="md"
     >
-      <div className="space-y-6">
-        {/* Step Indicator */}
-        <div className="flex items-center justify-center gap-2">
-          <div
-            className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-colors ${
-              step === "phone"
-                ? "bg-emerald-600 text-white ring-4 ring-emerald-500/20"
-                : "bg-emerald-500/20 text-emerald-400"
+      <div className="space-y-5">
+        {/* Tab Switcher */}
+        <div className="grid grid-cols-2 p-1 rounded-xl bg-slate-900 border border-slate-800">
+          <button
+            type="button"
+            onClick={() => {
+              setMode("login");
+              setErrorMsg("");
+            }}
+            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              mode === "login"
+                ? "bg-emerald-500 text-slate-950 shadow-sm"
+                : "text-slate-400 hover:text-white"
             }`}
           >
-            1
-          </div>
-          <div className="w-8 h-0.5 bg-slate-800" />
-          <div
-            className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-colors ${
-              step === "otp"
-                ? "bg-emerald-600 text-white ring-4 ring-emerald-500/20"
-                : step === "shop"
-                ? "bg-emerald-500/20 text-emerald-400"
-                : "bg-slate-800 text-slate-500"
+            تسجيل الدخول
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setMode("register");
+              setErrorMsg("");
+            }}
+            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              mode === "register"
+                ? "bg-emerald-500 text-slate-950 shadow-sm"
+                : "text-slate-400 hover:text-white"
             }`}
           >
-            2
-          </div>
-          <div className="w-8 h-0.5 bg-slate-800" />
-          <div
-            className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-colors ${
-              step === "shop"
-                ? "bg-emerald-600 text-white ring-4 ring-emerald-500/20"
-                : "bg-slate-800 text-slate-500"
-            }`}
-          >
-            3
-          </div>
+            فتح حساب جديد
+          </button>
         </div>
 
-        {/* Step 1: Phone input */}
-        {step === "phone" && (
-          <form onSubmit={handleRequestOTP} className="space-y-5">
-            <PhoneInput
-              value={phoneNumber}
-              onChange={setPhoneNumber}
-              disabled={isSubmitting || Boolean(isLockedOut)}
-              error={errorMsg}
-            />
-
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              isLoading={isSubmitting}
-              disabled={!phoneNumber.trim() || Boolean(isLockedOut)}
-              className="w-full font-bold shadow-lg shadow-emerald-900/30"
-            >
-              <span>إرسال رمز التحقق (OTP)</span>
-              <svg className="w-5 h-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </Button>
-
-            <div className="text-center">
-              <span className="text-xs text-slate-400">
-                🔒 دخول مشفر وآمن طبقاً للقانون الجزائري 18-07
-              </span>
-            </div>
-          </form>
-        )}
-
-        {/* Step 2: OTP input */}
-        {step === "otp" && (
-          <div className="space-y-6">
-            <OTPInput
-              value={otpCode}
-              onChange={setOtpCode}
-              onComplete={handleVerifyOTP}
-              onResend={handleResend}
-              phoneDisplay={pendingOTP?.formattedPhone || phoneNumber}
-              demoCode={demoCode}
-              error={errorMsg}
-              remainingAttempts={5 - failedAttempts}
-              disabled={isSubmitting || Boolean(isLockedOut)}
-            />
-
-            <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-800">
-              <button
-                type="button"
-                onClick={() => {
-                  setStep("phone");
-                  setErrorMsg("");
-                }}
-                className="text-xs font-semibold text-slate-400 hover:text-white"
-              >
-                ← تغيير رقم الهاتف
-              </button>
-
-              <Button
-                variant="primary"
-                size="md"
-                isLoading={isSubmitting}
-                disabled={otpCode.length < 6 || Boolean(isLockedOut)}
-                onClick={() => handleVerifyOTP(otpCode)}
-              >
-                تأكيد ومتابعة
-              </Button>
-            </div>
+        {/* Error Alert */}
+        {errorMsg && (
+          <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center gap-2">
+            <AlertTriangleIcon className="w-4 h-4 text-rose-400 shrink-0" />
+            <span>{errorMsg}</span>
           </div>
         )}
 
-        {/* Step 3: Shop Registration */}
-        {step === "shop" && (
-          <ShopRegistrationForm
-            phone={verifiedPhone || phoneNumber}
-            onSubmit={handleShopSubmit}
-            isLoading={isSubmitting}
-          />
+        {/* Mode: Login */}
+        {mode === "login" ? (
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1">
+                البريد الإلكتروني أو الجيميل <span className="text-emerald-400">*</span>
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@gmail.com"
+                dir="ltr"
+                className="w-full h-11 px-3.5 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs sm:text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 font-mono"
+                required
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-slate-300">
+                  كلمة المرور <span className="text-emerald-400">*</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300"
+                >
+                  {showPassword ? "إخفاء" : "إظهار"}
+                </button>
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                dir="ltr"
+                className="w-full h-11 px-3.5 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs sm:text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 font-mono"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full h-11 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm transition-all active:scale-[0.98] shadow-lg shadow-emerald-500/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
+                  <span>جارٍ التحقق...</span>
+                </>
+              ) : (
+                <span>تسجيل الدخول إلى المحل</span>
+              )}
+            </button>
+
+            {/* Quick Demo Fill */}
+            <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+              <span className="text-slate-400">تجربة سريعة:</span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleQuickFill("najah.kiosk@gmail.com", "Shop@2026!")}
+                  className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold"
+                >
+                  صاحب كشك
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickFill("admin@sahla.dz", "Admin@2026!")}
+                  className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-400 font-bold"
+                >
+                  مدير المنصة
+                </button>
+              </div>
+            </div>
+          </form>
+        ) : (
+          /* Mode: Register */
+          <form onSubmit={handleRegister} className="space-y-3.5">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  اسم المسير <span className="text-emerald-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="محمد بن علي"
+                  className="w-full h-10 px-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  البريد (جيميل) <span className="text-emerald-400">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="kiosk@gmail.com"
+                  dir="ltr"
+                  className="w-full h-10 px-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 font-mono"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  اسم المحل <span className="text-emerald-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={shopName}
+                  onChange={(e) => setShopName(e.target.value)}
+                  placeholder="مكتبة الأمل"
+                  className="w-full h-10 px-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  الولاية <span className="text-emerald-400">*</span>
+                </label>
+                <select
+                  value={wilaya}
+                  onChange={(e) => setWilaya(e.target.value)}
+                  className="w-full h-10 px-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500"
+                >
+                  {ALGERIAN_WILAYAS.map((w) => (
+                    <option key={w.code} value={`${w.code} - ${w.nameAr}`}>
+                      {String(w.code).padStart(2, "0")} - {w.nameAr}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                كلمة المرور (6 خانات فأكثر) <span className="text-emerald-400">*</span>
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                dir="ltr"
+                className="w-full h-10 px-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 font-mono"
+                required
+              />
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs">
+              <span className="text-slate-300 font-bold">الرصيد الافتتاحي الممنوح:</span>
+              <span className="font-black text-emerald-400 font-mono">+50 نقطة مجانية</span>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full h-11 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm transition-all active:scale-[0.98] shadow-lg shadow-emerald-500/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
+                  <span>جارٍ إنشاء المتجر...</span>
+                </>
+              ) : (
+                <>
+                  <SparklesIcon className="w-4 h-4 text-slate-950" />
+                  <span>تأكيد وفتح حساب المتجر مجاناً</span>
+                </>
+              )}
+            </button>
+          </form>
         )}
       </div>
     </Modal>
