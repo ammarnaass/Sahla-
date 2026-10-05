@@ -24,7 +24,7 @@ export function DocumentsFilterBar({
   onFilterChange,
 }: DocumentsFilterBarProps) {
   return (
-    <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800 space-y-3 shadow-lg">
+    <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 shadow-lg transition-colors">
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         {/* Search Input */}
         <div className="w-full sm:max-w-xs relative">
@@ -33,7 +33,7 @@ export function DocumentsFilterBar({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="بحث باسم الزبون أو نوع الوثيقة..."
-            className="w-full px-4 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-xs placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
           />
         </div>
 
@@ -43,10 +43,10 @@ export function DocumentsFilterBar({
             <button
               key={btn.id}
               onClick={() => onFilterChange(btn.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
                 filterType === btn.id
-                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-950/40"
-                  : "bg-slate-950 text-slate-400 hover:text-white border border-slate-800"
+                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/20"
+                  : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800"
               }`}
             >
               {btn.label}

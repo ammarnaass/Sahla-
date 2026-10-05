@@ -38,30 +38,30 @@ export function StaffAccountTab() {
         />
 
         {/* Security / RBAC Summary Card */}
-        <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl flex flex-col justify-between space-y-4">
+        <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col justify-between space-y-4 transition-colors">
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xl">🛡️</span>
-              <h3 className="text-base font-extrabold text-white">نظام الصلاحيات (RBAC)</h3>
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">نظام الصلاحيات (RBAC)</h3>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               تضمن منصة سهلة الحماية المالية الكاملة: يمكن لعمال الكاونتر إنجاز الوثائق وطباعتها
               للزبائن دون إمكانية الاطلاع على الرصيد أو سحب الأموال.
             </p>
 
             <div className="mt-4 space-y-2 text-xs">
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-300">
-                <span className="font-bold text-white">أدمن المحل (مالك الحساب):</span> وصول كامل
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 transition-colors">
+                <span className="font-bold text-slate-900 dark:text-white">أدمن المحل (مالك الحساب):</span> وصول كامل
                 للخزينة وتعيين الطاقم.
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-300">
-                <span className="font-bold text-emerald-400">الموظف (STAFF):</span> محصور في استوديو
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 transition-colors">
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">الموظف (STAFF):</span> محصور في استوديو
                 الوثائق والطباعة.
               </div>
             </div>
           </div>
 
-          <div className="text-[11px] text-slate-500 border-t border-slate-800 pt-3">
+          <div className="text-[11px] text-slate-500 border-t border-slate-200 dark:border-slate-800 pt-3">
             وفق قانون التجارة الإلكترونية 18-05 وقانون 18-07
           </div>
         </div>

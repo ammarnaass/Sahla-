@@ -1,12 +1,33 @@
 "use client";
 
 import React from "react";
+import {
+  SchoolCapIcon,
+  DocCvIcon,
+  CardEpayIcon,
+  CustomersIcon,
+  CrownIcon,
+  WirelessPrintIcon,
+  SparklesIcon,
+} from "@/components/ui/Icons";
 
 interface SidebarNavLinksProps {
   activeTab: string;
   onSelectTab?: (tab: string) => void;
   isSuperAdmin: boolean;
   isEmployee: boolean;
+  isCollapsed?: boolean;
+}
+
+interface NavItem {
+  id: string;
+  label: string;
+  category: "core" | "finance" | "config";
+  shortcut?: string;
+  badge?: string;
+  hideForEmployee?: boolean;
+  superAdminOnly?: boolean;
+  icon: React.ReactNode;
 }
 
 export function SidebarNavLinks({
@@ -14,18 +35,20 @@ export function SidebarNavLinks({
   onSelectTab,
   isSuperAdmin,
   isEmployee,
+  isCollapsed = false,
 }: SidebarNavLinksProps) {
-  const allNavItems = [
+  const allNavItems: NavItem[] = [
     {
       id: "overview",
-      label: "الرئيسية",
-      href: "/dashboard",
+      label: "الرئيسية والكاونتر",
+      category: "core",
+      shortcut: "⌘1",
       icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={2}
+            strokeWidth={1.75}
             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
           />
         </svg>
@@ -33,134 +56,146 @@ export function SidebarNavLinks({
     },
     {
       id: "services",
-      label: "دليل الخدمات",
-      href: "/dashboard#services",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-          />
-        </svg>
-      ),
+      label: "دليل الخدمات واستوديو v2.0",
+      category: "core",
+      shortcut: "⌘2",
+      badge: "جديد",
+      icon: <SparklesIcon size={16} className="text-emerald-400" />,
     },
     {
       id: "documents",
-      label: "سجل الوثائق",
-      href: "/dashboard#documents",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-          />
-        </svg>
-      ),
+      label: "سجل الوثائق والمستندات",
+      category: "core",
+      shortcut: "⌘3",
+      icon: <DocCvIcon size={16} />,
     },
     {
       id: "wallet",
       label: "المحفظة والشحن",
-      href: "/dashboard#wallet",
+      category: "finance",
+      shortcut: "⌘4",
       hideForEmployee: true,
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-          />
-        </svg>
-      ),
+      icon: <CardEpayIcon size={16} />,
     },
     {
       id: "account",
-      label: "إعدادات الحساب",
-      href: "/dashboard#account",
+      label: "الموظفون وتسيير المحل",
+      category: "finance",
+      shortcut: "⌘5",
       hideForEmployee: true,
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-          />
-        </svg>
-      ),
+      icon: <CustomersIcon size={16} />,
     },
     {
       id: "settings",
-      label: "الإعدادات والطباعة",
-      href: "/dashboard#settings",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-        </svg>
-      ),
+      label: "إعدادات الطباعة والربط",
+      category: "config",
+      icon: <WirelessPrintIcon size={16} />,
     },
     {
       id: "superadmin",
       label: "إدارة النظام (58 ولاية)",
-      href: "/dashboard#superadmin",
+      category: "config",
       superAdminOnly: true,
-      icon: (
-        <svg
-          className="w-5 h-5 text-amber-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-          />
-        </svg>
-      ),
+      badge: "أدمن",
+      icon: <CrownIcon size={16} className="text-amber-400" />,
     },
   ];
 
-  const visibleNavItems = allNavItems.filter((item) => {
+  const visibleItems = allNavItems.filter((item) => {
     if (item.superAdminOnly && !isSuperAdmin) return false;
     if (item.hideForEmployee && isEmployee) return false;
     return true;
   });
 
+  const categories = [
+    { key: "core", label: "العمليات الأساسية" },
+    { key: "finance", label: "المحفظة والإدارة" },
+    { key: "config", label: "التهيئة والتحكم" },
+  ];
+
+  if (isCollapsed) {
+    return (
+      <nav className="space-y-1.5 flex flex-col items-center">
+        {visibleItems.map((item) => {
+          const isActive = activeTab === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onSelectTab && onSelectTab(item.id)}
+              title={`${item.label} (${item.shortcut || ""})`}
+              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer relative group ${
+                isActive
+                  ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/35 shadow-sm shadow-emerald-950/20"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent"
+              }`}
+            >
+              {item.icon}
+              {item.badge && (
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+              )}
+            </button>
+          );
+        })}
+      </nav>
+    );
+  }
+
   return (
-    <nav className="space-y-1">
-      {visibleNavItems.map((item) => {
-        const isActive = activeTab === item.id;
+    <nav className="space-y-4">
+      {categories.map((cat) => {
+        const catItems = visibleItems.filter((i) => i.category === cat.key);
+        if (catItems.length === 0) return null;
+
         return (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onSelectTab && onSelectTab(item.id)}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-right ${
-              isActive
-                ? "bg-emerald-600/15 text-emerald-400 border border-emerald-500/30 shadow-sm"
-                : "text-slate-400 hover:text-white hover:bg-slate-900 border border-transparent"
-            }`}
-          >
-            <span className={isActive ? "text-emerald-400" : "text-slate-400"}>{item.icon}</span>
-            <span>{item.label}</span>
-          </button>
+          <div key={cat.key} className="space-y-1">
+            <div className="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1.5">
+              {cat.label}
+            </div>
+
+            {catItems.map((item) => {
+              const isActive = activeTab === item.id;
+
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => onSelectTab && onSelectTab(item.id)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-right cursor-pointer group ${
+                    isActive
+                      ? "sidebar-nav-active font-extrabold"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/90 dark:hover:bg-slate-900/80 border border-transparent"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span
+                      className={`shrink-0 transition-transform group-hover:scale-110 ${
+                        isActive
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200"
+                      }`}
+                    >
+                      {item.icon}
+                    </span>
+                    <span className="truncate">{item.label}</span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {item.badge && (
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                        {item.badge}
+                      </span>
+                    )}
+                    {item.shortcut && (
+                      <kbd className="hidden group-hover:inline-block text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                        {item.shortcut}
+                      </kbd>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         );
       })}
     </nav>

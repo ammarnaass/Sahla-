@@ -58,6 +58,28 @@ export default function SuperAdminPage() {
   const [loading, setLoading] = useState(true);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
+  // Theme toggle state
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isDark = document.documentElement.classList.contains("dark");
+      setTheme(isDark ? "dark" : "light");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    if (next === "dark") {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("sahla_theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("sahla_theme", "light");
+    }
+  };
+
   // New Admin Form State
   const [adminName, setAdminName] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
@@ -297,25 +319,34 @@ export default function SuperAdminPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-white transition-colors">
       {/* Top Header */}
-      <header className="sticky top-0 z-30 backdrop-blur-md bg-slate-950/85 border-b border-slate-800/80 px-4 sm:px-6 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-30 backdrop-blur-md bg-white/85 dark:bg-slate-950/85 border-b border-slate-200 dark:border-slate-800/80 px-4 sm:px-6 h-16 flex items-center justify-between transition-colors">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-emerald-500 flex items-center justify-center text-slate-950 font-black text-lg">
               👑
             </div>
             <div>
-              <span className="font-black text-sm sm:text-base text-white">لوحة تحكم SaaS المركزية</span>
-              <span className="block text-[10px] text-amber-400 font-bold">إحصائيات المنصة ونظام الفوترة الوطني 🇩🇿</span>
+              <span className="font-black text-sm sm:text-base text-slate-900 dark:text-white">لوحة تحكم SaaS المركزية</span>
+              <span className="block text-[10px] text-amber-600 dark:text-amber-400 font-bold">إحصائيات المنصة ونظام الفوترة الوطني 🇩🇿</span>
             </div>
           </Link>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 transition-colors cursor-pointer text-xs flex items-center gap-1.5"
+            title="تبديل المظهر"
+          >
+            <span>{theme === "dark" ? "🌙" : "☀️"}</span>
+            <span className="hidden sm:inline font-bold text-[11px]">{theme === "dark" ? "ليلي" : "نهاري"}</span>
+          </button>
           <Link
             href="/dashboard"
-            className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition border border-slate-700"
+            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition border border-slate-200 dark:border-slate-700"
           >
             كاونتر المحل ➔
           </Link>
@@ -332,22 +363,22 @@ export default function SuperAdminPage() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 space-y-6">
         {/* Banner Alert */}
         {actionNotice && (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-between text-xs sm:text-sm text-emerald-300 font-bold animate-in fade-in">
+          <div className="p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/30 rounded-2xl flex items-center justify-between text-xs sm:text-sm text-emerald-800 dark:text-emerald-300 font-bold animate-in fade-in transition-colors">
             <span>{actionNotice}</span>
-            <button onClick={() => setActionNotice(null)} className="text-slate-400 hover:text-white">
+            <button onClick={() => setActionNotice(null)} className="text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer">
               ✕
             </button>
           </div>
         )}
 
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900 border border-slate-800 overflow-x-auto">
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-x-auto shadow-sm transition-colors">
           <button
             onClick={() => setActiveTab("analytics")}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 shrink-0 ${
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
               activeTab === "analytics"
-                ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20"
-                : "text-slate-400 hover:text-white"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <span>📊</span>
@@ -356,40 +387,40 @@ export default function SuperAdminPage() {
 
           <button
             onClick={() => setActiveTab("invoices")}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 shrink-0 ${
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
               activeTab === "invoices"
-                ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20"
-                : "text-slate-400 hover:text-white"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <span>🧾</span>
             <span>نظام الفواتير السحابية B2B</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-slate-800 text-emerald-400 text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 text-[10px]">
               {invoices.length}
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab("shops")}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 shrink-0 ${
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
               activeTab === "shops"
-                ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20"
-                : "text-slate-400 hover:text-white"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <span>🏪</span>
             <span>إدارة المحلات والمشتركين</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-slate-800 text-emerald-400 text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 text-[10px]">
               {data?.shops.length || 0}
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab("wholesale")}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 shrink-0 ${
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
               activeTab === "wholesale"
-                ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20"
-                : "text-slate-400 hover:text-white"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <span>🎟️</span>
@@ -398,15 +429,15 @@ export default function SuperAdminPage() {
 
           <button
             onClick={() => setActiveTab("admins")}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 shrink-0 ${
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
               activeTab === "admins"
-                ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20"
-                : "text-slate-400 hover:text-white"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <span>🛡️</span>
             <span>مسؤولو النظام (Admins)</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-slate-800 text-emerald-400 text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 text-[10px]">
               {adminsList.length}
             </span>
           </button>

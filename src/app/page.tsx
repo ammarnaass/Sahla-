@@ -27,7 +27,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-white pb-16 md:pb-0">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-white pb-16 md:pb-0 transition-colors duration-200">
       {/* Top Navbar */}
       <LandingNavbar onOpenAuth={openAuth} />
 

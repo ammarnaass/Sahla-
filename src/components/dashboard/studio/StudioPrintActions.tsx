@@ -16,7 +16,7 @@ export function StudioPrintActions({
   isInsufficient,
 }: StudioPrintActionsProps) {
   return (
-    <div className="flex gap-3 justify-end pt-4 border-t border-slate-800">
+    <div className="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-800">
       <Button
         type="button"
         variant="ghost"

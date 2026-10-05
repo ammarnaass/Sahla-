@@ -117,31 +117,31 @@ export function StudioLivePreviewA4({
   const isRTL = language === "ar";
 
   return (
-    <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 flex flex-col justify-between shadow-xl">
+    <div className="bg-slate-100 dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-xl transition-colors">
       <div>
-        <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800 text-xs text-slate-400 font-bold">
+        <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 font-bold">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>معاينة فورية مطابقة للطباعة (A4 300DPI)</span>
           </div>
-          <span className="text-emerald-400 font-mono">🇩🇿 المعيار الوطني</span>
+          <span className="text-emerald-600 dark:text-emerald-400 font-mono">🇩🇿 المعيار الوطني</span>
         </div>
 
         {/* Pager & Action Toolbar for School Research & Exams (PRD v1.0) */}
         {isSchoolService && (
           <div className="mb-3 space-y-2">
-            <div className="flex items-center justify-between bg-slate-950 p-2 rounded-xl border border-slate-800 text-xs">
+            <div className="flex items-center justify-between bg-white dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs shadow-sm">
               <button
                 type="button"
                 disabled={activePage <= 1}
                 onClick={() => updatePage(Math.max(1, activePage - 1))}
-                className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer"
+                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <ArrowRightIcon size={12} />
                 <span>الصفحة السابقة</span>
               </button>
 
-              <span className="font-bold text-emerald-400 font-mono">
+              <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">
                 الصفحة {activePage} من {eduPageCount}
               </span>
 
@@ -149,7 +149,7 @@ export function StudioLivePreviewA4({
                 type="button"
                 disabled={activePage >= eduPageCount}
                 onClick={() => updatePage(Math.min(eduPageCount, activePage + 1))}
-                className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer"
+                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <span>الصفحة التالية</span>
                 <ArrowLeftIcon size={12} />
@@ -163,7 +163,7 @@ export function StudioLivePreviewA4({
                   <button
                     type="button"
                     onClick={onExportWord}
-                    className="px-2.5 py-1 rounded-lg bg-sky-950/80 border border-sky-800/60 text-sky-300 hover:bg-sky-900 flex items-center gap-1.5 transition-all font-medium"
+                    className="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/80 dark:hover:bg-sky-900 border border-sky-200 dark:border-sky-800/60 text-sky-700 dark:text-sky-300 flex items-center gap-1.5 transition-all font-medium cursor-pointer"
                     title="تحميل نسخة قابلة للتعديل ببرنامج Microsoft Word"
                   >
                     <span>📄</span>
@@ -174,10 +174,10 @@ export function StudioLivePreviewA4({
                   <button
                     type="button"
                     onClick={onReportError}
-                    className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-amber-400 flex items-center gap-1 transition-all"
+                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1 transition-all cursor-pointer"
                     title="الإبلاغ عن خطأ علمي أو لغوي"
                   >
-                    <ShieldCheckIcon className="w-3.5 h-3.5 text-amber-400" />
+                    <ShieldCheckIcon className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                     <span>أبلغ عن خطأ</span>
                   </button>
                 )}
@@ -599,12 +599,12 @@ export function StudioLivePreviewA4({
         </div>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+      <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 flex items-center justify-between">
         <span className="flex items-center gap-1.5">
-          <CheckCircleIcon className="w-3.5 h-3.5 text-emerald-400" />
+          <CheckCircleIcon className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
           <span>جاهز للإرسال الفوري لدرج الطابعة A4</span>
         </span>
-        <span className="font-mono text-emerald-400">⚡ 300 DPI High-Res</span>
+        <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">⚡ 300 DPI High-Res</span>
       </div>
     </div>
   );

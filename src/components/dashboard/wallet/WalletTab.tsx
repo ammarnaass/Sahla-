@@ -30,10 +30,10 @@ export function WalletTab({ points, onRecharge, ledger }: WalletTabProps) {
     <div className="space-y-8 text-right animate-in fade-in duration-200">
       {/* Header */}
       <div>
-        <h2 className="text-xl sm:text-2xl font-black text-white font-display">
+        <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-display">
           المحفظة والشحن وإدارة الرصيد 💰
         </h2>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
           إدارة رصيد النقاط، شحن البطاقات المادية (Scratch Cards)، والدفع المباشر بالبطاقة الذهبية
           وبريدي موب
         </p>

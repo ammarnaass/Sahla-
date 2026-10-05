@@ -216,7 +216,7 @@ export function StudioDynamicForm({
       {/* Customer Info */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-bold text-slate-300 mb-1.5">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
             {isSchoolService ? "اسم التلميذ / الطالب *" : "اسم الزبون الكامل *"}
           </label>
           <input
@@ -225,12 +225,12 @@ export function StudioDynamicForm({
             value={customerName}
             onChange={(e) => setCustomerName(e.target.value)}
             placeholder={isSchoolService ? "مثال: أمين بن مهيدي" : "مثال: محمد بن عبد الرحمن"}
-            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
+            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-300 mb-1.5">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
             رقم الهاتف (لإرسال PDF بالواتساب)
           </label>
           <input
@@ -239,7 +239,7 @@ export function StudioDynamicForm({
             onChange={(e) => setPhone(e.target.value)}
             placeholder="0555 12 34 56"
             dir="ltr"
-            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500 text-right font-mono"
+            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs focus:outline-none focus:border-emerald-500 text-right font-mono transition-colors"
           />
         </div>
       </div>
@@ -248,16 +248,16 @@ export function StudioDynamicForm({
       {/* 🎓 SCHOOL RESEARCH & EXAMS FULL CONFIGURATION SECTION    */}
       {/* ======================================================== */}
       {isSchoolService && (
-        <div className="space-y-4 pt-1 bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/90 shadow-sm">
+        <div className="space-y-4 pt-1 bg-slate-100/70 dark:bg-slate-950/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/90 shadow-sm transition-colors">
           {/* PRD v2.0: 3 SubTabs: Research Builder, Practice Exam Generator, and Exams Library */}
-          <div className="grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-center">
+          <div className="grid grid-cols-3 gap-1 bg-slate-200/80 dark:bg-slate-900 p-1 rounded-xl border border-slate-300/70 dark:border-slate-800 text-center transition-colors">
             <button
               type="button"
               onClick={() => setEduSubTab && setEduSubTab("BUILDER")}
               className={`py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
                 eduSubTab === "BUILDER"
                   ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-slate-400 hover:text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               منشئ البحوث المدرسية
@@ -268,7 +268,7 @@ export function StudioDynamicForm({
               className={`py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
                 eduSubTab === "PRACTICE_EXAM"
                   ? "bg-blue-600 text-white shadow-sm"
-                  : "text-slate-400 hover:text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <SparklesIcon className="w-3 h-3 text-blue-300" />
@@ -281,7 +281,7 @@ export function StudioDynamicForm({
               className={`py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
                 eduSubTab === "LIBRARY"
                   ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-slate-400 hover:text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <SchoolCapIcon size={13} />
@@ -306,7 +306,7 @@ export function StudioDynamicForm({
             <>
               {/* 1. Document Mode: Research vs Exam */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                   نوع المستند التعليمي المطلوب:
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -316,7 +316,7 @@ export function StudioDynamicForm({
                     className={`py-2 px-3 rounded-xl text-xs font-bold border flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       eduMode === "RESEARCH"
                         ? "bg-emerald-600 border-emerald-500 text-white shadow-md shadow-emerald-950/30"
-                        : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
+                        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
                     <DocCvIcon size={16} />
@@ -329,7 +329,7 @@ export function StudioDynamicForm({
                     className={`py-2 px-3 rounded-xl text-xs font-bold border flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       eduMode === "EXAM"
                         ? "bg-emerald-600 border-emerald-500 text-white shadow-md shadow-emerald-950/30"
-                        : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
+                        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
                     <SchoolCapIcon size={16} />
@@ -341,8 +341,8 @@ export function StudioDynamicForm({
           {/* Quick Presets Dropdown */}
           {availablePresets.length > 0 && (
             <div>
-              <label className="block text-[11px] font-bold text-emerald-400 mb-1 flex items-center gap-1">
-                <SparklesIcon className="w-3.5 h-3.5 text-emerald-400" />
+              <label className="block text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-1">
+                <SparklesIcon className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                 <span>مواضيع جزائرية نموذجية جاهزة (بنقرة واحدة):</span>
               </label>
               <select
@@ -351,7 +351,7 @@ export function StudioDynamicForm({
                     applyPresetTopic(e.target.value);
                   }
                 }}
-                className="w-full px-3 py-2 bg-slate-900 border border-emerald-500/40 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-emerald-500/40 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
               >
                 <option value="">-- اختر موضوعاً جاهزاً لملء الخطة تلقائياً --</option>
                 {availablePresets.map((p) => (
@@ -365,7 +365,7 @@ export function StudioDynamicForm({
 
           {/* 2. Educational Level Selection */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               الطور التعليمي:
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
@@ -380,12 +380,12 @@ export function StudioDynamicForm({
                   }}
                   className={`p-2 rounded-xl text-[11px] font-bold border text-center transition-all cursor-pointer ${
                     eduLevel === lvl.id
-                      ? "bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-sm"
-                      : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
+                      ? "bg-emerald-50 dark:bg-emerald-500/20 border-emerald-500 text-emerald-700 dark:text-emerald-300 shadow-sm"
+                      : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   }`}
                 >
                   <div className="truncate">{lvl.nameAr.split(" ")[1] || lvl.nameAr}</div>
-                  <div className="text-[9px] text-slate-400 font-mono mt-0.5">{lvl.badge}</div>
+                  <div className="text-[9px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">{lvl.badge}</div>
                 </button>
               ))}
             </div>
@@ -394,13 +394,13 @@ export function StudioDynamicForm({
           {/* 3. Grade & Subject Selector */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                 السنة الدراسية / الشعبة:
               </label>
               <select
                 value={eduGradeId}
                 onChange={(e) => setEduGradeId && setEduGradeId(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
               >
                 {filteredGrades.map((g) => (
                   <option key={g.id} value={g.id}>
@@ -411,7 +411,7 @@ export function StudioDynamicForm({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                 المادة الدراسية:
               </label>
               <select
@@ -422,7 +422,7 @@ export function StudioDynamicForm({
                   const subInfo = ALGERIAN_SUBJECTS[sId];
                   if (subInfo && setLanguage) setLanguage(subInfo.defaultLang);
                 }}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
               >
                 {availableSubjectIds.map((sId) => {
                   const s = ALGERIAN_SUBJECTS[sId];
@@ -440,11 +440,11 @@ export function StudioDynamicForm({
           {eduMode === "RESEARCH" && (
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-bold text-slate-300">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   المقطع التعليمي المقرّر (خريطة المنهاج الجزائري):
                 </label>
                 {eduUnitTitle && (
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
                     ✓ يوافق المنهاج الجزائري
                   </span>
                 )}
@@ -464,7 +464,7 @@ export function StudioDynamicForm({
                     if (setEduUnitTitle) setEduUnitTitle("");
                   }
                 }}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
               >
                 <option value="">-- بدون مقطع محدد (موضوع عام) --</option>
                 {availableUnits.map((u) => (
@@ -478,7 +478,7 @@ export function StudioDynamicForm({
 
           {/* 4. Language Selector */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               لغة المستند والطباعة:
             </label>
             <div className="flex gap-2">
@@ -489,8 +489,8 @@ export function StudioDynamicForm({
                   onClick={() => setLanguage(lang)}
                   className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
                     language === lang
-                      ? "bg-emerald-600 border-emerald-500 text-white"
-                      : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
+                      ? "bg-emerald-600 border-emerald-500 text-white shadow-sm"
+                      : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   }`}
                 >
                   {lang === "ar" ? "العربية (RTL)" : lang === "fr" ? "Français" : "English"}
@@ -502,10 +502,10 @@ export function StudioDynamicForm({
           {/* 5. Page Count & Pricing Pill */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-bold text-slate-300">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                 عدد الصفحات وحجم المستند:
               </label>
-              <span className="text-[11px] font-bold text-emerald-400 font-mono">
+              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">
                 {pricing.pointsCost} نقطة · سعر البيع: {pricing.defaultSaleDZD} دج
               </span>
             </div>
@@ -518,7 +518,7 @@ export function StudioDynamicForm({
                   className={`py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                     eduPageCount === cnt
                       ? "bg-emerald-600 border-emerald-500 text-white shadow-md shadow-emerald-950/20"
-                      : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
+                      : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   }`}
                 >
                   <span>{cnt} {cnt === 1 ? "صفحة" : cnt === 2 ? "صفحتين" : "صفحات"}</span>
@@ -529,7 +529,7 @@ export function StudioDynamicForm({
 
           {/* 6. Title / Topic Input */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               {eduMode === "RESEARCH" ? "عنوان وموضوع البحث *" : "عنوان الاختبار أو الفرض *"}
             </label>
             <input
@@ -538,20 +538,20 @@ export function StudioDynamicForm({
               value={eduTopic}
               onChange={(e) => setEduTopic && setEduTopic(e.target.value)}
               placeholder="مثال: الثورة التحريرية الجزائرية / فرض الفصل الثاني في مادة الرياضيات"
-              className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500 font-bold"
+              className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs focus:outline-none focus:border-emerald-500 font-bold transition-colors"
             />
           </div>
 
           {/* 7. Directorate, School and Teacher info */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div>
-              <label className="block text-[11px] font-bold text-slate-300 mb-1">
+              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                 مديرية التربية لولاية:
               </label>
               <select
                 value={eduDirectorate}
                 onChange={(e) => setEduDirectorate && setEduDirectorate(e.target.value)}
-                className="w-full px-2 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-2 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
               >
                 {ALGERIAN_WILAYAS_DIRECTORATES.slice(0, 30).map((d) => (
                   <option key={d} value={d}>
@@ -562,7 +562,7 @@ export function StudioDynamicForm({
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-300 mb-1">
+              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                 اسم المؤسسة التعليمية:
               </label>
               <input
@@ -570,12 +570,12 @@ export function StudioDynamicForm({
                 value={eduSchoolName}
                 onChange={(e) => setEduSchoolName && setEduSchoolName(e.target.value)}
                 placeholder="ثانوية العقيد لطفي / متوسطة زبانة"
-                className="w-full px-2.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs"
+                className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-300 mb-1">
+              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                 اسم الأستاذ المشرف:
               </label>
               <input
@@ -583,7 +583,7 @@ export function StudioDynamicForm({
                 value={eduTeacherName}
                 onChange={(e) => setEduTeacherName && setEduTeacherName(e.target.value)}
                 placeholder="الأستاذ المشرف"
-                className="w-full px-2.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs"
+                className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs transition-colors"
               />
             </div>
           </div>
@@ -591,33 +591,33 @@ export function StudioDynamicForm({
           {/* PRD v2.0 F4: عناصر وتوجيهات مطلوبة من الأستاذ */}
           {eduMode === "RESEARCH" && (
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1 flex items-center justify-between">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
                 <span>عناصر وتوجيهات مطلوبة من الأستاذ المشرف (F4):</span>
-                <span className="text-[10px] text-slate-400 font-normal">اختياري - يُلزم الهيكل بها</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">اختياري - يُلزم الهيكل بها</span>
               </label>
               <textarea
                 value={eduTeacherRequirements}
                 onChange={(e) => setEduTeacherRequirements && setEduTeacherRequirements(e.target.value)}
                 placeholder="مثال: التركيز على بيان أول نوفمبر، إدراج خريطة الولايات التاريخية، كتابة فقرة خاصة بدور المرأة في الثورة..."
                 rows={2}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500 placeholder:text-slate-600 resize-none"
+                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 placeholder:text-slate-400 dark:placeholder:text-slate-600 resize-none transition-colors"
               />
             </div>
           )}
 
           {/* 8. Step 1: Interactive Outline Editor (PRD Section 5.1) */}
           {eduMode === "RESEARCH" && (
-            <div className="pt-2 border-t border-slate-800/80 space-y-2.5">
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-2.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <SparklesIcon className="w-3.5 h-3.5 text-emerald-400" />
+                <label className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                  <SparklesIcon className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                   <span>الخطوة 1: خطة وفهرس البحث (توليد ومراجعة مجانية):</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => generatePlanAsync && generatePlanAsync()}
                   disabled={isGeneratingPlan}
-                  className="text-[10.5px] px-2.5 py-1 bg-emerald-600/90 hover:bg-emerald-600 text-white rounded-lg font-bold transition-all flex items-center gap-1"
+                  className="text-[10.5px] px-2.5 py-1 bg-emerald-600/90 hover:bg-emerald-600 text-white rounded-lg font-bold transition-all flex items-center gap-1 cursor-pointer"
                 >
                   {isGeneratingPlan ? "جاري التوليد..." : "إعادة توليد بالذكاء الاصطناعي"}
                 </button>
@@ -625,8 +625,8 @@ export function StudioDynamicForm({
 
               <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
                 {eduCustomPlan.map((heading, idx) => (
-                  <div key={idx} className="flex items-center gap-2 bg-slate-900 px-2.5 py-1.5 rounded-xl border border-slate-800 text-[11px]">
-                    <span className="text-emerald-400 font-bold shrink-0">{idx + 1}.</span>
+                  <div key={idx} className="flex items-center gap-2 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] transition-colors">
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold shrink-0">{idx + 1}.</span>
                     <input
                       type="text"
                       value={heading}
@@ -637,7 +637,7 @@ export function StudioDynamicForm({
                           setEduCustomPlan(updated);
                         }
                       }}
-                      className="flex-1 bg-transparent text-slate-200 outline-none focus:text-white text-[11px]"
+                      className="flex-1 bg-transparent text-slate-800 dark:text-slate-200 outline-none focus:text-slate-950 dark:focus:text-white text-[11px]"
                     />
                     <button
                       type="button"
@@ -646,7 +646,7 @@ export function StudioDynamicForm({
                           setEduCustomPlan(eduCustomPlan.filter((_, i) => i !== idx));
                         }
                       }}
-                      className="text-slate-500 hover:text-rose-400 shrink-0 text-xs px-1"
+                      className="text-slate-400 hover:text-rose-500 shrink-0 text-xs px-1 cursor-pointer"
                       title="حذف هذا العنوان"
                     >
                       ✕
@@ -660,7 +660,7 @@ export function StudioDynamicForm({
           {/* 9. Style Level Selector (PRD Section 5.3) */}
           {eduMode === "RESEARCH" && (
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                 مستوى الأسلوب والصياغة (تكييف المستوى):
               </label>
               <div className="grid grid-cols-3 gap-1.5">
@@ -676,7 +676,7 @@ export function StudioDynamicForm({
                     className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
                       eduStyleLevel === lvl.id
                         ? "bg-emerald-600 border-emerald-500 text-white font-bold shadow-md shadow-emerald-950/20"
-                        : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
+                        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
                     <div className="text-xs font-bold">{lvl.label}</div>
@@ -690,7 +690,7 @@ export function StudioDynamicForm({
           {/* 10. Cover Page Template Selector (PRD Section 5.2) */}
           {eduMode === "RESEARCH" && (
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                 قالب وتصميم صفحة الغلاف:
               </label>
               <div className="grid grid-cols-3 gap-1.5">
@@ -706,7 +706,7 @@ export function StudioDynamicForm({
                     className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
                       eduCoverTemplate === tpl.id
                         ? "bg-emerald-600 border-emerald-500 text-white font-bold shadow-md shadow-emerald-950/20"
-                        : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
+                        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
                     <div className="text-xs font-bold">{tpl.label}</div>
@@ -718,13 +718,13 @@ export function StudioDynamicForm({
           )}
 
           {/* 11. Feature Checkboxes & Options */}
-          <div className="pt-2 border-t border-slate-800/80 space-y-2">
-            <span className="text-xs font-bold text-slate-300 block">خصائص ومكونات المستند:</span>
+          <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-2">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block">خصائص ومكونات المستند:</span>
 
             {eduMode === "RESEARCH" ? (
               <div className="space-y-2">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 cursor-pointer">
+                  <label className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 cursor-pointer transition-colors">
                     <input
                       type="checkbox"
                       checked={eduIncludeCover}
@@ -734,7 +734,7 @@ export function StudioDynamicForm({
                     <span>واجهة بحث رسمية</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 cursor-pointer">
+                  <label className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 cursor-pointer transition-colors">
                     <input
                       type="checkbox"
                       checked={eduIncludeOutline}
@@ -744,7 +744,7 @@ export function StudioDynamicForm({
                     <span>خطة البحث والفهرس</span>
                   </label>
 
-                  <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 cursor-pointer">
+                  <label className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 cursor-pointer transition-colors">
                     <input
                       type="checkbox"
                       checked={eduIncludeSources}
@@ -756,7 +756,7 @@ export function StudioDynamicForm({
                 </div>
 
                 {/* Academic Integrity: Educational review questions */}
-                <label className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 cursor-pointer">
+                <label className="flex items-center gap-2 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 cursor-pointer transition-colors">
                   <input
                     type="checkbox"
                     checked={eduIncludeReviewQuestions}
@@ -768,7 +768,7 @@ export function StudioDynamicForm({
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 cursor-pointer">
+                <label className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 cursor-pointer transition-colors">
                   <input
                     type="checkbox"
                     checked={eduIncludeAnswerKey}
@@ -778,12 +778,12 @@ export function StudioDynamicForm({
                   <span>سلم التنقيط والحل النموذجي</span>
                 </label>
 
-                <div className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
+                <div className="flex items-center gap-1.5 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 transition-colors">
                   <span>الفصل:</span>
                   <select
                     value={eduTrimester}
                     onChange={(e) => setEduTrimester && setEduTrimester(Number(e.target.value) as 1 | 2 | 3)}
-                    className="bg-slate-800 px-2 py-0.5 rounded text-white text-xs outline-none"
+                    className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-900 dark:text-white text-xs outline-none"
                   >
                     <option value={1}>الفصل الأول</option>
                     <option value={2}>الفصل الثاني</option>
@@ -794,8 +794,8 @@ export function StudioDynamicForm({
             )}
 
             {/* Law 18-07 Privacy Notice */}
-            <div className="flex items-center gap-2 p-2 bg-slate-900/60 border border-slate-800/80 rounded-xl text-[10px] text-slate-400">
-              <ShieldCheckIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <div className="flex items-center gap-2 p-2 bg-slate-200/60 dark:bg-slate-900/60 border border-slate-300/70 dark:border-slate-800/80 rounded-xl text-[10px] text-slate-600 dark:text-slate-400 transition-colors">
+              <ShieldCheckIcon className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>حماية بيانات القاصرين: تُحذف الأسماء وبيانات التلاميذ آلياً بعد 72 ساعة امتثالاً للقانون 18-07.</span>
             </div>
           </div>
@@ -813,10 +813,10 @@ export function StudioDynamicForm({
                 key={lang}
                 type="button"
                 onClick={() => setLanguage(lang)}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
+                className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
                   language === lang
-                    ? "bg-emerald-600 border-emerald-500 text-white"
-                    : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
+                    ? "bg-emerald-600 border-emerald-500 text-white shadow-sm"
+                    : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 {lang === "ar" ? "العربية" : lang === "fr" ? "Français" : "English"}
@@ -825,24 +825,24 @@ export function StudioDynamicForm({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5">المسمى الوظيفي</label>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">المسمى الوظيفي</label>
             <input
               type="text"
               value={cvJobTitle}
               onChange={(e) => setCvJobTitle(e.target.value)}
-              className="w-full px-3.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs"
+              className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-xs transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               الخبرات المهنية / الملاحظات
             </label>
             <textarea
               rows={3}
               value={cvExperience}
               onChange={(e) => setCvExperience(e.target.value)}
-              className="w-full px-3.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs resize-none"
+              className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-xs resize-none transition-colors"
             />
           </div>
         </div>
@@ -852,17 +852,17 @@ export function StudioDynamicForm({
       {service.code === "ID_PHOTO" && (
         <div className="space-y-3 pt-1">
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               عدد الصور في الورقة A4 / A6
             </label>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setIdPhotoCount(4)}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-colors ${
+                className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
                   idPhotoCount === 4
-                    ? "bg-emerald-600 border-emerald-500 text-white"
-                    : "bg-slate-900 border-slate-800 text-slate-400"
+                    ? "bg-emerald-600 border-emerald-500 text-white shadow-sm"
+                    : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 4 صور هوية (35×45 مم)
@@ -870,10 +870,10 @@ export function StudioDynamicForm({
               <button
                 type="button"
                 onClick={() => setIdPhotoCount(8)}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-colors ${
+                className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
                   idPhotoCount === 8
-                    ? "bg-emerald-600 border-emerald-500 text-white"
-                    : "bg-slate-900 border-slate-800 text-slate-400"
+                    ? "bg-emerald-600 border-emerald-500 text-white shadow-sm"
+                    : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 8 صور هوية (شبكة كاملة)
@@ -882,32 +882,32 @@ export function StudioDynamicForm({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               لون الخلفية البيومترية الرسمية
             </label>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setIdBgColor("gray")}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold border flex items-center justify-center gap-2 ${
+                className={`flex-1 py-2 rounded-xl text-xs font-bold border flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                   idBgColor === "gray"
-                    ? "border-emerald-500 bg-slate-900 text-white"
-                    : "border-slate-800 bg-slate-900 text-slate-400"
+                    ? "border-emerald-500 bg-emerald-50 dark:bg-slate-900 text-emerald-800 dark:text-white shadow-sm"
+                    : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400"
                 }`}
               >
-                <span className="w-3.5 h-3.5 rounded-full bg-slate-400 inline-block"></span>
+                <span className="w-3.5 h-3.5 rounded-full bg-slate-400 inline-block border border-slate-300"></span>
                 <span>رمادي فاتح (جواز وبطاقة هوية)</span>
               </button>
               <button
                 type="button"
                 onClick={() => setIdBgColor("white")}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold border flex items-center justify-center gap-2 ${
+                className={`flex-1 py-2 rounded-xl text-xs font-bold border flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                   idBgColor === "white"
-                    ? "border-emerald-500 bg-slate-900 text-white"
-                    : "border-slate-800 bg-slate-900 text-slate-400"
+                    ? "border-emerald-500 bg-emerald-50 dark:bg-slate-900 text-emerald-800 dark:text-white shadow-sm"
+                    : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400"
                 }`}
               >
-                <span className="w-3.5 h-3.5 rounded-full bg-white inline-block"></span>
+                <span className="w-3.5 h-3.5 rounded-full bg-white inline-block border border-slate-300"></span>
                 <span>أبيض ناصع (ملفات الفيزا)</span>
               </button>
             </div>
@@ -918,12 +918,12 @@ export function StudioDynamicForm({
       {/* Service-Specific Field: Invoice */}
       {service.code === "INVOICE" && (
         <div className="space-y-3 pt-1">
-          <div className="text-xs font-bold text-slate-300">بنود الفاتورة التجارية</div>
+          <div className="text-xs font-bold text-slate-700 dark:text-slate-300">بنود الفاتورة التجارية</div>
           <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
             {invoiceItems.map((item, idx) => (
               <div
                 key={idx}
-                className="flex gap-2 items-center bg-slate-900 p-2 rounded-xl border border-slate-800"
+                className="flex gap-2 items-center bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors"
               >
                 <input
                   type="text"
@@ -933,7 +933,7 @@ export function StudioDynamicForm({
                     updated[idx].desc = e.target.value;
                     setInvoiceItems(updated);
                   }}
-                  className="flex-1 bg-transparent text-xs text-white outline-none"
+                  className="flex-1 bg-transparent text-xs text-slate-900 dark:text-white outline-none"
                 />
                 <input
                   type="number"
@@ -944,7 +944,7 @@ export function StudioDynamicForm({
                     updated[idx].qty = parseInt(e.target.value) || 1;
                     setInvoiceItems(updated);
                   }}
-                  className="w-12 bg-slate-800 text-center text-xs text-white rounded py-1"
+                  className="w-12 bg-slate-100 dark:bg-slate-800 text-center text-xs text-slate-900 dark:text-white rounded py-1 border border-slate-200 dark:border-transparent"
                 />
                 <input
                   type="number"
@@ -955,9 +955,9 @@ export function StudioDynamicForm({
                     updated[idx].price = parseInt(e.target.value) || 0;
                     setInvoiceItems(updated);
                   }}
-                  className="w-16 bg-slate-800 text-center text-xs text-white rounded py-1"
+                  className="w-16 bg-slate-100 dark:bg-slate-800 text-center text-xs text-slate-900 dark:text-white rounded py-1 border border-slate-200 dark:border-transparent"
                 />
-                <span className="text-[10px] text-slate-400">دج</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">دج</span>
               </div>
             ))}
           </div>
@@ -966,7 +966,7 @@ export function StudioDynamicForm({
 
       {/* Notes or details */}
       <div>
-        <label className="block text-xs font-bold text-slate-300 mb-1.5">
+        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
           {isSchoolService ? "تعليمات خاصة بالأستاذ أو التلميذ" : "ملاحظات أو متطلبات خاصة بالزبون"}
         </label>
         <textarea
@@ -978,7 +978,7 @@ export function StudioDynamicForm({
               ? "أي عناصر إضافية يطلبها الأستاذ، أو ملاحظات تنسيق خاصة..."
               : "أي شروط خاصة أو بيانات إضافية..."
           }
-          className="w-full px-3.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs resize-none"
+          className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs resize-none transition-colors"
         />
       </div>
     </div>

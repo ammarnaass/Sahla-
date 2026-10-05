@@ -1,0 +1,35 @@
+/* ═══════════════════════════════════════════════════════════
+   Sahla Micro-Base · Resets & Core Layout Context
+   ═══════════════════════════════════════════════════════════ */
+
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family-ar);
+  background-color: var(--color-surface-app);
+  color: var(--color-text-main);
+  direction: rtl;
+  text-align: right;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  transition:
+    background-color var(--transition-normal),
+    color var(--transition-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure proper orientation when switching to LTR languages */
+[dir="ltr"] body {
+  direction: ltr;
+  text-align: left;
+}

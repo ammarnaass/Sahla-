@@ -137,16 +137,16 @@ export function ExamsLibraryView({
   return (
     <div className="space-y-4">
       {/* 1. Search and Filters Header */}
-      <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl space-y-3">
+      <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl space-y-3 transition-colors">
         <form onSubmit={handleSearchSubmit} className="flex gap-2">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="ابحث برقم التمرين أو الكلمات الدلالية (مثال: متتاليات، دالة لوغاريتمية، هجومات الشمال القسنطيني)..."
-            className="flex-1 px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500 placeholder:text-slate-500"
+            className="flex-1 px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors"
           />
-          <Button type="submit" variant="primary" className="text-xs px-5">
+          <Button type="submit" variant="primary" className="text-xs px-5 cursor-pointer">
             بحث
           </Button>
         </form>
@@ -161,7 +161,7 @@ export function ExamsLibraryView({
               setSelectedGrade("");
               setSelectedStream("");
             }}
-            className="px-2.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 focus:outline-none focus:border-emerald-500 text-[11px]"
+            className="px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 text-[11px] transition-colors"
           >
             <option value="">جميع الأطوار</option>
             <option value="MIDDLE">التعليم المتوسط (BEM)</option>
@@ -174,7 +174,7 @@ export function ExamsLibraryView({
             value={selectedStream}
             onChange={(e) => setSelectedStream(e.target.value)}
             disabled={selectedLevel === "MIDDLE" || selectedLevel === "PRIMARY"}
-            className="px-2.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 focus:outline-none focus:border-emerald-500 text-[11px] disabled:opacity-40"
+            className="px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 text-[11px] disabled:opacity-40 transition-colors"
           >
             <option value="">جميع الشعب</option>
             <option value="SCIENTIFIC">علوم تجريبية</option>
@@ -189,7 +189,7 @@ export function ExamsLibraryView({
           <select
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
-            className="px-2.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 focus:outline-none focus:border-emerald-500 text-[11px]"
+            className="px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 text-[11px] transition-colors"
           >
             <option value="">جميع المواد</option>
             <option value="MATHS">الرياضيات</option>
@@ -204,7 +204,7 @@ export function ExamsLibraryView({
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
-            className="px-2.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 focus:outline-none focus:border-emerald-500 text-[11px]"
+            className="px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 text-[11px] transition-colors"
           >
             <option value="">جميع السنوات</option>
             <option value="2024">دورة 2024</option>
@@ -225,7 +225,7 @@ export function ExamsLibraryView({
               setSelectedYear("");
               setSearchQuery("");
             }}
-            className="px-2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-[11px] font-medium text-center"
+            className="px-2 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-[11px] font-medium text-center transition-colors cursor-pointer"
           >
             إعادة تعيين المرشحات
           </button>
@@ -234,21 +234,21 @@ export function ExamsLibraryView({
 
       {/* 2. Bundle Print Action Bar (Sticky if items selected) */}
       {selectedExamIds.length > 0 && (
-        <div className="bg-gradient-to-r from-emerald-950/80 to-slate-900 border border-emerald-500/40 p-3.5 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-lg animate-in fade-in">
+        <div className="bg-gradient-to-r from-emerald-50 to-slate-100 dark:from-emerald-950/80 dark:to-slate-900 border border-emerald-300 dark:border-emerald-500/40 p-3.5 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-lg animate-in fade-in transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold text-xs">
               {selectedExamIds.length}
             </div>
             <div>
-              <p className="text-xs font-bold text-white">
+              <p className="text-xs font-bold text-slate-900 dark:text-white">
                 حزمة مراجعة مجمّعة ({selectedExamIds.length} مواضيع · {totalSelectedPages} صفحات)
               </p>
-              <label className="flex items-center gap-2 mt-1 text-[11px] text-slate-300 cursor-pointer">
+              <label className="flex items-center gap-2 mt-1 text-[11px] text-slate-700 dark:text-slate-300 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={enableWatermark}
                   onChange={(e) => setEnableWatermark(e.target.checked)}
-                  className="rounded text-emerald-600 focus:ring-emerald-500 bg-slate-900"
+                  className="rounded text-emerald-600 focus:ring-emerald-500 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700"
                 />
                 <span>إدراج ختم المحل (علامة مائية خفيفة للتسويق)</span>
               </label>
@@ -260,7 +260,7 @@ export function ExamsLibraryView({
               type="button"
               variant="ghost"
               onClick={() => setSelectedExamIds([])}
-              className="text-xs text-slate-400 hover:text-white"
+              className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
             >
               إلغاء التحديد
             </Button>
@@ -268,7 +268,7 @@ export function ExamsLibraryView({
               type="button"
               variant="primary"
               onClick={() => onBundlePrint(selectedExamsList, enableWatermark)}
-              className="text-xs px-4 py-2 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-900/30"
+              className="text-xs px-4 py-2 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-900/30 cursor-pointer"
             >
               <WirelessPrintIcon className="w-4 h-4" />
               <span>طباعة الحزمة دفعة واحدة</span>
@@ -279,13 +279,13 @@ export function ExamsLibraryView({
 
       {/* 3. Exams List */}
       {isLoading ? (
-        <div className="text-center py-12 text-slate-400 text-xs">
+        <div className="text-center py-12 text-slate-500 dark:text-slate-400 text-xs">
           <span className="inline-block w-6 h-6 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mb-2"></span>
           <p>جاري البحث في قاعدة الامتحانات الرسمية والمواضيع المعتمدة...</p>
         </div>
       ) : exams.length === 0 ? (
-        <div className="text-center py-12 bg-slate-900/50 border border-slate-800 rounded-2xl text-slate-400 text-xs">
-          <p className="font-bold text-white mb-1">لا توجد مواضيع تطابق معايير البحث الحالية</p>
+        <div className="text-center py-12 bg-slate-100/70 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-600 dark:text-slate-400 text-xs transition-colors">
+          <p className="font-bold text-slate-900 dark:text-white mb-1">لا توجد مواضيع تطابق معايير البحث الحالية</p>
           <p className="text-slate-500">جرب تغيير المادة أو السنة أو تفريغ خانة البحث.</p>
         </div>
       ) : (
@@ -298,26 +298,26 @@ export function ExamsLibraryView({
                 key={exam.id}
                 className={`p-4 rounded-2xl border transition-all text-xs flex flex-col justify-between ${
                   isSelected
-                    ? "bg-slate-900/90 border-emerald-500/60 shadow-md shadow-emerald-950/20"
-                    : "bg-slate-950/60 border-slate-800/80 hover:border-slate-700"
+                    ? "bg-emerald-50/80 dark:bg-slate-900/90 border-emerald-500/60 shadow-md shadow-emerald-950/20"
+                    : "bg-white dark:bg-slate-950/60 border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700"
                 }`}
               >
                 <div>
                   {/* Top Badges */}
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 font-bold text-[10px] border border-emerald-500/20">
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-bold text-[10px] border border-emerald-300 dark:border-emerald-500/20">
                         {exam.type === "OFFICIAL" ? "امتحان رسمي" : "اختبار فصلي"}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px]">
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px]">
                         دورة {exam.year}
                       </span>
                       {exam.stream && (
-                        <span className="px-2 py-0.5 rounded-md bg-sky-950/60 text-sky-300 text-[10px] border border-sky-800/40">
+                        <span className="px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 text-[10px] border border-sky-200 dark:border-sky-800/40">
                           {exam.stream === "SCIENTIFIC" ? "علوم تجريبية" : exam.stream === "MATHS" ? "رياضيات" : exam.stream}
                         </span>
                       )}
-                      <span className="px-2 py-0.5 rounded-md bg-slate-800/80 text-slate-400 text-[10px]">
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 text-[10px]">
                         {exam.pagesCount} صفحات
                       </span>
                     </div>
@@ -327,37 +327,37 @@ export function ExamsLibraryView({
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggleSelectExam(exam.id)}
-                        className="rounded text-emerald-600 focus:ring-emerald-500 bg-slate-900"
+                        className="rounded text-emerald-600 focus:ring-emerald-500 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700"
                       />
-                      <span className="text-[10px] text-slate-400 font-medium">حزمة</span>
+                      <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium">حزمة</span>
                     </label>
                   </div>
 
                   {/* Title */}
-                  <h4 className="font-bold text-white text-sm mb-2 leading-snug">
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm mb-2 leading-snug">
                     {exam.title}
                   </h4>
 
                   {/* Indicators */}
-                  <div className="flex items-center gap-3 text-[11px] text-slate-400 mb-3">
-                    <span className="flex items-center gap-1 text-emerald-400">
+                  <div className="flex items-center gap-3 text-[11px] text-slate-600 dark:text-slate-400 mb-3">
+                    <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
                       <CheckCircleIcon size={13} />
                       <span>متوفر بالحل وسلم التنقيط</span>
                     </span>
-                    <span className="text-slate-500">·</span>
+                    <span className="text-slate-400 dark:text-slate-500">·</span>
                     <span>{exam.downloadsCount} طباعة</span>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-between pt-3 border-t border-slate-800/70 gap-2">
+                <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800/70 gap-2">
                   <button
                     type="button"
                     onClick={() => {
                       setViewingExam(exam);
                       setShowSolution(false);
                     }}
-                    className="text-[11px] text-emerald-400 hover:text-emerald-300 font-bold hover:underline flex items-center gap-1"
+                    className="text-[11px] text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-bold hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <span>معاينة الموضوع</span>
                   </button>
@@ -367,7 +367,7 @@ export function ExamsLibraryView({
                       type="button"
                       variant="ghost"
                       onClick={() => onReportError(exam.id, exam.title)}
-                      className="text-[10px] px-2 py-1 text-slate-400 hover:text-amber-400"
+                      className="text-[10px] px-2 py-1 text-slate-500 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 cursor-pointer"
                       title="أبلغ عن خطأ في هذا الموضوع"
                     >
                       أبلغ عن خطأ
@@ -377,7 +377,7 @@ export function ExamsLibraryView({
                       type="button"
                       variant="primary"
                       onClick={() => onPrintExam(exam, false)}
-                      className="text-[11px] px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5"
+                      className="text-[11px] px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 cursor-pointer shadow-sm"
                     >
                       <WirelessPrintIcon className="w-3.5 h-3.5" />
                       <span>طباعة فورية</span>
@@ -392,20 +392,20 @@ export function ExamsLibraryView({
 
       {/* 4. Exam & Solution Full Inspection Modal */}
       {viewingExam && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl text-xs text-slate-200">
+        <div className="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl text-xs text-slate-800 dark:text-slate-200 transition-colors">
             {/* Modal Header */}
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-white text-sm">{viewingExam.title}</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <h3 className="font-bold text-slate-900 dark:text-white text-sm">{viewingExam.title}</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                   الجمهورية الجزائرية الديمقراطية الشعبية · وزارة التربية الوطنية · دورة {viewingExam.year}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setViewingExam(null)}
-                className="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
               >
                 ✕
               </button>
@@ -413,12 +413,14 @@ export function ExamsLibraryView({
 
             {/* Modal Content Tabs */}
             <div className="p-4 overflow-y-auto flex-1 space-y-4">
-              <div className="flex gap-2 border-b border-slate-800 pb-2">
+              <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
                 <button
                   type="button"
                   onClick={() => setShowSolution(false)}
-                  className={`px-3 py-1.5 rounded-lg font-bold text-xs ${
-                    !showSolution ? "bg-emerald-600 text-white" : "bg-slate-800 text-slate-400"
+                  className={`px-3 py-1.5 rounded-lg font-bold text-xs cursor-pointer ${
+                    !showSolution
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                   }`}
                 >
                   نص الموضوع والتمارين (مجاني)
@@ -432,8 +434,10 @@ export function ExamsLibraryView({
                       handleUnlockSolution(viewingExam);
                     }
                   }}
-                  className={`px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 ${
-                    showSolution ? "bg-emerald-600 text-white" : "bg-slate-800 text-slate-400 hover:text-white"
+                  className={`px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 cursor-pointer ${
+                    showSolution
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   }`}
                 >
                   <SparklesIcon size={14} />
@@ -444,38 +448,38 @@ export function ExamsLibraryView({
               </div>
 
               {!showSolution ? (
-                <div className="space-y-3 bg-slate-950 p-4 rounded-2xl border border-slate-800/80 leading-relaxed font-sans">
-                  <div className="text-center font-bold text-emerald-400 border-b border-slate-800 pb-2">
+                <div className="space-y-3 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 leading-relaxed font-sans transition-colors">
+                  <div className="text-center font-bold text-emerald-600 dark:text-emerald-400 border-b border-slate-200 dark:border-slate-800 pb-2">
                     {viewingExam.examContent?.header || viewingExam.title}
                   </div>
                   {viewingExam.examContent?.part1?.map((item: any, i: number) => (
                     <div key={i} className="pt-2">
-                      <h5 className="font-bold text-white mb-1">{item.title}</h5>
-                      <p className="text-slate-300 whitespace-pre-line text-[11.5px]">{item.content}</p>
+                      <h5 className="font-bold text-slate-900 dark:text-white mb-1">{item.title}</h5>
+                      <p className="text-slate-700 dark:text-slate-300 whitespace-pre-line text-[11.5px]">{item.content}</p>
                     </div>
                   ))}
                   {viewingExam.examContent?.part2 && (
-                    <div className="pt-3 border-t border-slate-800">
-                      <h5 className="font-bold text-amber-300 mb-1">{viewingExam.examContent.part2.title}</h5>
-                      <p className="text-slate-300 whitespace-pre-line text-[11.5px]">
+                    <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
+                      <h5 className="font-bold text-amber-600 dark:text-amber-300 mb-1">{viewingExam.examContent.part2.title}</h5>
+                      <p className="text-slate-700 dark:text-slate-300 whitespace-pre-line text-[11.5px]">
                         {viewingExam.examContent.part2.content}
                       </p>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="space-y-3 bg-emerald-950/20 border border-emerald-500/30 p-4 rounded-2xl">
-                  <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2">
-                    <span className="font-bold text-emerald-300">عناصر الإجابة وسلم التنقيط الوزاري الرسمي:</span>
-                    <span className="text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded">معتمد</span>
+                <div className="space-y-3 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-300 dark:border-emerald-500/30 p-4 rounded-2xl transition-colors">
+                  <div className="flex items-center justify-between border-b border-emerald-200 dark:border-emerald-500/20 pb-2">
+                    <span className="font-bold text-emerald-800 dark:text-emerald-300">عناصر الإجابة وسلم التنقيط الوزاري الرسمي:</span>
+                    <span className="text-[10px] text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">معتمد</span>
                   </div>
-                  <ol className="space-y-2 list-decimal list-inside text-slate-200">
+                  <ol className="space-y-2 list-decimal list-inside text-slate-800 dark:text-slate-200">
                     {viewingExam.solutionContent?.steps?.map((step: string, idx: number) => (
                       <li key={idx} className="leading-relaxed text-[11.5px]">{step}</li>
                     ))}
                   </ol>
                   {viewingExam.markingRubric && (
-                    <div className="mt-3 p-2.5 bg-slate-900/80 rounded-xl text-[11px] text-amber-300 border border-amber-500/20">
+                    <div className="mt-3 p-2.5 bg-amber-50 dark:bg-slate-900/80 rounded-xl text-[11px] text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/20">
                       <span className="font-bold">توزيع العلامات: </span>
                       {viewingExam.markingRubric}
                     </div>
@@ -485,17 +489,17 @@ export function ExamsLibraryView({
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-800 flex items-center justify-between">
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <Button
                 type="button"
                 variant="ghost"
                 onClick={() => onReportError(viewingExam.id, viewingExam.title)}
-                className="text-xs text-slate-400 hover:text-amber-400"
+                className="text-xs text-slate-500 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 cursor-pointer"
               >
                 أبلغ عن خطأ
               </Button>
               <div className="flex gap-2">
-                <Button type="button" variant="ghost" onClick={() => setViewingExam(null)}>
+                <Button type="button" variant="ghost" onClick={() => setViewingExam(null)} className="cursor-pointer">
                   إغلاق
                 </Button>
                 <Button
@@ -505,7 +509,7 @@ export function ExamsLibraryView({
                     onPrintExam(viewingExam, showSolution);
                     setViewingExam(null);
                   }}
-                  className="text-xs flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white"
+                  className="text-xs flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer shadow-sm"
                 >
                   <WirelessPrintIcon className="w-3.5 h-3.5" />
                   <span>طباعة فورية للموضوع {showSolution ? "مع الحل" : ""}</span>

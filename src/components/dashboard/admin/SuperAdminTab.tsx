@@ -18,7 +18,7 @@ export function SuperAdminTab() {
       />
 
       {admin.notice && (
-        <div className="p-3 bg-amber-950/40 border border-amber-500/40 rounded-2xl text-xs text-amber-300 font-bold animate-in fade-in">
+        <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-500/40 rounded-2xl text-xs text-amber-800 dark:text-amber-300 font-bold animate-in fade-in transition-colors">
           {admin.notice}
         </div>
       )}

@@ -24,22 +24,22 @@ export function CelebrationScreen({
       </div>
 
       <div className="space-y-2">
-        <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+        <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
           إنجاز رائع!
         </span>
-        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
           أول وثيقة جاهزة في أقل من دقيقة!
         </h2>
-        <p className="text-xs sm:text-sm text-slate-300">
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
           تم إنشاء «{docTitle}» بنجاح وتم خصم 10 نقاط تجريبية فقط.
         </p>
       </div>
 
       {/* Suggested Sale Price Box */}
-      <div className="p-6 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 text-right space-y-4">
+      <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-right space-y-4 shadow-xl">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-white">كم ستبيع هذه الوثيقة لزبونك؟</span>
-          <span className="text-[11px] text-emerald-400 font-semibold">تحديد سعر البيع الافتراضي</span>
+          <span className="text-xs font-bold text-slate-900 dark:text-white">كم ستبيع هذه الوثيقة لزبونك؟</span>
+          <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">تحديد سعر البيع الافتراضي</span>
         </div>
 
         <div className="flex items-center gap-3">
@@ -51,22 +51,22 @@ export function CelebrationScreen({
               max="2000"
               value={salePrice}
               onChange={(e) => setSalePrice(Number(e.target.value))}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-lg font-bold text-white font-mono focus:outline-none focus:border-emerald-500"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-lg font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 transition-colors"
             />
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 dark:text-slate-400">
               دج
             </span>
           </div>
 
           <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center shrink-0">
-            <span className="text-[10px] text-slate-400 block">ربحك الصافي:</span>
-            <span className="text-sm font-extrabold text-emerald-400 font-mono">
+            <span className="text-[10px] text-slate-600 dark:text-slate-400 block">ربحك الصافي:</span>
+            <span className="text-sm font-extrabold text-emerald-700 dark:text-emerald-400 font-mono">
               +{(salePrice - 30).toLocaleString()} دج
             </span>
           </div>
         </div>
 
-        <p className="text-[11px] text-slate-400 leading-normal">
+        <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-normal">
           💡 سيتم استخدام هذا السعر لحساب أرباح محلك اليومية والشهرية تلقائياً في الشاشة الرئيسية.
         </p>
       </div>
@@ -76,7 +76,7 @@ export function CelebrationScreen({
         variant="primary"
         size="lg"
         onClick={() => onFinish(salePrice)}
-        className="w-full font-bold shadow-lg shadow-emerald-900/40"
+        className="w-full font-bold shadow-lg shadow-emerald-500/20"
       >
         <span>حفظ السعر والدخول إلى الشاشة الرئيسية</span>
         <svg className="w-5 h-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">

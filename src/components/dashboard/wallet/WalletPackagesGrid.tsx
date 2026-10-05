@@ -38,10 +38,10 @@ export function WalletPackagesGrid({ onSelectPackage }: WalletPackagesGridProps)
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-base font-extrabold text-white">
+        <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
           شحن فوري بالبطاقة الذهبية أو بريدي موب 💳
         </h3>
-        <p className="text-xs text-slate-400 mt-0.5">
+        <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
           دفع آمن وفوري 100% عبر الموزع الوطني المعتمد لبريد الجزائر وبنك الجزائر
         </p>
       </div>
@@ -52,8 +52,8 @@ export function WalletPackagesGrid({ onSelectPackage }: WalletPackagesGridProps)
             key={pkg.points}
             className={`p-6 rounded-3xl border flex flex-col justify-between transition-all relative ${
               pkg.popular
-                ? "bg-gradient-to-b from-slate-900 via-slate-900 to-emerald-950/40 border-emerald-500/60 shadow-xl shadow-emerald-950/20"
-                : "bg-slate-900 border-slate-800 hover:border-slate-700"
+                ? "bg-gradient-to-b from-white via-slate-50 to-emerald-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/40 border-emerald-500 shadow-xl shadow-emerald-500/10"
+                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm"
             }`}
           >
             {pkg.popular && (
@@ -64,29 +64,29 @@ export function WalletPackagesGrid({ onSelectPackage }: WalletPackagesGridProps)
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-300">{pkg.title}</span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{pkg.title}</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold">
                   {pkg.badge}
                 </span>
               </div>
 
               <div>
-                <div className="text-3xl font-black text-white font-mono">
+                <div className="text-3xl font-black text-slate-900 dark:text-white font-mono">
                   {pkg.points}{" "}
-                  <span className="text-xs font-normal text-slate-400">نقطة</span>
+                  <span className="text-xs font-normal text-slate-500 dark:text-slate-400">نقطة</span>
                 </div>
-                <div className="text-lg font-extrabold text-emerald-400 font-mono mt-1">
+                <div className="text-lg font-extrabold text-emerald-700 dark:text-emerald-400 font-mono mt-1">
                   {pkg.dzd.toLocaleString()} دج
                 </div>
               </div>
 
-              <p className="text-xs text-slate-400 leading-relaxed">{pkg.desc}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{pkg.desc}</p>
             </div>
 
             <Button
               variant={pkg.popular ? "primary" : "secondary"}
               onClick={() => onSelectPackage({ points: pkg.points, dzd: pkg.dzd })}
-              className="mt-6 w-full text-xs py-2.5 font-bold"
+              className="mt-6 w-full text-xs py-2.5 font-bold cursor-pointer"
             >
               شحن الآن بالذهبية 💳
             </Button>

@@ -1,0 +1,45 @@
+/* ═══════════════════════════════════════════════════════════
+   Sahla Micro-Surfaces · Canvas & Dynamic Dual-Theme Variables
+   Light Mode & Dark Mode Contrast (WCAG 2.1 AAA / AA Compliant)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Light Mode Surface & Token Definitions ── */
+:root:not(.dark),
+.light,
+[data-theme="light"] {
+  --color-surface-app: #f8fafc;
+  --color-surface-card: #ffffff;
+  --color-surface-card-hover: #f1f5f9;
+  --color-surface-sidebar: #ffffff;
+  --color-surface-header: rgba(255, 255, 255, 0.94);
+
+  --color-border: #e2e8f0;
+  --color-border-focus: #059669;
+
+  /* Contrast ratio >= 4.5:1 against #ffffff & #f8fafc */
+  --color-text-main: #0f172a;
+  --color-text-muted: #334155;
+  --color-text-dim: #64748b;
+
+  --shadow-card-elevated: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+}
+
+/* ── Dark Mode Surface & Token Definitions ── */
+.dark,
+[data-theme="dark"] {
+  --color-surface-app: #080c14;
+  --color-surface-card: #0f172a;
+  --color-surface-card-hover: #162036;
+  --color-surface-sidebar: #0b1120;
+  --color-surface-header: rgba(11, 17, 32, 0.88);
+
+  --color-border: #1e293b;
+  --color-border-focus: #10b981;
+
+  /* High contrast against dark OLED/midnight navy */
+  --color-text-main: #f8fafc;
+  --color-text-muted: #94a3b8;
+  --color-text-dim: #64748b;
+
+  --shadow-card-elevated: 0 4px 20px -2px rgba(0, 0, 0, 0.4), 0 2px 6px -1px rgba(0, 0, 0, 0.3);
+}

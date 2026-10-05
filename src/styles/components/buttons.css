@@ -1,0 +1,41 @@
+/* ═══════════════════════════════════════════════════════════
+   Sahla Micro-Components · Buttons
+   Island pill action buttons with haptic micro-interactions
+   ═══════════════════════════════════════════════════════════ */
+
+.btn-island {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 8px 6px 20px;
+  min-height: 48px;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.btn-island:active {
+  transform: scale(0.98);
+}
+
+.btn-icon-pill {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast);
+}
+
+.btn-island:hover .btn-icon-pill {
+  transform: translateX(-4px) scale(1.08);
+}
+
+[dir="ltr"] .btn-island:hover .btn-icon-pill {
+  transform: translateX(4px) scale(1.08);
+}

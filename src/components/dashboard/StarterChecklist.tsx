@@ -55,24 +55,24 @@ export function StarterChecklist() {
   const progressPercent = Math.round((completedCount / tasks.length) * 100);
 
   return (
-    <div className="p-5 rounded-3xl bg-slate-900 border border-emerald-500/30 shadow-lg text-right space-y-4">
+    <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-emerald-500/25 dark:border-emerald-500/30 shadow-sm text-right space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <span>🚀</span>
             <span>قائمة مهام الانطلاقة في محلك</span>
           </h3>
-          <p className="text-[11px] text-slate-400 mt-0.5">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
             أكمل هذه الخطوات السريعة لتحقيق الاستفادة القصوى
           </p>
         </div>
-        <span className="text-xs font-bold text-emerald-400 font-mono">
+        <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 font-mono">
           {completedCount} / {tasks.length}
         </span>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+      <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-300"
           style={{ width: `${progressPercent}%` }}
@@ -87,8 +87,8 @@ export function StarterChecklist() {
             onClick={() => toggleTask(task.id)}
             className={`p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-colors ${
               task.done
-                ? "bg-slate-950/40 border-slate-800/60 text-slate-400 line-through"
-                : "bg-slate-900 border-slate-800 text-slate-200 hover:border-slate-700"
+                ? "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 text-slate-400 dark:text-slate-500 line-through"
+                : "bg-slate-50/70 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700"
             }`}
           >
             <span className="text-xs font-medium">{task.label}</span>
@@ -96,7 +96,7 @@ export function StarterChecklist() {
               className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
                 task.done
                   ? "bg-emerald-600 border-emerald-500 text-white"
-                  : "border-slate-700 bg-slate-800"
+                  : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
               }`}
             >
               {task.done && <span className="text-[10px] font-bold">✓</span>}

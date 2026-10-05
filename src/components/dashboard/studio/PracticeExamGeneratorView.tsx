@@ -159,39 +159,39 @@ export function PracticeExamGeneratorView({
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-blue-950/60 via-slate-900 to-indigo-950/60 border border-blue-800/40 rounded-2xl p-4 sm:p-5 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-blue-50 via-slate-100 to-indigo-50 dark:from-blue-950/60 dark:via-slate-900 dark:to-indigo-950/60 border border-blue-200 dark:border-blue-800/40 rounded-2xl p-4 sm:p-5 relative overflow-hidden transition-colors">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold border border-blue-500/30">
+              <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold border border-blue-500/20">
                 المنهاج الجزائري الرسمي v2.0
               </span>
-              <span className="text-xs text-slate-400">شبكة تقويم / 20 مع الوضعية الإدماجية</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">شبكة تقويم / 20 مع الوضعية الإدماجية</span>
             </div>
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-blue-400 animate-pulse" />
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-blue-500 dark:text-blue-400 animate-pulse" />
               مولّد الاختبارات والتمارين التدريبية النموذجية
             </h3>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
               توليد فوري لاختبارات فصلية وفروض محروسة مطابقة للترقيم الجزائري وسلم التنقيط مع الحل التفصيلي.
             </p>
           </div>
 
-          <div className="bg-slate-900/80 border border-blue-500/30 rounded-xl px-3 py-2 text-right self-stretch sm:self-auto">
-            <span className="text-[10px] text-slate-400 block">تكلفة التوليد الشامل</span>
-            <div className="text-sm font-bold text-blue-400 flex items-center justify-end gap-1">
+          <div className="bg-white/80 dark:bg-slate-900/80 border border-blue-200 dark:border-blue-500/30 rounded-xl px-3 py-2 text-right self-stretch sm:self-auto transition-colors">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block">تكلفة التوليد الشامل</span>
+            <div className="text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center justify-end gap-1">
               <span>5 نقاط</span>
-              <span className="text-[10px] text-slate-400 font-normal">/ موضوع + حل كامل</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">/ موضوع + حل كامل</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Control Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 transition-colors">
         {/* الطور والمستوى */}
         <div>
-          <label className="block text-[11px] font-bold text-slate-400 mb-1.5">الطور والمستوى الدراسي</label>
+          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-400 mb-1.5">الطور والمستوى الدراسي</label>
           <select
             value={level}
             onChange={(e) => {
@@ -201,7 +201,7 @@ export function PracticeExamGeneratorView({
               else if (val.endsWith("AM")) setStage("middle");
               else if (val.endsWith("AS")) setStage("secondary");
             }}
-            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-xs focus:outline-none focus:border-blue-500"
+            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-blue-500 transition-colors"
           >
             <optgroup label="التعليم الابتدائي">
               <option value="4AP">السنة الرابعة ابتدائي (4AP)</option>
@@ -223,11 +223,11 @@ export function PracticeExamGeneratorView({
 
         {/* المادة */}
         <div>
-          <label className="block text-[11px] font-bold text-slate-400 mb-1.5">المادة المقررة</label>
+          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-400 mb-1.5">المادة المقررة</label>
           <select
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-xs focus:outline-none focus:border-blue-500"
+            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-blue-500 transition-colors"
           >
             <option value="MATHS">الرياضيات (معادلات + هندسة + وضعية مركبة)</option>
             <option value="PHYSICS">العلوم الفيزيائية والتكنولوجيا (مادة وميكانيك وأمن)</option>
@@ -240,14 +240,14 @@ export function PracticeExamGeneratorView({
 
         {/* الشعبة للثانوي */}
         <div>
-          <label className="block text-[11px] font-bold text-slate-400 mb-1.5">
+          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-400 mb-1.5">
             الشعبة (للتعليم الثانوي)
           </label>
           <select
             value={stream}
             onChange={(e) => setStream(e.target.value)}
             disabled={stage !== "secondary"}
-            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-xs focus:outline-none focus:border-blue-500 disabled:opacity-40"
+            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-blue-500 disabled:opacity-40 transition-colors"
           >
             <option value="SCIENTIFIC">شعبة علوم تجريبية</option>
             <option value="MATHS">شعبة رياضيات</option>
@@ -259,11 +259,11 @@ export function PracticeExamGeneratorView({
 
         {/* الفصل الدراسي */}
         <div>
-          <label className="block text-[11px] font-bold text-slate-400 mb-1.5">الفصل الدراسي</label>
+          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-400 mb-1.5">الفصل الدراسي</label>
           <select
             value={trimester}
             onChange={(e) => setTrimester(Number(e.target.value) as 1 | 2 | 3)}
-            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-xs focus:outline-none focus:border-blue-500"
+            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-blue-500 transition-colors"
           >
             <option value={1}>الثلاثي الأول (برنامج الفصل 1)</option>
             <option value={2}>الثلاثي الثاني (برنامج الفصل 2)</option>
@@ -273,11 +273,11 @@ export function PracticeExamGeneratorView({
 
         {/* نوع الوثيقة */}
         <div>
-          <label className="block text-[11px] font-bold text-slate-400 mb-1.5">نوع الاختبار</label>
+          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-400 mb-1.5">نوع الاختبار</label>
           <select
             value={examType}
             onChange={(e) => setExamType(e.target.value as any)}
-            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-xs focus:outline-none focus:border-blue-500"
+            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-blue-500 transition-colors"
           >
             <option value="exam">اختبار فصلي رسمي (مدة 2 سا - سلم 20 ن)</option>
             <option value="test">فرض محروس للمراقبة المستمرة (مدة 1 سا)</option>
@@ -287,11 +287,11 @@ export function PracticeExamGeneratorView({
 
         {/* مديرية التربية */}
         <div>
-          <label className="block text-[11px] font-bold text-slate-400 mb-1.5">مديرية التربية لولاية</label>
+          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-400 mb-1.5">مديرية التربية لولاية</label>
           <select
             value={directorate}
             onChange={(e) => setDirectorate(e.target.value)}
-            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-xs focus:outline-none focus:border-blue-500"
+            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-blue-500 transition-colors"
           >
             {ALGERIAN_WILAYAS_DIRECTORATES.slice(0, 20).map((d) => (
               <option key={d} value={d}>
@@ -304,8 +304,8 @@ export function PracticeExamGeneratorView({
 
       {/* Action button */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-        <div className="text-xs text-slate-400 flex items-center gap-1.5">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+        <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+          <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
           <span>المحتوى يتضمن الوضعية الإدماجية وشبكة معايير التصحيح الوزارية الرسمية.</span>
         </div>
 
@@ -330,17 +330,17 @@ export function PracticeExamGeneratorView({
       </div>
 
       {errorMsg && (
-        <div className="p-3 bg-red-950/40 border border-red-800/60 rounded-xl text-red-300 text-xs flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl text-red-700 dark:text-red-300 text-xs flex items-center gap-2 transition-colors">
+          <AlertCircle className="w-4 h-4 text-red-500 dark:text-red-400 shrink-0" />
           <span>{errorMsg}</span>
         </div>
       )}
 
       {/* Generated Exam Preview Area */}
       {generatedExam && (
-        <div className="bg-slate-900 border border-blue-900/50 rounded-2xl overflow-hidden shadow-2xl">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-blue-900/50 rounded-2xl overflow-hidden shadow-2xl transition-colors">
           {/* SubTab Switcher between Exam and Model Solution */}
-          <div className="flex items-center justify-between bg-slate-950 border-b border-slate-800 px-4 py-2.5">
+          <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-4 py-2.5 transition-colors">
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -348,7 +348,7 @@ export function PracticeExamGeneratorView({
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "EXAM"
                     ? "bg-blue-600 text-white shadow-md shadow-blue-900/40"
-                    : "text-slate-400 hover:text-slate-200"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                 }`}
               >
                 نص موضوع الاختبار (للطباعة للتلميذ)
@@ -359,7 +359,7 @@ export function PracticeExamGeneratorView({
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "SOLUTION"
                     ? "bg-emerald-600 text-white shadow-md shadow-emerald-900/40"
-                    : "text-slate-400 hover:text-slate-200"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                 }`}
               >
                 الإجابة النموذجية وسلّم التنقيط (للأستاذ)
@@ -369,9 +369,9 @@ export function PracticeExamGeneratorView({
             <button
               type="button"
               onClick={() => onPrintExam(generatedExam, activeTab === "SOLUTION")}
-              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-300 dark:border-slate-700 transition-all cursor-pointer shadow-sm"
             >
-              <Printer className="w-3.5 h-3.5 text-blue-400" />
+              <Printer className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
               <span>طباعة A4 فورية</span>
             </button>
           </div>

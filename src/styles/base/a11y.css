@@ -1,0 +1,29 @@
+/* ═══════════════════════════════════════════════════════════
+   Sahla Micro-Base · Accessibility & Scrollbars (a11y)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Focus rings for high-contrast accessibility ── */
+:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* ── Custom minimalist scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-dim);
+}

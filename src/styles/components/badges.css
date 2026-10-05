@@ -1,0 +1,24 @@
+/* ═══════════════════════════════════════════════════════════
+   Sahla Micro-Components · Badges & Eyebrow Pills
+   ═══════════════════════════════════════════════════════════ */
+
+.eyebrow-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 12px;
+  border-radius: var(--radius-pill);
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  color: var(--color-primary-400);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+html:not(.dark) .eyebrow-pill,
+.light .eyebrow-pill,
+[data-theme="light"] .eyebrow-pill {
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.3);
+  color: var(--color-primary-700);
+}

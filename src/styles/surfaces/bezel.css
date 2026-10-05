@@ -1,0 +1,26 @@
+/* ═══════════════════════════════════════════════════════════
+   Sahla Micro-Surfaces · Bezel Tactical Cards
+   Double-frame elevation cards for Algerian print shop counters
+   ═══════════════════════════════════════════════════════════ */
+
+.bezel-card {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 6px;
+  box-shadow: var(--shadow-bezel);
+  transition:
+    transform var(--transition-normal),
+    border-color var(--transition-normal);
+}
+
+.bezel-inner {
+  background: var(--color-surface-app);
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius-xl) - 6px);
+  padding: 24px;
+}
+
+.bezel-card:hover {
+  border-color: var(--color-border-focus);
+}

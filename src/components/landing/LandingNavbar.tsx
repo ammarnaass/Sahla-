@@ -18,7 +18,7 @@ export function LandingNavbar({ onOpenAuth }: LandingNavbarProps) {
   const [langMenuOpen, setLangMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-slate-950/80 border-b border-slate-800/80 transition-all">
+    <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-white/85 dark:bg-slate-950/85 border-b border-slate-200 dark:border-slate-800/80 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
@@ -26,33 +26,33 @@ export function LandingNavbar({ onOpenAuth }: LandingNavbarProps) {
             سـ
           </div>
           <div className="flex flex-col">
-            <span className="text-xl font-extrabold text-white tracking-tight flex items-center gap-1.5">
+            <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
               <span>سهلة</span>
-              <span className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">
+              <span className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-semibold border border-emerald-500/30">
                 Sahla
               </span>
             </span>
-            <span className="text-[10px] text-slate-400 font-medium">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
               المنصة الرقمية للكيوسكات والمكتبات 🇩🇿
             </span>
           </div>
         </Link>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
-          <Link href="/pricing" className="text-emerald-400 font-bold hover:text-emerald-300 transition-colors">
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-300">
+          <Link href="/pricing" className="text-emerald-700 dark:text-emerald-400 font-bold hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors">
             باقات الاشتراك SaaS
           </Link>
-          <a href="#how-it-works" className="hover:text-emerald-400 transition-colors">
+          <a href="#how-it-works" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
             {t("landing.howItWorksTitle")}
           </a>
-          <a href="#services" className="hover:text-emerald-400 transition-colors">
+          <a href="#services" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
             {t("nav.services")}
           </a>
-          <a href="#calculator" className="hover:text-emerald-400 transition-colors">
+          <a href="#calculator" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
             {t("landing.calcTitle")}
           </a>
-          <a href="#faq" className="hover:text-emerald-400 transition-colors">
+          <a href="#faq" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
             {t("landing.faqTitle")}
           </a>
         </nav>
@@ -63,40 +63,40 @@ export function LandingNavbar({ onOpenAuth }: LandingNavbarProps) {
           <div className="relative">
             <button
               onClick={() => setLangMenuOpen(!langMenuOpen)}
-              className="h-10 px-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors"
+              className="h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
               aria-label="تبديل اللغة"
             >
               <span>{locale === "ar" ? "عربي" : locale === "fr" ? "FR" : "EN"}</span>
-              <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
 
             {langMenuOpen && (
               <div
-                className="absolute top-12 left-0 sm:right-0 sm:left-auto w-32 bg-slate-900 border border-slate-800 rounded-xl shadow-xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
+                className="absolute top-12 left-0 sm:right-0 sm:left-auto w-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
                 onClick={() => setLangMenuOpen(false)}
               >
                 <button
                   onClick={() => setLocale("ar")}
-                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-slate-800 transition-colors ${
-                    locale === "ar" ? "text-emerald-400 font-bold bg-emerald-500/10" : "text-slate-300"
+                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer ${
+                    locale === "ar" ? "text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/10" : "text-slate-700 dark:text-slate-300"
                   }`}
                 >
                   العربية (RTL)
                 </button>
                 <button
                   onClick={() => setLocale("fr")}
-                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-slate-800 transition-colors ${
-                    locale === "fr" ? "text-emerald-400 font-bold bg-emerald-500/10" : "text-slate-300"
+                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer ${
+                    locale === "fr" ? "text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/10" : "text-slate-700 dark:text-slate-300"
                   }`}
                 >
                   Français (FR)
                 </button>
                 <button
                   onClick={() => setLocale("en")}
-                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-slate-800 transition-colors ${
-                    locale === "en" ? "text-emerald-400 font-bold bg-emerald-500/10" : "text-slate-300"
+                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer ${
+                    locale === "en" ? "text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/10" : "text-slate-700 dark:text-slate-300"
                   }`}
                 >
                   English (EN)
@@ -108,11 +108,11 @@ export function LandingNavbar({ onOpenAuth }: LandingNavbarProps) {
           {/* Theme Toggle */}
           <button
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-            className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+            className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
             aria-label="تبديل الوضع الليلي والنهاري"
           >
             {theme === "light" ? (
-              <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             ) : (
@@ -138,7 +138,7 @@ export function LandingNavbar({ onOpenAuth }: LandingNavbarProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => onOpenAuth("login")}
-                className="hidden sm:inline-flex text-slate-300 hover:text-white"
+                className="hidden sm:inline-flex text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
               >
                 {t("common.login")}
               </Button>

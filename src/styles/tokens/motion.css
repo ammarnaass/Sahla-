@@ -1,0 +1,21 @@
+/* ═══════════════════════════════════════════════════════════
+   Sahla Micro-Tokens · Motion & Timing
+   Silky 60fps micro-interactions complying with UI/UX Pro Max
+   ═══════════════════════════════════════════════════════════ */
+
+@theme {
+  --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
