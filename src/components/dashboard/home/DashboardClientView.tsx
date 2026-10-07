@@ -17,6 +17,8 @@ import { StaffAccountTab } from "@/components/dashboard/staff/StaffAccountTab";
 import { SettingsTab } from "@/components/dashboard/settings/SettingsTab";
 import { SuperAdminTab } from "@/components/dashboard/admin/SuperAdminTab";
 import { StudioModal } from "@/components/dashboard/studio/StudioModal";
+import { SchoolResearchTab } from "@/components/dashboard/education/SchoolResearchTab";
+import { ExamsHubTab } from "@/components/dashboard/education/ExamsHubTab";
 import type { GeneratedDocPayload } from "@/hooks/dashboard/useStudioState";
 
 const INITIAL_DOCS: DocumentRecord[] = [
@@ -59,7 +61,7 @@ const INITIAL_LEDGER: LedgerItem[] = [
 
 export function DashboardClientView() {
   const { session } = useAuth();
-  const { activeTab } = useDashboardTab();
+  const { activeTab, setActiveTab } = useDashboardTab();
 
   const [points, setPoints] = useState(session?.user?.role === "SUPER_ADMIN" ? 9999 : 50);
   const [documents, setDocuments] = useState<DocumentRecord[]>(INITIAL_DOCS);
@@ -69,6 +71,31 @@ export function DashboardClientView() {
     pointsUsed: 15,
     estimatedProfitDZD: 450,
   });
+
+  // Direct keyboard shortcuts: ⌘R for research, ⌘E for exams
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement as HTMLElement | null;
+      if (
+        activeEl &&
+        (["INPUT", "TEXTAREA", "SELECT"].includes(activeEl.tagName) ||
+          activeEl.isContentEditable)
+      ) {
+        return;
+      }
+
+      if ((e.metaKey || e.altKey) && (e.key === "r" || e.key === "R")) {
+        e.preventDefault();
+        setActiveTab("school-research");
+      } else if ((e.metaKey || e.ctrlKey || e.altKey) && (e.key === "e" || e.key === "E")) {
+        e.preventDefault();
+        setActiveTab("exams");
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [setActiveTab]);
 
   const [selectedService, setSelectedService] = useState<ServiceDefinition | null>(null);
   const [frequentServices, setFrequentServices] = useState<ServiceDefinition[]>([]);
@@ -199,6 +226,20 @@ export function DashboardClientView() {
 
           <ServicesFullGrid onSelectService={setSelectedService} />
         </div>
+      )}
+
+      {activeTab === "school-research" && (
+        <SchoolResearchTab
+          points={points}
+          onDocumentGenerated={handleDocumentGenerated}
+        />
+      )}
+
+      {activeTab === "exams" && (
+        <ExamsHubTab
+          points={points}
+          onDocumentGenerated={handleDocumentGenerated}
+        />
       )}
 
       {activeTab === "documents" && (

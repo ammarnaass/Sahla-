@@ -12,6 +12,8 @@ import {
   FileText,
   Wallet,
   Printer,
+  Brain,
+  BookOpenCheck,
 } from "lucide-react";
 import type { UnifiedAdminTab } from "./layout/AdminUnifiedSidebar";
 
@@ -38,6 +40,12 @@ export function AdminTabNav({
       badge: "مباشر",
     },
     {
+      id: "ai-engine" as UnifiedAdminTab,
+      label: "محرك الذكاء الاصطناعي",
+      icon: Brain,
+      badge: "جديد",
+    },
+    {
       id: "shops" as UnifiedAdminTab,
       label: "شبكة الأكشاك",
       icon: Store,
@@ -60,15 +68,21 @@ export function AdminTabNav({
       icon: Shield,
     },
     {
-      id: "overview" as UnifiedAdminTab,
-      label: "كاونتر الكشك",
-      icon: LayoutDashboard,
+      id: "exams" as UnifiedAdminTab,
+      label: "امتحانات وفروض",
+      icon: BookOpenCheck,
+      badge: "ONEC",
     },
     {
       id: "services" as UnifiedAdminTab,
       label: "استوديو الخدمات A4",
       icon: Sparkles,
       badge: "v2.0",
+    },
+    {
+      id: "overview" as UnifiedAdminTab,
+      label: "كاونتر الكشك",
+      icon: LayoutDashboard,
     },
     {
       id: "documents" as UnifiedAdminTab,

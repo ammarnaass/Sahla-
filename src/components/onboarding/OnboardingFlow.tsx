@@ -19,9 +19,8 @@ export function OnboardingFlow() {
 
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
   const [selectedServices, setSelectedServices] = useState<string[]>([
-    "CV_GEN",
-    "INVOICE",
-    "FORM_OCR",
+    "SCHOOL_RESEARCH",
+    "EXAMS",
   ]);
   const [createdDocTitle, setCreatedDocTitle] = useState("");
   const [showPwaPrompt, setShowPwaPrompt] = useState(false);

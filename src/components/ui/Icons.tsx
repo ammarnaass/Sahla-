@@ -317,6 +317,8 @@ export function getServiceIcon(code: string, size: number | string = 24, classNa
       return <InvoiceBillIcon size={size} className={className} />;
     case "SCHOOL_RESEARCH":
       return <SchoolCapIcon size={size} className={className} />;
+    case "EXAMS":
+      return <SchoolCapIcon size={size} className={className} />;
     case "FORM_OCR":
       return <FormOcrIcon size={size} className={className} />;
     case "TAX_G50":

@@ -17,11 +17,8 @@ export function ServicesGrid({ onSelectService }: ServicesGridProps) {
   const [activeTab, setActiveTab] = useState<"all" | "documents" | "commerce" | "school" | "tools">("all");
 
   const categories = [
-    { id: "all", name: locale === "ar" ? "كل الخدمات" : locale === "fr" ? "Tous les services" : "All Services" },
-    { id: "documents", name: locale === "ar" ? "الوثائق الإدارية" : locale === "fr" ? "Documents" : "Documents" },
-    { id: "commerce", name: locale === "ar" ? "التجارة والضرائب" : locale === "fr" ? "Commerce & Fiscalité" : "Commerce & Tax" },
-    { id: "school", name: locale === "ar" ? "التعليم والبحوث" : locale === "fr" ? "Scolaire" : "Education" },
-    { id: "tools", name: locale === "ar" ? "الأدوات المجانية" : locale === "fr" ? "Outils Gratuits" : "Free Tools" },
+    { id: "all", name: locale === "ar" ? "كل الخدمات التعليمية" : locale === "fr" ? "Tous les services" : "All Services" },
+    { id: "school", name: locale === "ar" ? "التعليم والبحوث والامتحانات" : locale === "fr" ? "Scolaire & Examens" : "Education & Exams" },
   ] as const;
 
   const filteredServices = activeTab === "all"
@@ -38,7 +35,7 @@ export function ServicesGrid({ onSelectService }: ServicesGridProps) {
         <div className="text-center max-w-2xl mx-auto mb-14">
           <Badge variant="primary" className="py-1 px-3.5 gap-2 uppercase tracking-wider mb-4 shadow-2xs font-bold text-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-            <span>دليل الخدمات الشامل والمطابق للتشريع الجزائري 🇩🇿</span>
+            <span>دليل الخدمات المدرسية والتعليمية 🇩🇿</span>
           </Badge>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tight font-display">
             {t("landing.servicesTitle")}
@@ -69,7 +66,7 @@ export function ServicesGrid({ onSelectService }: ServicesGridProps) {
         </div>
 
         {/* Services Cards Bento Grid (Material 3 Elevated Cards) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 max-w-3xl mx-auto gap-6">
           {filteredServices.map((service) => {
             const name = locale === "ar" ? service.nameAr : service.nameFr;
             return (
@@ -102,17 +99,8 @@ export function ServicesGrid({ onSelectService }: ServicesGridProps) {
                     {name}
                   </h3>
                   <p className="text-xs text-muted-foreground leading-relaxed font-normal">
-                    {service.code === "CV_GEN" && "سيرة ذاتية متوافقة مع متطلبات العمل ومطابقة لنظام ATS وتصدير فوري PDF."}
-                    {service.code === "INVOICE" && "فاتورة تجارية قانونية برقم جبائي NIF وحساب آلي للـ TVA والتمبر المالي."}
-                    {service.code === "ID_PHOTO" && "تعديل وقص وتكرار 8 صور هوية في ورقة 10×15 بنقرة واحدة بجودة فائقة."}
-                    {service.code === "TAX_G50" && "حساب وطباعة استمارات التصريح الجبائي G50 بكل دقة للمحلات والمهنيين."}
-                    {service.code === "FORM_OCR" && "قراءة بطاقة التعريف والبطاقة الرمادية وتعبئة الاستمارات آلياً بالذكاء الاصطناعي."}
-                    {service.code === "CUSTOMERS" && "سجل ديون الزبائن والكريدي مع كشف حساب وتنبيهات فورية."}
-                    {service.code === "SCHOOL_RESEARCH" && "قوالب بحوث مدرسية وعروض تقديمية جامعية جاهزة للطباعة والتسليم."}
-                    {service.code === "EPAY" && "توليد وصولات الدفع الإلكتروني بالبطاقة الذهبية وCIB فورياً."}
-                    {service.code === "PRINT_BRIDGE" && "طباعة لاسلكية فورية من هاتف الزبون أو الهاتف المحمول لأي طابعة متصلة."}
-                    {service.code === "BARCODE" && "توليد كود بار و QR Code لمنتجات الزبائن وطباعة ملصقات الباركود."}
-                    {service.code === "PDF_TOOLS" && "دمج، ضغط، وتقسيم ملفات PDF للزبائن بسرعة فائقة وبدون برامج خارجية."}
+                    {service.code === "SCHOOL_RESEARCH" && "قوالب بحوث مدرسية متوافقة 100% مع منهاج وزارة التربية الوطنية مع خطة البحث، المقدمة، الفصول والمراجع."}
+                    {service.code === "EXAMS" && "مواضيع امتحانات وفروض رسمية (BEM، BAC، ابتدائي) مع التصحيح النموذجي المعتمد وسلالم التنقيط."}
                   </p>
                 </div>
 

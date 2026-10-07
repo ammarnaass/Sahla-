@@ -2,7 +2,16 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-type TabType = "overview" | "services" | "documents" | "wallet" | "account" | "settings" | "superadmin";
+export type TabType =
+  | "overview"
+  | "services"
+  | "school-research"
+  | "exams"
+  | "documents"
+  | "wallet"
+  | "account"
+  | "settings"
+  | "superadmin";
 
 interface DashboardTabContextType {
   activeTab: TabType;
@@ -17,7 +26,19 @@ export function DashboardTabProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash.replace("#", "");
-      if (["overview", "services", "documents", "wallet", "account", "settings", "superadmin"].includes(hash)) {
+      if (
+        [
+          "overview",
+          "services",
+          "school-research",
+          "exams",
+          "documents",
+          "wallet",
+          "account",
+          "settings",
+          "superadmin",
+        ].includes(hash)
+      ) {
         setActiveTabState(hash as TabType);
       }
     };

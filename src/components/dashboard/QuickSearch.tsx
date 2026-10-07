@@ -45,7 +45,7 @@ export function QuickSearch({ onSelectService }: QuickSearchProps) {
 
         <input
           type="text"
-          placeholder="ماذا يطلب زبونك اليوم؟ (مثال: سيرة ذاتية، فاتورة، صورة هوية...)"
+          placeholder="ماذا يطلب زبونك اليوم؟ (مثال: بحث مدرسي، امتحان، فرض، تاريخ وجغرافيا...)"
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);

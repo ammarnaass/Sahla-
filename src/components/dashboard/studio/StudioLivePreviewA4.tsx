@@ -101,7 +101,7 @@ export function StudioLivePreviewA4({
   conformanceScore = 0.94,
   onViewConformance,
 }: StudioLivePreviewA4Props) {
-  const isSchoolService = service.code === "SCHOOL_RESEARCH";
+  const isSchoolService = service.code === "SCHOOL_RESEARCH" || service.code === "EXAMS";
 
   const [zoomLevel, setZoomLevel] = useState<"fit" | "75" | "100">("fit");
   const [localPage, setLocalPage] = useState<number>(eduCurrentPagePreview || 1);
@@ -640,7 +640,8 @@ export function StudioLivePreviewA4({
           {service.code !== "CV_GEN" &&
             service.code !== "ID_PHOTO" &&
             service.code !== "INVOICE" &&
-            service.code !== "SCHOOL_RESEARCH" && (
+            service.code !== "SCHOOL_RESEARCH" &&
+            service.code !== "EXAMS" && (
               <div className="space-y-3">
                 <div className="text-center border-b pb-2">
                   <div className="font-bold text-sm">

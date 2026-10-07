@@ -5,6 +5,7 @@ import { SERVICES_CATALOG, ServiceDefinition } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
+import { useDashboardTab } from "@/contexts/DashboardTabContext";
 import {
   getServiceIcon,
   SearchIcon,
@@ -32,90 +33,23 @@ interface ServiceMetadata {
 }
 
 const SERVICE_META_MAP: Record<string, ServiceMetadata> = {
-  CV_GEN: {
-    description: "تصميم وإنجاز سيرة ذاتية احترافية ورسائل تحفيز متوافقة مع متطلبات التوظيف والشركات الوطنية.",
-    outputFormat: "📄 قالب A4 احترافي + Word/PDF",
-    turnaroundTime: "⏱️ أقل من دقيقة",
-    isPopular: true,
-    highlightTag: "الأكثر طلباً للشباب",
-    gradientFrom: "from-emerald-500/20",
-    gradientTo: "to-teal-500/20",
-  },
-  ID_PHOTO: {
-    description: "معالجة وضبط صور الهوية البيومترية الرسمية (35×45 مم) بخلفية رمادية أو بيضاء قياسية للوثائق.",
-    outputFormat: "📸 لوح 8 صور بيومترية A4",
-    turnaroundTime: "⚡ فوري (30 ثانية)",
-    isPopular: true,
-    highlightTag: "خدمة يومية أساسية",
-    gradientFrom: "from-sky-500/20",
-    gradientTo: "to-blue-500/20",
-  },
-  INVOICE: {
-    description: "إصدار وصولات وفواتير تجارية قانونية مع حساب آلي للضريبة، الخصم، وبيانات الزبون والمؤسسة.",
-    outputFormat: "🧾 فاتورة تجارية رسمية + QR",
-    turnaroundTime: "⚡ فوري",
-    isPopular: true,
-    highlightTag: "للتجار والمهنيين",
-    gradientFrom: "from-indigo-500/20",
-    gradientTo: "to-violet-500/20",
-  },
   SCHOOL_RESEARCH: {
-    description: "توليد بحوث مدرسية متوافقة 100% مع منهاج وزارة التربية الوطنية (ابتدائي، متوسط، ثانوي) مع أسئلة مراجعة.",
-    outputFormat: "🎓 بحث متكامل 1-10 صفحات A4",
+    description: "توليد بحوث مدرسية متوافقة 100% مع منهاج وزارة التربية الوطنية (ابتدائي، متوسط، ثانوي) مع خطة البحث، المقدمة، الفصول والمراجع.",
+    outputFormat: "🎓 بحث متكامل 1-10 صفحات A4 + تصدير Word",
     turnaroundTime: "⏱️ دقيقة واحدة",
     isPopular: true,
     highlightTag: "المدرسة الجزائرية 🇩🇿",
-    gradientFrom: "from-amber-500/20",
-    gradientTo: "to-orange-500/20",
+    gradientFrom: "from-amber-500/25",
+    gradientTo: "to-orange-500/25",
   },
-  FORM_OCR: {
-    description: "المعالجة الضوئية للوثائق الرسمية والبطاقات البيومترية لاستخراج البيانات وملء الاستمارات آلياً.",
-    outputFormat: "📋 استمارة رسمية معبأة آلياً",
-    turnaroundTime: "⚡ 15 ثانية",
-    gradientFrom: "from-cyan-500/20",
-    gradientTo: "to-blue-500/20",
-  },
-  TAX_G50: {
-    description: "تجهيز وحساب التصريحات الجبائية الدورية G50 و G12 مع جداول المداخيل والضرائب المعتمدة لمفتشيات الضرائب.",
-    outputFormat: "🏛️ جدول رسمي لمصلحة الضرائب",
-    turnaroundTime: "⏱️ دقيقتان",
-    gradientFrom: "from-rose-500/20",
-    gradientTo: "to-pink-500/20",
-  },
-  CUSTOMERS: {
-    description: "سجل رقمي لتتبع حسابات الكريدي وديون الزبائن اليومية في المحل مع ميزة إشعارات المتابعة الفورية.",
-    outputFormat: "👥 دفتر ديون وزبائن مشفر",
-    turnaroundTime: "⚡ أداة حرة دائمة",
-    gradientFrom: "from-emerald-500/20",
-    gradientTo: "to-green-500/20",
-  },
-  EPAY: {
-    description: "توليد روابط ورموز استجابة سريعة QR للدفع الإلكتروني السريع عبر البطاقة الذهبية وبطاقات CIB البنكية.",
-    outputFormat: "💳 دفع إلكتروني بريد الجزائر / CIB",
+  EXAMS: {
+    description: "بنك الامتحانات الرسمية ومولّد الفروض والاختبارات لجميع الأطوار مع التصحيح النموذجي المعتمد وسلالم التنقيط.",
+    outputFormat: "📝 موضوع امتحان رسمي A4 + حل نموذجي",
     turnaroundTime: "⚡ فوري",
-    gradientFrom: "from-yellow-500/20",
-    gradientTo: "to-amber-500/20",
-  },
-  PRINT_BRIDGE: {
-    description: "ربط ذكي ومباشر مع طابعة الكاونتر المحلية لطباعة الفواتير والبحوث بنقرة واحدة عبر الويب.",
-    outputFormat: "🖨️ طباعة سحابية ولاسلكية",
-    turnaroundTime: "⚡ اتصال دائم",
-    gradientFrom: "from-teal-500/20",
-    gradientTo: "to-emerald-500/20",
-  },
-  BARCODE: {
-    description: "توليد ملصقات الباركود المعياري ورموز QR Code للسلع والمشتريات وتتبع المنتجات في المكتبة.",
-    outputFormat: "📊 ملصقات باركود قياسية",
-    turnaroundTime: "⚡ فوري",
-    gradientFrom: "from-purple-500/20",
-    gradientTo: "to-indigo-500/20",
-  },
-  PDF_TOOLS: {
-    description: "دمج، ضغط، وتقسيم وثائق الـ PDF وتجهيزها للطباعة المزدوجة على أوراق A4.",
-    outputFormat: "📑 ملفات PDF مجهزة للطباعة",
-    turnaroundTime: "قريباً",
-    gradientFrom: "from-slate-500/20",
-    gradientTo: "to-slate-700/20",
+    isPopular: true,
+    highlightTag: "امتحانات وفروض 🇩🇿",
+    gradientFrom: "from-blue-500/25",
+    gradientTo: "to-indigo-500/25",
   },
 };
 
@@ -148,12 +82,17 @@ export function ServicesFullGrid({
   }, []);
 
   const groups = [
-    { id: "all", name: "جميع الخدمات", icon: "✨" },
-    { id: "documents", name: "الوثائق الإدارية والمهنية", icon: "📑" },
-    { id: "commerce", name: "التجارة والضرائب والمحاسبة", icon: "🧾" },
-    { id: "school", name: "التعليم والبحوث المدرسية", icon: "🎓" },
-    { id: "tools", name: "الأدوات المجانية المساعدة", icon: "🛠️" },
+    { id: "all", name: "جميع الخدمات التعليمية", icon: "✨" },
+    { id: "school", name: "التعليم والبحوث والامتحانات", icon: "🎓" },
   ] as const;
+
+  // Safe access to tab context if rendered inside dashboard tab provider
+  let tabContext: { setActiveTab: (t: any) => void } | null = null;
+  try {
+    tabContext = useDashboardTab();
+  } catch {
+    tabContext = null;
+  }
 
   const handleClick = (svc: ServiceDefinition) => {
     if (!svc.isActive) {
@@ -162,6 +101,25 @@ export function ServicesFullGrid({
       setNotifyContact("");
       return;
     }
+
+    if (svc.code === "SCHOOL_RESEARCH") {
+      if (tabContext) {
+        tabContext.setActiveTab("school-research");
+      } else {
+        window.location.hash = "school-research";
+      }
+      return;
+    }
+
+    if (svc.code === "EXAMS") {
+      if (tabContext) {
+        tabContext.setActiveTab("exams");
+      } else {
+        window.location.hash = "exams";
+      }
+      return;
+    }
+
     onSelectService(svc);
   };
 
@@ -215,7 +173,7 @@ export function ServicesFullGrid({
           <div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">جاهزية الخدمات</div>
             <div className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-              10 خدمات نشطة 🟢
+              {SERVICES_CATALOG.filter((s) => s.isActive).length} خدمات نشطة 🟢
             </div>
           </div>
         </div>
@@ -225,9 +183,9 @@ export function ServicesFullGrid({
             <SparklesIcon size={18} />
           </div>
           <div>
-            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">أدوات مجانية</div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">نوع الخدمات</div>
             <div className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-              6 أدوات مجانية ✨
+              تعليمية ومدرسية 🇩🇿
             </div>
           </div>
         </div>
@@ -239,7 +197,7 @@ export function ServicesFullGrid({
           <div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">دعم الطابعات</div>
             <div className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-              A4 وطابعات كاونتر
+              A4 وتصدير Word/PDF
             </div>
           </div>
         </div>
@@ -251,7 +209,7 @@ export function ServicesFullGrid({
           <div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">المطابقة الوطنية</div>
             <div className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-              الجزائر 2026 🇩🇿
+              منهاج التربية الوطنية
             </div>
           </div>
         </div>
@@ -273,11 +231,11 @@ export function ServicesFullGrid({
               </h3>
             </div>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-              80% من معاملات الكيوسكات
+              المنهاج الرسمي لوزارة التربية الوطنية
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto gap-4">
             {featuredServices.map((svc) => {
               const meta = SERVICE_META_MAP[svc.code];
               return (
@@ -344,7 +302,7 @@ export function ServicesFullGrid({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث في دليل الخدمات (سيرة ذاتية، صور بيومترية، بحوث، فواتير، G50...)"
+              placeholder="ابحث في دليل الخدمات (بحوث مدرسية، امتحانات، فروض، مذكرات تخرج...)"
               className="w-full pr-10 pl-20 py-2.5 bg-muted/40 border border-border rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 font-medium transition-all"
             />
             <div className="absolute inset-y-0 left-3 flex items-center gap-1.5">
@@ -467,7 +425,7 @@ export function ServicesFullGrid({
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto gap-4">
           {filteredServices.map((svc) => {
             const meta = SERVICE_META_MAP[svc.code];
             const isClickable = svc.isActive;
@@ -530,6 +488,16 @@ export function ServicesFullGrid({
                 {/* Bottom Row: Metadata Tags & Action Trigger */}
                 <div className="pt-3.5 mt-3.5 border-t border-border flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 overflow-hidden">
+                    {svc.code === "SCHOOL_RESEARCH" && (
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-muted border border-border text-foreground">
+                        ⌘R
+                      </span>
+                    )}
+                    {svc.code === "EXAMS" && (
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-muted border border-border text-foreground">
+                        ⌘E
+                      </span>
+                    )}
                     {meta?.outputFormat && (
                       <span className="text-[10px] font-medium text-muted-foreground truncate bg-muted px-2 py-0.5 rounded-md">
                         {meta.outputFormat}
@@ -537,10 +505,30 @@ export function ServicesFullGrid({
                     )}
                   </div>
 
-                  <div className="shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {svc.isActive && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectService(svc);
+                        }}
+                        title="فتح استوديو A4 السريع كنافذة منبثقة"
+                        className="text-[11px] font-bold px-2 py-1 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      >
+                        سريع ⚡
+                      </button>
+                    )}
+
                     {svc.isActive ? (
                       <span className="text-xs font-bold text-primary group-hover:underline flex items-center gap-1 font-cairo">
-                        <span>فتح الاستوديو</span>
+                        <span>
+                          {svc.code === "SCHOOL_RESEARCH"
+                            ? "استوديو البحوث"
+                            : svc.code === "EXAMS"
+                            ? "بنك الامتحانات"
+                            : "فتح الاستوديو"}
+                        </span>
                         <span>←</span>
                       </span>
                     ) : (

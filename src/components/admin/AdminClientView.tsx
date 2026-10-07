@@ -12,6 +12,9 @@ import { AdminTeamTab } from "./tabs/AdminTeamTab";
 import { CreateInvoiceModal } from "./modals/CreateInvoiceModal";
 import { InvoicePrintModal } from "./modals/InvoicePrintModal";
 import { NationalBroadcastModal } from "./modals/NationalBroadcastModal";
+import { AdminAIEngineTab } from "./ai/AdminAIEngineTab";
+import { AdminAIChatPanel } from "./ai/AdminAIChatPanel";
+import { Brain } from "lucide-react";
 
 // Counter & Service Studio Components
 import { DashboardOverviewTab } from "@/components/dashboard/home/DashboardOverviewTab";
@@ -20,6 +23,8 @@ import { DocumentsTab, type DocumentRecord } from "@/components/dashboard/docume
 import { WalletTab, type LedgerItem } from "@/components/dashboard/wallet/WalletTab";
 import { SettingsTab } from "@/components/dashboard/settings/SettingsTab";
 import { StudioModal } from "@/components/dashboard/studio/StudioModal";
+import { SchoolResearchTab } from "@/components/dashboard/education/SchoolResearchTab";
+import { ExamsHubTab } from "@/components/dashboard/education/ExamsHubTab";
 import { SERVICES_CATALOG, type ServiceDefinition } from "@/lib/constants";
 import type { GeneratedDocPayload } from "@/hooks/dashboard/useStudioState";
 import { trackEvent } from "@/lib/analytics";
@@ -128,6 +133,8 @@ export default function AdminClientView() {
   const [isGeneratingCards, setIsGeneratingCards] = useState(false);
   const [lastBatch, setLastBatch] = useState<any>(null);
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
+  const [isFloatingChatOpen, setIsFloatingChatOpen] = useState(false);
+  const [floatingChatInitialQuery, setFloatingChatInitialQuery] = useState<string | undefined>(undefined);
 
   // Auto-dismiss notices
   useEffect(() => {
@@ -148,6 +155,8 @@ export default function AdminClientView() {
       "admins",
       "overview",
       "services",
+      "school-research",
+      "exams",
       "documents",
       "wallet",
       "settings",
@@ -155,6 +164,31 @@ export default function AdminClientView() {
     if (validTabs.includes(hash)) {
       setActiveTab(hash);
     }
+  }, []);
+
+  // Global shortcuts for educational modules: ⌘R for research, ⌘E for exams
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement as HTMLElement | null;
+      if (
+        activeEl &&
+        (["INPUT", "TEXTAREA", "SELECT"].includes(activeEl.tagName) ||
+          activeEl.isContentEditable)
+      ) {
+        return;
+      }
+
+      if ((e.metaKey || e.altKey) && (e.key === "r" || e.key === "R")) {
+        e.preventDefault();
+        handleSelectTab("school-research");
+      } else if ((e.metaKey || e.ctrlKey || e.altKey) && (e.key === "e" || e.key === "E")) {
+        e.preventDefault();
+        handleSelectTab("exams");
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
   }, []);
 
   const handleSelectTab = (tab: UnifiedAdminTab) => {
@@ -470,8 +504,17 @@ export default function AdminClientView() {
             <>
               {/* === National Central Command (58 Wilayas) Tabs === */}
               {activeTab === "analytics" && (
-                <AdminAnalyticsTab stats={data?.stats} analytics={analytics || undefined} />
+                <AdminAnalyticsTab
+                  stats={data?.stats}
+                  analytics={analytics || undefined}
+                  onOpenAIChat={(query) => {
+                    setFloatingChatInitialQuery(query);
+                    setIsFloatingChatOpen(true);
+                  }}
+                />
               )}
+
+              {activeTab === "ai-engine" && <AdminAIEngineTab />}
 
               {activeTab === "shops" && (
                 <AdminShopsTab
@@ -548,6 +591,20 @@ export default function AdminClientView() {
                 </div>
               )}
 
+              {activeTab === "school-research" && (
+                <SchoolResearchTab
+                  points={points}
+                  onDocumentGenerated={handleDocumentGenerated}
+                />
+              )}
+
+              {activeTab === "exams" && (
+                <ExamsHubTab
+                  points={points}
+                  onDocumentGenerated={handleDocumentGenerated}
+                />
+              )}
+
               {activeTab === "documents" && (
                 <DocumentsTab documents={documents} onOpenStudio={openServiceByCode} />
               )}
@@ -592,6 +649,32 @@ export default function AdminClientView() {
         points={points}
         onDocumentGenerated={handleDocumentGenerated}
       />
+
+      {/* Floating AI Engine Chat Widget (Available across all tabs) */}
+      {activeTab !== "ai-engine" && (
+        <>
+          <AdminAIChatPanel
+            isOpen={isFloatingChatOpen}
+            onClose={() => setIsFloatingChatOpen(false)}
+            isFloating={true}
+            initialQuery={floatingChatInitialQuery}
+          />
+
+          {!isFloatingChatOpen && (
+            <button
+              onClick={() => setIsFloatingChatOpen(true)}
+              className="fixed bottom-6 left-6 z-40 px-4 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-xl shadow-emerald-500/25 flex items-center gap-2.5 font-bold text-xs transition-all duration-200 hover:scale-105 group"
+              title="فتح المساعد الذكي للمنظومة المركزية"
+            >
+              <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center">
+                <Brain size={15} className="group-hover:animate-pulse" />
+              </div>
+              <span>المساعد الذكي 58 ولاية</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+            </button>
+          )}
+        </>
+      )}
     </div>
   );
 }

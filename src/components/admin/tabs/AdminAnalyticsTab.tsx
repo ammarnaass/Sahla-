@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { WilayasInteractiveGrid } from "../wilayas/WilayasInteractiveGrid";
 import { LiveActivityFeed } from "../live/LiveActivityFeed";
+import { AdminAIInsightsCard } from "../ai/AdminAIInsightsCard";
 
 interface AdminAnalyticsTabProps {
   stats?: {
@@ -45,9 +46,10 @@ interface AdminAnalyticsTabProps {
     }[];
     activityBreakdown: Record<string, number>;
   };
+  onOpenAIChat?: (query?: string) => void;
 }
 
-export function AdminAnalyticsTab({ stats, analytics }: AdminAnalyticsTabProps) {
+export function AdminAnalyticsTab({ stats, analytics, onOpenAIChat }: AdminAnalyticsTabProps) {
   const formatDZD = (num?: number) => {
     if (num === undefined || num === null) return "0";
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -132,6 +134,9 @@ export function AdminAnalyticsTab({ stats, analytics }: AdminAnalyticsTabProps) 
           </p>
         </div>
       </div>
+
+      {/* ─── AI Engine Operational Insights Card ─── */}
+      <AdminAIInsightsCard onOpenChatWithQuery={onOpenAIChat} />
 
       {/* ─── Plan Breakdown Strip ─── */}
       <div className="p-6 rounded-2xl bg-card border border-border shadow-sm">

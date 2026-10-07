@@ -187,7 +187,7 @@ export function StudioDynamicForm({
   onApproveSpec,
 }: StudioDynamicFormProps) {
 
-  const isSchoolService = service.code === "SCHOOL_RESEARCH";
+  const isSchoolService = service.code === "SCHOOL_RESEARCH" || service.code === "EXAMS";
 
 
   // Grades filtered by selected level
@@ -218,7 +218,7 @@ export function StudioDynamicForm({
   );
 
   const pricing = getDynamicPricing
-    ? getDynamicPricing("SCHOOL_RESEARCH")
+    ? getDynamicPricing(service.code)
     : { pointsCost: 15, defaultSaleDZD: 250 };
 
   return (

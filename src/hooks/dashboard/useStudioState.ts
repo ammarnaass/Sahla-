@@ -268,12 +268,9 @@ export function useStudioState() {
   };
 
   const getDynamicPricing = (serviceCode: string) => {
-    if (serviceCode === "SCHOOL_RESEARCH") {
+    if (serviceCode === "SCHOOL_RESEARCH" || serviceCode === "EXAMS") {
       return calculateEducationPricing(eduPageCount, eduMode, eduIncludeAnswerKey);
     }
-    if (serviceCode === "CV_GEN") return { pointsCost: 15, defaultSaleDZD: 250 };
-    if (serviceCode === "ID_PHOTO") return { pointsCost: 0, defaultSaleDZD: 200 };
-    if (serviceCode === "INVOICE") return { pointsCost: 10, defaultSaleDZD: 350 };
     return { pointsCost: 10, defaultSaleDZD: 150 };
   };
 
@@ -297,20 +294,14 @@ export function useStudioState() {
       setIsProcessing(false);
 
       const docType =
-        service.code === "SCHOOL_RESEARCH"
+        service.code === "SCHOOL_RESEARCH" || service.code === "EXAMS"
           ? eduMode === "RESEARCH"
             ? "SCHOOL_RESEARCH"
             : "EXAM"
-          : service.code === "CV_GEN"
-          ? "CV"
-          : service.code === "ID_PHOTO"
-          ? "ID_PHOTO"
-          : service.code === "INVOICE"
-          ? "INVOICE"
-          : "FORM";
+          : "SCHOOL_RESEARCH";
 
       const title =
-        service.code === "SCHOOL_RESEARCH"
+        service.code === "SCHOOL_RESEARCH" || service.code === "EXAMS"
           ? `${eduMode === "RESEARCH" ? "بحث مدرسي" : "امتحان نموذجي"}: ${eduTopic} (${eduPageCount} ص)`
           : `${service.nameAr} (${customerName.trim() || "زبون المحل"})`;
 

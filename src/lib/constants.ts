@@ -91,21 +91,30 @@ export interface ServiceDefinition {
 export type ServiceItem = ServiceDefinition;
 
 export const SERVICES_CATALOG: ServiceDefinition[] = [
-  { code: "CV_GEN", nameAr: "سيرة ذاتية ورسائل تحفيز", nameFr: "CV & Lettre de motivation", icon: "📄", pointsCost: 15, category: "documents", isActive: true, isFree: false },
-  { code: "ID_PHOTO", nameAr: "صور الهوية 35×45 مم", nameFr: "Photos d'identité 35×45mm", icon: "📸", pointsCost: 0, category: "tools", isActive: true, isFree: true },
-  { code: "INVOICE", nameAr: "فواتير تجارية رسمية", nameFr: "Factures commerciales", icon: "🧾", pointsCost: 10, category: "commerce", isActive: true, isFree: false },
-  { code: "SCHOOL_RESEARCH", nameAr: "بحوث مدرسية وامتحانات", nameFr: "Recherches scolaires & examens", icon: "🎓", pointsCost: 10, category: "school", isActive: true, isFree: false },
-  { code: "FORM_OCR", nameAr: "ملء النماذج الرسمية بالـ OCR", nameFr: "Formulaires officiels OCR", icon: "📋", pointsCost: 10, category: "documents", isActive: true, isFree: false },
-  { code: "TAX_G50", nameAr: "التصاريح الجبائية G50 و G12", nameFr: "Déclarations fiscales G50/G12", icon: "🏛️", pointsCost: 20, category: "commerce", isActive: true, isFree: false },
-  { code: "CUSTOMERS", nameAr: "دفتر الزبائن وسجل الكريدي", nameFr: "Carnet clients & crédit", icon: "👥", pointsCost: 0, category: "tools", isActive: true, isFree: true },
-  { code: "EPAY", nameAr: "دفع إلكتروني بالذهبية و CIB", nameFr: "Paiement CIB/Dahabia", icon: "💳", pointsCost: 0, category: "tools", isActive: true, isFree: true },
-  { code: "PRINT_BRIDGE", nameAr: "جسر الطباعة اللاسلكي", nameFr: "Pont d'impression sans fil", icon: "🖨️", pointsCost: 0, category: "tools", isActive: true, isFree: true },
-  { code: "BARCODE", nameAr: "باركود و QR Code", nameFr: "Barcode & QR Code", icon: "📊", pointsCost: 0, category: "tools", isActive: true, isFree: true },
-  { code: "PDF_TOOLS", nameAr: "أدوات PDF", nameFr: "Outils PDF", icon: "📑", pointsCost: 0, category: "tools", isActive: false, isFree: true },
+  {
+    code: "SCHOOL_RESEARCH",
+    nameAr: "بحوث مدرسية",
+    nameFr: "Recherches scolaires",
+    icon: "🎓",
+    pointsCost: 10,
+    category: "school",
+    isActive: true,
+    isFree: false,
+  },
+  {
+    code: "EXAMS",
+    nameAr: "امتحانات وفروض",
+    nameFr: "Examens & Épreuves",
+    icon: "📝",
+    pointsCost: 10,
+    category: "school",
+    isActive: true,
+    isFree: false,
+  },
 ];
 
 export function getServiceByCode(code: string): ServiceDefinition | undefined {
-  return SERVICES_CATALOG.find((s) => s.code === code);
+  return SERVICES_CATALOG.find((s) => s.code === code) || SERVICES_CATALOG[0];
 }
 
 export function getWilayaByCode(code: number): Wilaya | undefined {

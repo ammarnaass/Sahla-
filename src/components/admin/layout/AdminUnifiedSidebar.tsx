@@ -18,18 +18,23 @@ import {
   Crown,
   Radio,
   ExternalLink,
+  Brain,
+  BookOpenCheck,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 
 export type UnifiedAdminTab =
   | "analytics"
+  | "ai-engine"
   | "shops"
   | "invoices"
   | "wholesale"
   | "admins"
-  | "overview"
+  | "school-research"
+  | "exams"
   | "services"
+  | "overview"
   | "documents"
   | "wallet"
   | "settings";
@@ -84,6 +89,14 @@ export function AdminUnifiedSidebar({
           shortcut: "⌘1",
         },
         {
+          id: "ai-engine",
+          label: "محرك الذكاء الاصطناعي",
+          icon: Brain,
+          badge: "جديد",
+          badgeVariant: "primary",
+          shortcut: "⌘0",
+        },
+        {
           id: "shops",
           label: "شبكة الأكشاك والمحلات",
           icon: Store,
@@ -112,13 +125,15 @@ export function AdminUnifiedSidebar({
       ],
     },
     {
-      title: "كاونتر الخدمات والتشغيل الفوري",
+      title: "الخدمات والتعليم",
       items: [
         {
-          id: "overview",
-          label: "كاونتر الكشك والعمليات",
-          icon: LayoutDashboard,
-          shortcut: "⌘6",
+          id: "exams",
+          label: "امتحانات وفروض رسمية",
+          icon: BookOpenCheck,
+          badge: "ONEC",
+          badgeVariant: "outline",
+          shortcut: "⌘E",
         },
         {
           id: "services",
@@ -127,6 +142,12 @@ export function AdminUnifiedSidebar({
           badge: "v2.0",
           badgeVariant: "warning",
           shortcut: "⌘7",
+        },
+        {
+          id: "overview",
+          label: "كاونتر الكشك والعمليات",
+          icon: LayoutDashboard,
+          shortcut: "⌘6",
         },
         {
           id: "documents",

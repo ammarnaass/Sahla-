@@ -25,19 +25,19 @@ export function DocumentsHeader({ onOpenStudio, printSuccessNotice }: DocumentsH
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <Button
             variant="ghost"
-            onClick={() => onOpenStudio("SCHOOL_RESEARCH")}
+            onClick={() => onOpenStudio("EXAMS")}
             className="text-xs bg-card border border-border text-emerald-600 dark:text-emerald-400 hover:text-primary py-2.5 px-3 flex items-center gap-1.5"
           >
-            <span>🎓</span>
-            <span>مكتبة الامتحانات والبحوث</span>
+            <span>📝</span>
+            <span>مكتبة الامتحانات والفروض</span>
           </Button>
 
           <Button
             variant="primary"
-            onClick={() => onOpenStudio("CV_GEN")}
+            onClick={() => onOpenStudio("SCHOOL_RESEARCH")}
             className="text-xs py-2.5 px-4 shadow-md shadow-emerald-950/40"
           >
-            <span>إنجاز وثيقة جديدة +</span>
+            <span>إنجاز بحث مدرسي جديد +</span>
           </Button>
         </div>
       </div>
