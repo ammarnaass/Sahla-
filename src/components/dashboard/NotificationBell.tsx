@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useNotifications } from "@/contexts/NotificationContext";
+import { useDashboardTab } from "@/contexts/DashboardTabContext";
 import { SparklesIcon, CheckCircleIcon, BoltIcon } from "@/components/ui/Icons";
 
 function formatRelativeTime(dateStr?: string | null): string {
@@ -25,6 +26,7 @@ function formatRelativeTime(dateStr?: string | null): string {
 export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<"ALL" | "UNREAD" | "AI" | "BALANCE">("ALL");
+  const { setActiveTab } = useDashboardTab();
 
   const {
     notifications,
@@ -204,6 +206,23 @@ export function NotificationBell() {
                   );
                 })
               )}
+            </div>
+
+            {/* Footer: Full Archive Tab Link */}
+            <div className="pt-2.5 mt-2 border-t border-border flex items-center justify-between text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("notifications");
+                  setIsOpen(false);
+                }}
+                className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 font-bold flex items-center gap-1 cursor-pointer transition-colors"
+              >
+                <span>فتح مركز وسجل الإشعارات الكامل ←</span>
+              </button>
+              <span className="text-[10px] text-muted-foreground font-mono">
+                {notifications.length} إشعار
+              </span>
             </div>
           </div>
         </>

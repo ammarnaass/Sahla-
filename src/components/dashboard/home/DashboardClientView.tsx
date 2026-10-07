@@ -18,6 +18,7 @@ import { SettingsTab } from "@/components/dashboard/settings/SettingsTab";
 import { SuperAdminTab } from "@/components/dashboard/admin/SuperAdminTab";
 import { StudioModal } from "@/components/dashboard/studio/StudioModal";
 import { SchoolResearchTab } from "@/components/dashboard/education/SchoolResearchTab";
+import { NotificationsTab } from "@/components/dashboard/notifications/NotificationsTab";
 import type { GeneratedDocPayload } from "@/hooks/dashboard/useStudioState";
 
 const INITIAL_DOCS: DocumentRecord[] = [
@@ -242,6 +243,8 @@ export function DashboardClientView() {
       {activeTab === "account" && <StaffAccountTab />}
 
       {activeTab === "settings" && <SettingsTab />}
+
+      {activeTab === "notifications" && <NotificationsTab />}
 
       {activeTab === "superadmin" && <SuperAdminTab />}
 

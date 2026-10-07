@@ -10,6 +10,7 @@ export type TabType =
   | "wallet"
   | "account"
   | "settings"
+  | "notifications"
   | "superadmin";
 
 interface DashboardTabContextType {
@@ -39,6 +40,7 @@ export function DashboardTabProvider({ children }: { children: React.ReactNode }
           "wallet",
           "account",
           "settings",
+          "notifications",
           "superadmin",
         ].includes(hash)
       ) {
