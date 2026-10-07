@@ -101,7 +101,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-[family-name:var(--font-cairo)]">
+      <body className="font-[family-name:var(--font-cairo)] bg-background text-foreground min-h-screen transition-colors duration-200">
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>

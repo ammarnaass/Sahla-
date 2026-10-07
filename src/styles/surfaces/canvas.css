@@ -4,10 +4,11 @@
    Selectors unified with next-themes (attribute="class" → .dark on <html>)
    ═══════════════════════════════════════════════════════════ */
 
-/* ── Light Mode Surface & Token Definitions ── */
-html:not(.dark),
+/* ── Default & Light Mode Surface & Token Definitions ── */
+:root,
+html.light,
 html[data-theme="light"],
-html.light {
+html:not(.dark) {
   --color-surface-app: #f8fafc;
   --color-surface-card: #ffffff;
   --color-surface-card-hover: #f1f5f9;

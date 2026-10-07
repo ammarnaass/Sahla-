@@ -6,7 +6,7 @@ import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from "n
 export function ThemeProvider({ children, ...props }: React.ComponentProps<typeof NextThemesProvider>) {
   return (
     <NextThemesProvider
-      attribute="class"
+      attribute={["class", "data-theme"]}
       defaultTheme="dark"
       enableSystem={false}
       storageKey="theme"
@@ -19,18 +19,51 @@ export function ThemeProvider({ children, ...props }: React.ComponentProps<typeo
 }
 
 export function useTheme() {
-  const { theme, setTheme, resolvedTheme, systemTheme } = useNextTheme();
+  const { theme, setTheme: setNextTheme, resolvedTheme, systemTheme } = useNextTheme();
   const [mounted, setMounted] = React.useState(false);
+
+  // Directly and synchronously enforce DOM classes and data-theme attribute
+  const applyDOMTheme = React.useCallback((targetTheme: string) => {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+    if (targetTheme === "light") {
+      root.classList.remove("dark");
+      root.classList.add("light");
+      root.setAttribute("data-theme", "light");
+      root.style.colorScheme = "light";
+    } else {
+      root.classList.remove("light");
+      root.classList.add("dark");
+      root.setAttribute("data-theme", "dark");
+      root.style.colorScheme = "dark";
+    }
+  }, []);
 
   React.useEffect(() => {
     setMounted(true);
-  }, []);
+    const saved = localStorage.getItem("theme") || resolvedTheme || theme || "dark";
+    applyDOMTheme(saved);
+  }, [resolvedTheme, theme, applyDOMTheme]);
 
   const currentTheme = mounted ? (resolvedTheme || theme || "dark") : "dark";
 
+  const setTheme = React.useCallback(
+    (newTheme: string) => {
+      setNextTheme(newTheme);
+      applyDOMTheme(newTheme);
+      try {
+        localStorage.setItem("theme", newTheme);
+      } catch {
+        // Ignore
+      }
+    },
+    [setNextTheme, applyDOMTheme]
+  );
+
   const toggleTheme = React.useCallback(() => {
-    setTheme(currentTheme === "dark" ? "light" : "dark");
-  }, [currentTheme, setTheme]);
+    const nextTheme = (resolvedTheme || theme || currentTheme) === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+  }, [resolvedTheme, theme, currentTheme, setTheme]);
 
   return {
     theme: currentTheme,
