@@ -15,6 +15,10 @@ export function PricingCard({ plan, isAnnual }: PricingCardProps) {
   const displayPrice = isAnnual ? plan.annualPrice : plan.monthlyPrice;
   const isFree = plan.monthlyPrice === 0;
 
+  const formatDZD = (num: number) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
   return (
     <div
       className={`rounded-3xl p-8 bg-card flex flex-col justify-between transition-all duration-300 relative ${
@@ -59,7 +63,7 @@ export function PricingCard({ plan, isAnnual }: PricingCardProps) {
                 : "text-4xl text-foreground"
             }`}
           >
-            {isFree ? "0" : displayPrice.toLocaleString()}
+            {isFree ? "0" : formatDZD(displayPrice)}
           </span>
           <span className="text-xl font-bold text-muted-foreground font-cairo">دج</span>
           <span className="text-xs text-muted-foreground mr-1">/ شهرياً</span>
@@ -69,7 +73,7 @@ export function PricingCard({ plan, isAnnual }: PricingCardProps) {
           {isFree
             ? "بدون بطاقة دفع وبدون التزام"
             : isAnnual
-            ? `تُدفع ${(displayPrice * 12).toLocaleString()} دج سنوياً (توفير 20%)`
+            ? `تُدفع ${formatDZD(displayPrice * 12)} دج سنوياً (توفير 20%)`
             : "تُجدد شهرياً وتلغى في أي وقت"}
         </p>
 

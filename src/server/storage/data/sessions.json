@@ -14,5 +14,12 @@
     "shopId": "shop_default",
     "expiresAt": "2026-11-04T15:01:55.909Z",
     "createdAt": "2026-10-05 15:01:55"
+  },
+  {
+    "token": "sahla_session_1791365290835_0xniyzu",
+    "userId": "user_super_admin",
+    "shopId": "shop_default",
+    "createdAt": "2026-10-07T09:28:10.836Z",
+    "expiresAt": "2026-11-06T09:28:10.836Z"
   }
 ]
