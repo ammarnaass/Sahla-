@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { DesktopSidebar } from "@/components/dashboard/DesktopSidebar";
 import { BottomNavBar } from "@/components/dashboard/BottomNavBar";
@@ -10,14 +10,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { DashboardTabProvider, useDashboardTab } from "@/contexts/DashboardTabContext";
+import { Sparkles, Crown, UserCheck, ShieldCheck } from "lucide-react";
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const { session } = useAuth();
   const { locale, setLocale } = useLanguage();
   const { activeTab, setActiveTab } = useDashboardTab();
 
+  const isSuperAdmin = session?.user?.role === "SUPER_ADMIN";
+  const isEmployee = session?.user?.role === "EMPLOYEE" || session?.user?.role === "STAFF";
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col md:flex-row selection:bg-emerald-500 selection:text-white transition-colors duration-200">
+    <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row selection:bg-primary selection:text-primary-foreground transition-colors duration-200">
       {/* Desktop Right Sidebar (RTL) with Tab sync */}
       <DesktopSidebar activeTab={activeTab} onSelectTab={(t) => setActiveTab(t as any)} />
 
@@ -27,42 +31,48 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         <OfflineBanner />
 
         {/* Mobile & Top Header */}
-        <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/90 dark:bg-slate-950/85 border-b border-slate-200 dark:border-slate-800/80 px-4 sm:px-6 h-16 flex items-center justify-between transition-colors">
-          {/* Left: Mobile Brand & Shop Name */}
-          <div className="flex items-center gap-3">
-            <Link href="/" className="md:hidden flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-600 via-teal-500 to-emerald-400 flex items-center justify-center text-white font-extrabold text-sm shadow-md shadow-emerald-800/30">
+        <header className="sticky top-0 z-30 backdrop-blur-md bg-background/90 border-b border-border px-3 sm:px-6 h-16 flex items-center justify-between transition-colors">
+          {/* Right (in RTL): Mobile Brand & Shop Info */}
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1 mr-0">
+            <Link href="/" className="md:hidden flex items-center gap-2 shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-600 via-teal-500 to-emerald-400 flex items-center justify-center text-white font-extrabold text-sm shadow-md shadow-emerald-950/20">
                 سـ
               </div>
             </Link>
 
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white line-clamp-1">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h2 className="text-xs sm:text-base font-black text-foreground truncate font-cairo">
                   {session?.shop?.name || "كشك النجاح للخدمات الرقمية"}
                 </h2>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[10px] text-slate-600 dark:text-slate-400 font-medium">
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-muted border border-border text-[10px] text-muted-foreground font-medium shrink-0">
                   {session?.shop?.wilaya || "ولاية الجزائر (16)"}
                 </span>
               </div>
-              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
-                <span>
-                  {session?.user?.role === "SUPER_ADMIN"
-                    ? "👑 مدير النظام العام"
-                    : session?.user?.role === "EMPLOYEE"
-                    ? "👤 موظف كاونتر"
-                    : "🟢 متصل بالسحابة · نظام الكاونتر نشط"}
+              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5 truncate">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span className="truncate">
+                  {isSuperAdmin ? (
+                    <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-bold">
+                      <Crown size={11} /> مدير النظام العام
+                    </span>
+                  ) : isEmployee ? (
+                    <span className="flex items-center gap-1 text-muted-foreground">
+                      <UserCheck size={11} /> موظف كاونتر
+                    </span>
+                  ) : (
+                    "🟢 متصل بالسحابة · نظام الكاونتر نشط"
+                  )}
                 </span>
               </span>
             </div>
           </div>
 
-          {/* Right: Quick Launch Button + Notification bell + Language switch */}
-          <div className="flex items-center gap-2.5">
-            {/* Algerian Date Badge */}
-            <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-700 dark:text-slate-400">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          {/* Left (in RTL): Action Pills & Quick Controls */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* Algerian Season Badge */}
+            <div className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/60 border border-border text-[11px] font-bold text-muted-foreground">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               <span>موسم 2026 / 2027</span>
             </div>
 
@@ -71,34 +81,36 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
               type="button"
               onClick={() => setActiveTab("wallet")}
               title="رصيد المحفظة المتاح - اضغط للشحن"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-slate-900 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-black hover:border-emerald-500/50 hover:scale-[1.02] transition-all cursor-pointer shadow-xs"
+              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-xs font-black hover:scale-[1.02] transition-all cursor-pointer shadow-2xs"
             >
               <span>💎</span>
-              <span suppressHydrationWarning>{(session?.shop?.points || 1250).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">نقطة</span>
+              <span className="font-mono" suppressHydrationWarning>
+                {(session?.shop?.points || 1250).toLocaleString()}
+              </span>
+              <span className="hidden xs:inline text-[10px] text-muted-foreground font-normal">ن</span>
             </button>
 
             {/* High-Velocity Service Launcher */}
             <button
               type="button"
               onClick={() => setActiveTab("services")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-black shadow-md shadow-emerald-950/40 hover:scale-[1.03] active:scale-[0.98] transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-black shadow-md shadow-emerald-950/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
             >
-              <span>⚡</span>
-              <span className="hidden xs:inline">خدمة جديدة</span>
+              <Sparkles size={13} />
+              <span className="hidden sm:inline">خدمة جديدة</span>
             </button>
 
             {/* Quick Lang Switch on Mobile */}
-            <div className="md:hidden flex items-center gap-1 bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+            <div className="md:hidden flex items-center bg-muted px-2 py-1 rounded-xl border border-border text-[11px] font-bold text-muted-foreground">
               <button
                 onClick={() => setLocale(locale === "ar" ? "fr" : "ar")}
-                className="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                className="hover:text-foreground"
               >
                 {locale === "ar" ? "FR" : "عربي"}
               </button>
             </div>
 
-            {/* Theme Toggle Button (Desktop & Mobile) */}
+            {/* Theme Toggle Button */}
             <ThemeToggle variant="icon" />
 
             {/* Notification Bell */}
@@ -107,7 +119,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Main Dashboard Pages */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-7xl w-full mx-auto">
+        <main className="flex-1 px-3 sm:px-6 lg:px-8 py-5 sm:py-6 max-w-7xl w-full mx-auto">
           {children}
         </main>
       </div>

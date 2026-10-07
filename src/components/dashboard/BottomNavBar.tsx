@@ -2,6 +2,14 @@
 
 import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  LayoutDashboard,
+  Sparkles,
+  FileText,
+  Wallet,
+  Settings,
+  Crown,
+} from "lucide-react";
 
 interface BottomNavBarProps {
   activeTab?: string;
@@ -10,55 +18,36 @@ interface BottomNavBarProps {
 
 export function BottomNavBar({ activeTab = "overview", onSelectTab }: BottomNavBarProps) {
   const { session } = useAuth();
-  const isEmployee = session?.user?.role === "EMPLOYEE";
+  const isEmployee = session?.user?.role === "EMPLOYEE" || session?.user?.role === "STAFF";
   const isSuperAdmin = session?.user?.role === "SUPER_ADMIN";
 
   const allNavItems = [
     {
       id: "overview",
       label: "الرئيسية",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-      ),
+      icon: LayoutDashboard,
     },
     {
       id: "services",
       label: "الخدمات",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-        </svg>
-      ),
+      icon: Sparkles,
+      badge: "جديد",
     },
     {
       id: "documents",
       label: "الوثائق",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-      ),
+      icon: FileText,
     },
     {
       id: "wallet",
       label: "المحفظة",
       hideForEmployee: true,
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-        </svg>
-      ),
+      icon: Wallet,
     },
     {
       id: isSuperAdmin ? "superadmin" : "settings",
       label: isSuperAdmin ? "الإدارة" : "الطباعة",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        </svg>
-      ),
+      icon: isSuperAdmin ? Crown : Settings,
     },
   ];
 
@@ -68,21 +57,37 @@ export function BottomNavBar({ activeTab = "overview", onSelectTab }: BottomNavB
   });
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-md border-t border-border md:hidden safe-bottom">
-      <div className="flex items-center justify-around h-16 px-2">
+    <nav className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-md border-t border-border md:hidden safe-bottom pb-safe">
+      <div className="flex items-center justify-around h-16 px-1">
         {visibleNavItems.map((item) => {
+          const Icon = item.icon;
           const isActive = activeTab === item.id;
           return (
             <button
               key={item.id}
               type="button"
               onClick={() => onSelectTab && onSelectTab(item.id)}
-              className={`flex flex-col items-center justify-center flex-1 h-full py-1 transition-colors select-none ${
-                isActive ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"
+              className={`flex flex-col items-center justify-center flex-1 min-h-[44px] py-1 transition-all select-none relative cursor-pointer active:scale-95 ${
+                isActive
+                  ? "text-primary font-black"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <span className="shrink-0">{item.icon}</span>
-              <span className="text-[10px] mt-1">{item.label}</span>
+              <div className="relative">
+                <Icon
+                  size={19}
+                  className={`transition-transform ${isActive ? "scale-110 text-primary" : ""}`}
+                />
+                {item.badge && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-primary" />
+                )}
+              </div>
+              <span className={`text-[10px] mt-1 tracking-tight ${isActive ? "font-bold" : "font-medium"}`}>
+                {item.label}
+              </span>
+              {isActive && (
+                <span className="absolute bottom-1 w-6 h-0.5 rounded-full bg-primary" />
+              )}
             </button>
           );
         })}

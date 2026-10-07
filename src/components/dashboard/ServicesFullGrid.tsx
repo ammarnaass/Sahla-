@@ -332,11 +332,11 @@ export function ServicesFullGrid({
       )}
 
       {/* ── Search Bar, Category Filters & Active Toggle ── */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/80 shadow-2xs space-y-3.5 transition-colors">
+      <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border shadow-2xs space-y-3.5 transition-colors">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Real-time Search Input */}
           <div className="relative flex-1">
-            <span className="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+            <span className="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-muted-foreground">
               <SearchIcon size={16} />
             </span>
             <input
@@ -345,20 +345,20 @@ export function ServicesFullGrid({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="ابحث في دليل الخدمات (سيرة ذاتية، صور بيومترية، بحوث، فواتير، G50...)"
-              className="w-full pr-10 pl-20 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 font-medium transition-all"
+              className="w-full pr-10 pl-20 py-2.5 bg-muted/40 border border-border rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 font-medium transition-all"
             />
             <div className="absolute inset-y-0 left-3 flex items-center gap-1.5">
               {searchQuery ? (
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                  className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-xs px-1.5 py-0.5 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="text-muted-foreground hover:text-foreground text-xs px-1.5 py-0.5 rounded-md hover:bg-muted transition-colors cursor-pointer"
                   title="مسح البحث (Esc)"
                 >
                   ✕
                 </button>
               ) : (
-                <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[9.5px] font-mono text-slate-400 dark:text-slate-500 bg-slate-200/60 dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700">
+                <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[9.5px] font-mono text-muted-foreground bg-muted rounded border border-border">
                   /
                 </kbd>
               )}
@@ -371,8 +371,8 @@ export function ServicesFullGrid({
             onClick={() => setOnlyActive(!onlyActive)}
             className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 ${
               onlyActive
-                ? "bg-emerald-600 border-emerald-500 text-white shadow-xs"
-                : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                ? "bg-primary border-primary text-primary-foreground shadow-xs"
+                : "bg-muted border-border text-foreground hover:bg-muted/80"
             }`}
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -392,8 +392,8 @@ export function ServicesFullGrid({
                 onClick={() => setSelectedCategory(grp.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                   isSelected
-                    ? "bg-emerald-600 border border-emerald-500 text-white shadow-xs"
-                    : "bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-800"
+                    ? "bg-primary border border-primary text-primary-foreground shadow-xs"
+                    : "bg-muted border border-border text-muted-foreground hover:text-foreground hover:bg-muted/80"
                 }`}
               >
                 <span>{grp.icon}</span>
@@ -401,8 +401,8 @@ export function ServicesFullGrid({
                 <span
                   className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
                     isSelected
-                      ? "bg-emerald-700 text-white"
-                      : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
+                      ? "bg-primary-foreground/20 text-primary-foreground"
+                      : "bg-background text-muted-foreground border border-border"
                   }`}
                 >
                   {count}
@@ -478,8 +478,8 @@ export function ServicesFullGrid({
                 onClick={() => handleClick(svc)}
                 className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group relative overflow-hidden ${
                   !isClickable
-                    ? "bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/60 opacity-80 hover:opacity-100"
-                    : "bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800/90 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 hover:shadow-lg hover:-translate-y-0.5 shadow-2xs"
+                    ? "bg-muted/40 border-border opacity-70 hover:opacity-100"
+                    : "bg-card border-border hover:border-primary/50 hover:shadow-lg hover:-translate-y-0.5 shadow-2xs"
                 }`}
               >
                 {/* Subtle top ambient glow */}
@@ -492,7 +492,7 @@ export function ServicesFullGrid({
                 <div className="space-y-3">
                   {/* Top row: Icon + Cost & Status Badges */}
                   <div className="flex items-start justify-between gap-2">
-                    <div className="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
+                    <div className="w-11 h-11 rounded-2xl bg-muted border border-border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs text-foreground">
                       {getServiceIcon(svc.code, 24)}
                     </div>
 
@@ -506,7 +506,7 @@ export function ServicesFullGrid({
                           قريباً ⏳
                         </span>
                       ) : (
-                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-mono">
+                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-mono">
                           💎 {svc.pointsCost} نقطة
                         </span>
                       )}
@@ -515,23 +515,23 @@ export function ServicesFullGrid({
 
                   {/* Title & Description */}
                   <div>
-                    <h4 className="text-sm font-extrabold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                    <h4 className="text-sm font-extrabold text-foreground group-hover:text-primary transition-colors font-cairo">
                       {svc.nameAr}
                     </h4>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                    <p className="text-[11px] text-muted-foreground font-mono mt-0.5">
                       {svc.nameFr}
                     </p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mt-2 line-clamp-2">
+                    <p className="text-xs text-muted-foreground leading-relaxed mt-2 line-clamp-2">
                       {meta?.description || "خدمة رقمية متطورة مصممة لأصحاب الكيوسكات والمكتبات."}
                     </p>
                   </div>
                 </div>
 
                 {/* Bottom Row: Metadata Tags & Action Trigger */}
-                <div className="pt-3.5 mt-3.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+                <div className="pt-3.5 mt-3.5 border-t border-border flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 overflow-hidden">
                     {meta?.outputFormat && (
-                      <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400 truncate bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                      <span className="text-[10px] font-medium text-muted-foreground truncate bg-muted px-2 py-0.5 rounded-md">
                         {meta.outputFormat}
                       </span>
                     )}
@@ -539,12 +539,12 @@ export function ServicesFullGrid({
 
                   <div className="shrink-0">
                     {svc.isActive ? (
-                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 group-hover:underline flex items-center gap-1">
+                      <span className="text-xs font-bold text-primary group-hover:underline flex items-center gap-1 font-cairo">
                         <span>فتح الاستوديو</span>
                         <span>←</span>
                       </span>
                     ) : (
-                      <span className="text-[11px] font-bold text-purple-600 dark:text-purple-400 group-hover:underline flex items-center gap-1">
+                      <span className="text-[11px] font-bold text-purple-600 dark:text-purple-400 group-hover:underline flex items-center gap-1 font-cairo">
                         <span>طلب إشعار</span>
                         <span>🔔</span>
                       </span>
