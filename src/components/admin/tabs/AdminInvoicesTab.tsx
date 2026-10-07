@@ -32,11 +32,11 @@ export function AdminInvoicesTab({
 
   const totalPaidDZD = invoices
     .filter((i) => i.status === "PAID")
-    .reduce((sum, i) => sum + (i.totalAmountDZD || 0), 0);
+    .reduce((sum, i) => sum + (i.totalDZD || 0), 0);
 
   const totalPendingDZD = invoices
     .filter((i) => i.status === "PENDING")
-    .reduce((sum, i) => sum + (i.totalAmountDZD || 0), 0);
+    .reduce((sum, i) => sum + (i.totalDZD || 0), 0);
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -174,7 +174,7 @@ export function AdminInvoicesTab({
                       {inv.wilaya}
                     </td>
                     <td className="py-3.5 px-4 font-mono font-black text-sm text-foreground">
-                      {(inv.totalAmountDZD ?? 0).toLocaleString()} دج
+                      {(inv.totalDZD ?? 0).toLocaleString()} دج
                     </td>
                     <td className="py-3.5 px-4">
                       <span className="font-mono text-[11px] text-muted-foreground px-2 py-0.5 rounded-md bg-muted border border-border">

@@ -39,7 +39,7 @@ export function FAQSection() {
               }}
             >
               <AccordionSummary expandIcon={<ChevronDown size={20} />}>
-                <Typography fontWeight="bold" sx={{ fontFamily: "var(--font-cairo)" }}>
+                <Typography sx={{ fontFamily: "var(--font-cairo)", fontWeight: "bold" }}>
                   {item.question}
                 </Typography>
               </AccordionSummary>

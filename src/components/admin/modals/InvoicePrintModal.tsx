@@ -143,7 +143,7 @@ export function InvoicePrintModal({ invoice, onClose, onToggleStatus }: InvoiceP
             <div className="text-left font-mono">
               <span className="text-xs text-muted-foreground block">المجموع الصافي / Total Net:</span>
               <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400">
-                {invoice.totalAmountDZD.toLocaleString()} دج
+                {(invoice.totalDZD ?? 0).toLocaleString()} دج
               </span>
             </div>
           </div>

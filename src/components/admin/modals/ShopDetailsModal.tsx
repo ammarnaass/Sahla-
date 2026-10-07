@@ -84,12 +84,12 @@ export function ShopDetailsModal({
               </h2>
               <span
                 className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                  shop.isActive
+                  shop.status === "ACTIVE"
                     ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
                     : "bg-destructive/15 text-destructive border border-destructive/30"
                 }`}
               >
-                {shop.isActive ? "نشط بالسحابة" : "مجمد وموقوف"}
+                {shop.status === "ACTIVE" ? "نشط بالسحابة" : "مجمد وموقوف"}
               </span>
             </div>
 
@@ -114,7 +114,7 @@ export function ShopDetailsModal({
             <div className="flex items-center gap-1.5 mt-1">
               <Coins size={16} className="text-amber-500" />
               <span className="text-xl font-black text-foreground font-mono">
-                {(shop.pointsBalance ?? 0).toLocaleString()}
+                {(shop.points ?? 0).toLocaleString()}
               </span>
             </div>
           </div>
@@ -231,12 +231,12 @@ export function ShopDetailsModal({
             type="button"
             onClick={() => onToggleStatus(shop.id)}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              shop.isActive
+              shop.status === "ACTIVE"
                 ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 border border-rose-500/30"
                 : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30"
             }`}
           >
-            {shop.isActive ? (
+            {shop.status === "ACTIVE" ? (
               <>
                 <XCircle size={14} /> تجميد الحساب
               </>

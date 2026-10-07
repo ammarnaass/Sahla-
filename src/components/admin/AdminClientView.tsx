@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { AdminHeader } from "./AdminHeader";
-import { AdminTabNav, AdminTabType } from "./AdminTabNav";
+import { AdminTabNav } from "./AdminTabNav";
+import { AdminUnifiedSidebar, type UnifiedAdminTab } from "./layout/AdminUnifiedSidebar";
 import { AdminAnalyticsTab } from "./tabs/AdminAnalyticsTab";
 import { AdminShopsTab } from "./tabs/AdminShopsTab";
 import { AdminInvoicesTab } from "./tabs/AdminInvoicesTab";
@@ -11,6 +12,19 @@ import { AdminTeamTab } from "./tabs/AdminTeamTab";
 import { CreateInvoiceModal } from "./modals/CreateInvoiceModal";
 import { InvoicePrintModal } from "./modals/InvoicePrintModal";
 import { NationalBroadcastModal } from "./modals/NationalBroadcastModal";
+
+// Counter & Service Studio Components
+import { DashboardOverviewTab } from "@/components/dashboard/home/DashboardOverviewTab";
+import { ServicesFullGrid } from "@/components/dashboard/ServicesFullGrid";
+import { DocumentsTab, type DocumentRecord } from "@/components/dashboard/documents/DocumentsTab";
+import { WalletTab, type LedgerItem } from "@/components/dashboard/wallet/WalletTab";
+import { SettingsTab } from "@/components/dashboard/settings/SettingsTab";
+import { StudioModal } from "@/components/dashboard/studio/StudioModal";
+import { SERVICES_CATALOG, type ServiceDefinition } from "@/lib/constants";
+import type { GeneratedDocPayload } from "@/hooks/dashboard/useStudioState";
+import { trackEvent } from "@/lib/analytics";
+import { Badge } from "@/components/ui/badge";
+
 import type { ShopRecord } from "@/server/repositories/shopRepository";
 import type { InvoiceRecord } from "@/server/repositories/invoiceRepository";
 
@@ -51,14 +65,60 @@ interface AnalyticsReport {
   activityBreakdown: Record<string, number>;
 }
 
+const INITIAL_DOCS: DocumentRecord[] = [
+  {
+    id: "doc_1",
+    title: "سيرة ذاتية — نموذج احترافي",
+    type: "CV",
+    customerName: "سفيان بلقاسم",
+    salePrice: 250,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "doc_2",
+    title: "صور هوية بيومترية (35×45 مم)",
+    type: "ID_PHOTO",
+    customerName: "فاطمة الزهراء عمار",
+    salePrice: 200,
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+  },
+];
+
+const INITIAL_LEDGER: LedgerItem[] = [
+  {
+    id: "tx_0",
+    description: "رصيد تجريبي سيادي لمدير النظام",
+    pointsDelta: 9999,
+    balanceAfter: 9999,
+    type: "CREDIT",
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
+  },
+];
+
 export default function AdminClientView() {
-  const [activeTab, setActiveTab] = useState<AdminTabType>("analytics");
+  const [activeTab, setActiveTab] = useState<UnifiedAdminTab>("analytics");
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+
+  // National Data
   const [data, setData] = useState<AdminOverviewData | null>(null);
   const [analytics, setAnalytics] = useState<AnalyticsReport | null>(null);
   const [invoices, setInvoices] = useState<InvoiceRecord[]>([]);
   const [adminsList, setAdminsList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
+
+  // Counter & Studio State
+  const [points, setPoints] = useState(9999);
+  const [documents, setDocuments] = useState<DocumentRecord[]>(INITIAL_DOCS);
+  const [ledger, setLedger] = useState<LedgerItem[]>(INITIAL_LEDGER);
+  const [dailyStats, setDailyStats] = useState({
+    docsCount: 2,
+    pointsUsed: 15,
+    estimatedProfitDZD: 450,
+  });
+  const [selectedService, setSelectedService] = useState<ServiceDefinition | null>(null);
+  const [frequentServices, setFrequentServices] = useState<ServiceDefinition[]>([]);
 
   // Modals & Generation State
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceRecord | null>(null);
@@ -76,6 +136,32 @@ export default function AdminClientView() {
       return () => clearTimeout(timer);
     }
   }, [actionNotice]);
+
+  // Read URL hash on initial load
+  useEffect(() => {
+    const hash = window.location.hash.replace("#", "") as UnifiedAdminTab;
+    const validTabs: UnifiedAdminTab[] = [
+      "analytics",
+      "shops",
+      "invoices",
+      "wholesale",
+      "admins",
+      "overview",
+      "services",
+      "documents",
+      "wallet",
+      "settings",
+    ];
+    if (validTabs.includes(hash)) {
+      setActiveTab(hash);
+    }
+  }, []);
+
+  const handleSelectTab = (tab: UnifiedAdminTab) => {
+    setActiveTab(tab);
+    window.location.hash = tab === "analytics" ? "" : tab;
+    setShowMobileSidebar(false);
+  };
 
   const fetchAdmins = async () => {
     try {
@@ -114,19 +200,20 @@ export default function AdminClientView() {
 
   useEffect(() => {
     fetchData();
+    setFrequentServices(SERVICES_CATALOG.slice(0, 4));
   }, []);
 
-  // Handlers
-  const handleTopup = async (shopId: string, points: number) => {
+  // Handlers for National Operations
+  const handleTopup = async (shopId: string, pts: number) => {
     try {
       const res = await fetch("/api/admin/shops/topup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shopId, points }),
+        body: JSON.stringify({ shopId, points: pts }),
       });
       const resData = await res.json();
       if (resData.success) {
-        setActionNotice(`✓ تم شحن ${points} نقطة بنجاح للمحل.`);
+        setActionNotice(`✓ تم شحن ${pts} نقطة بنجاح للمحل.`);
         fetchData();
       }
     } catch {
@@ -161,7 +248,11 @@ export default function AdminClientView() {
       });
       const resData = await res.json();
       if (resData.success) {
-        setActionNotice(`✓ تم تحديث حالة الفاتورة (${invoiceId}) إلى ${nextStatus === "PAID" ? "مدفوعة" : "قيد الانتظار"}.`);
+        setActionNotice(
+          `✓ تم تحديث حالة الفاتورة (${invoiceId}) إلى ${
+            nextStatus === "PAID" ? "مدفوعة" : "قيد الانتظار"
+          }.`
+        );
         fetchData();
         if (selectedInvoice && selectedInvoice.id === invoiceId) {
           setSelectedInvoice(resData.invoice);
@@ -265,10 +356,74 @@ export default function AdminClientView() {
     }
   };
 
+  // Handlers for Counter & Studio Operations
+  const handleRecharge = (pointsToAdd: number, desc = "شحن رصيد تجريبي") => {
+    setPoints((prev) => {
+      const next = prev + pointsToAdd;
+      const newLedgerItem: LedgerItem = {
+        id: `tx_${Date.now()}`,
+        description: desc,
+        pointsDelta: pointsToAdd,
+        balanceAfter: next,
+        type: "CREDIT",
+        createdAt: new Date().toISOString(),
+      };
+      setLedger((prevL) => [newLedgerItem, ...prevL]);
+      trackEvent("points_recharged", { added: pointsToAdd, total: next });
+      return next;
+    });
+  };
+
+  const handleDocumentGenerated = (doc: GeneratedDocPayload) => {
+    setPoints((prev) => {
+      const next = Math.max(0, prev - doc.pointsCost);
+      const newLedgerItem: LedgerItem = {
+        id: `tx_${Date.now()}`,
+        description: `${doc.title} (${doc.customerName})`,
+        pointsDelta: -doc.pointsCost,
+        balanceAfter: next,
+        type: "DEBIT",
+        createdAt: new Date().toISOString(),
+      };
+      setLedger((prevL) => [newLedgerItem, ...prevL]);
+      return next;
+    });
+
+    const newDoc: DocumentRecord = {
+      id: doc.id,
+      title: doc.title,
+      type: doc.type,
+      customerName: doc.customerName,
+      salePrice: doc.salePrice,
+      createdAt: new Date().toISOString(),
+    };
+
+    setDocuments((prev) => [newDoc, ...prev]);
+
+    setDailyStats((prev) => ({
+      docsCount: prev.docsCount + 1,
+      pointsUsed: prev.pointsUsed + doc.pointsCost,
+      estimatedProfitDZD: prev.estimatedProfitDZD + doc.salePrice,
+    }));
+
+    trackEvent("document_generated", { title: doc.title });
+    setActionNotice(`✓ تم توليد وثيقة (${doc.title}) بنجاح وإضافتها لسجل الوثائق!`);
+  };
+
+  const openServiceByCode = (code: string) => {
+    const found = SERVICES_CATALOG.find((s) => s.code === code) || SERVICES_CATALOG[0];
+    setSelectedService(found);
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors antialiased selection:bg-emerald-500 selection:text-white">
-      {/* 1. Header */}
-      <AdminHeader onOpenBroadcast={() => setShowBroadcastModal(true)} />
+      {/* 1. Unified Sovereign Command Header */}
+      <AdminHeader
+        onOpenBroadcast={() => setShowBroadcastModal(true)}
+        onOpenNewService={() => setSelectedService(SERVICES_CATALOG[0])}
+        onOpenCreateInvoice={() => setShowCreateInvoiceModal(true)}
+        onToggleMobileMenu={() => setShowMobileSidebar(!showMobileSidebar)}
+      />
 
       {/* 2. Feedback Notification Banner */}
       {actionNotice && (
@@ -277,62 +432,136 @@ export default function AdminClientView() {
         </div>
       )}
 
-      {/* 3. Sub-Navbar Tabs */}
-      <AdminTabNav
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        shopsCount={data?.shops?.length || 0}
-        invoicesCount={invoices?.length || 0}
-      />
+      {/* 3. Mobile Sub-Navbar Tabs */}
+      <div className="lg:hidden">
+        <AdminTabNav
+          activeTab={activeTab}
+          setActiveTab={handleSelectTab}
+          shopsCount={data?.shops?.length || 0}
+          invoicesCount={invoices?.length || 0}
+          docsCount={documents.length}
+        />
+      </div>
 
-      {/* 4. Active Tab Content */}
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
-        {loading ? (
-          <div className="py-24 text-center space-y-3">
-            <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-xs text-muted-foreground font-cairo">جاري تحميل المؤشرات والبيانات الوطنية...</p>
-          </div>
-        ) : (
-          <>
-            {activeTab === "analytics" && (
-              <AdminAnalyticsTab stats={data?.stats} analytics={analytics || undefined} />
-            )}
+      {/* 4. Main Body: Sidebar + Dynamic Content Canvas */}
+      <div className="flex-1 flex flex-row min-w-0">
+        {/* Desktop Sovereign Unified Sidebar (RTL) */}
+        <AdminUnifiedSidebar
+          activeTab={activeTab}
+          onSelectTab={handleSelectTab}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          shopsCount={data?.shops?.length || 0}
+          invoicesCount={invoices?.length || 0}
+          docsCount={documents.length}
+          onOpenBroadcast={() => setShowBroadcastModal(true)}
+        />
 
-            {activeTab === "shops" && (
-              <AdminShopsTab
-                shops={data?.shops || []}
-                onTopup={handleTopup}
-                onToggle={handleToggleShop}
-              />
-            )}
+        {/* Content Canvas */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto overflow-y-auto">
+          {loading ? (
+            <div className="py-24 text-center space-y-3">
+              <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto" />
+              <p className="text-xs text-muted-foreground font-cairo">
+                جاري تحميل المنظومة المركزية لمتابعة الـ 58 ولاية والكاونتر...
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* === National Central Command (58 Wilayas) Tabs === */}
+              {activeTab === "analytics" && (
+                <AdminAnalyticsTab stats={data?.stats} analytics={analytics || undefined} />
+              )}
 
-            {activeTab === "invoices" && (
-              <AdminInvoicesTab
-                invoices={invoices}
-                onOpenCreateModal={() => setShowCreateInvoiceModal(true)}
-                onSelectInvoice={setSelectedInvoice}
-                onToggleStatus={handleToggleInvoiceStatus}
-              />
-            )}
+              {activeTab === "shops" && (
+                <AdminShopsTab
+                  shops={data?.shops || []}
+                  onTopup={handleTopup}
+                  onToggle={handleToggleShop}
+                />
+              )}
 
-            {activeTab === "wholesale" && (
-              <AdminWholesaleTab
-                onGenerateBatch={handleGenerateBatch}
-                isGenerating={isGeneratingCards}
-                lastBatch={lastBatch}
-              />
-            )}
+              {activeTab === "invoices" && (
+                <AdminInvoicesTab
+                  invoices={invoices}
+                  onOpenCreateModal={() => setShowCreateInvoiceModal(true)}
+                  onSelectInvoice={setSelectedInvoice}
+                  onToggleStatus={handleToggleInvoiceStatus}
+                />
+              )}
 
-            {activeTab === "admins" && (
-              <AdminTeamTab
-                adminsList={adminsList}
-                onCreateAdmin={handleCreateAdmin}
-                isCreating={isCreatingAdmin}
-              />
-            )}
-          </>
-        )}
-      </main>
+              {activeTab === "wholesale" && (
+                <AdminWholesaleTab
+                  onGenerateBatch={handleGenerateBatch}
+                  isGenerating={isGeneratingCards}
+                  lastBatch={lastBatch}
+                />
+              )}
+
+              {activeTab === "admins" && (
+                <AdminTeamTab
+                  adminsList={adminsList}
+                  onCreateAdmin={handleCreateAdmin}
+                  isCreating={isCreatingAdmin}
+                />
+              )}
+
+              {/* === Field Counter Operations & Service Studio Tabs === */}
+              {activeTab === "overview" && (
+                <DashboardOverviewTab
+                  frequentServices={frequentServices}
+                  onSelectService={setSelectedService}
+                  documents={documents}
+                  points={points}
+                  onRecharge={handleRecharge}
+                  dailyStats={dailyStats}
+                />
+              )}
+
+              {activeTab === "services" && (
+                <div className="space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-right">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-xl sm:text-2xl font-black text-foreground font-display">
+                          دليل الخدمات واستوديو A4 المباشر
+                        </h2>
+                        <Badge variant="primary" className="text-[11px] font-bold">
+                          وضع الإدارة الشامل ⚡
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        اختر أي خدمة رقمية لفتح استوديو التوليد وتعديل البيانات والطباعة الفورية على مقاس A4
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-start sm:self-auto">
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-700 dark:text-amber-300 text-xs font-black">
+                        <span>رصيد المدير:</span>
+                        <span className="font-mono text-sm">{points.toLocaleString()}</span>
+                        <span className="text-[10px] font-normal">نقطة سيادية</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <ServicesFullGrid onSelectService={setSelectedService} />
+                </div>
+              )}
+
+              {activeTab === "documents" && (
+                <DocumentsTab documents={documents} onOpenStudio={openServiceByCode} />
+              )}
+
+              {activeTab === "wallet" && (
+                <WalletTab points={points} onRecharge={handleRecharge} ledger={ledger} />
+              )}
+
+              {/* === Hardware & Settings Tab === */}
+              {activeTab === "settings" && <SettingsTab />}
+            </>
+          )}
+        </main>
+      </div>
 
       {/* 5. Modals */}
       <CreateInvoiceModal
@@ -353,6 +582,15 @@ export default function AdminClientView() {
         isOpen={showBroadcastModal}
         onClose={() => setShowBroadcastModal(false)}
         onBroadcastSent={(msg) => setActionNotice(msg)}
+      />
+
+      {/* Studio Modal for A4 Document Generation */}
+      <StudioModal
+        isOpen={Boolean(selectedService)}
+        onClose={() => setSelectedService(null)}
+        service={selectedService}
+        points={points}
+        onDocumentGenerated={handleDocumentGenerated}
       />
     </div>
   );

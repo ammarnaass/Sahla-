@@ -42,9 +42,9 @@ export function AdminShopsTab({ shops = [], onTopup, onToggle }: AdminShopsTabPr
 
     // Status filter
     let matchesStatus = true;
-    if (statusFilter === "ACTIVE") matchesStatus = shop.isActive === true;
-    if (statusFilter === "FROZEN") matchesStatus = shop.isActive === false;
-    if (statusFilter === "LOW_POINTS") matchesStatus = (shop.pointsBalance ?? 0) < 50;
+    if (statusFilter === "ACTIVE") matchesStatus = shop.status === "ACTIVE";
+    if (statusFilter === "FROZEN") matchesStatus = shop.status !== "ACTIVE";
+    if (statusFilter === "LOW_POINTS") matchesStatus = (shop.points ?? 0) < 50;
 
     return matchesSearch && matchesWilaya && matchesStatus;
   });
@@ -57,9 +57,9 @@ export function AdminShopsTab({ shops = [], onTopup, onToggle }: AdminShopsTabPr
     const rows = filteredShops
       .map(
         (s) =>
-          `"${s.name}","${s.owner}","${s.wilaya}","${s.phone || ""}","${s.pointsBalance ?? 0}","${
+          `"${s.name}","${s.owner}","${s.wilaya}","${s.phone || ""}","${s.points ?? 0}","${
             s.plan || "STARTER"
-          }","${s.isActive ? "نشط" : "مجمد"}","${new Date(s.createdAt).toISOString()}"`
+          }","${s.status === "ACTIVE" ? "نشط" : "مجمد"}","${new Date(s.createdAt).toISOString()}"`
       )
       .join("\n");
 
@@ -132,9 +132,9 @@ export function AdminShopsTab({ shops = [], onTopup, onToggle }: AdminShopsTabPr
           </span>
           {[
             { id: "ALL", label: "الكل", count: shops.length },
-            { id: "ACTIVE", label: "النشطة بالسحابة", count: shops.filter((s) => s.isActive).length },
-            { id: "FROZEN", label: "المجمدة", count: shops.filter((s) => !s.isActive).length },
-            { id: "LOW_POINTS", label: "رصيد منخفض (< 50)", count: shops.filter((s) => (s.pointsBalance ?? 0) < 50).length },
+            { id: "ACTIVE", label: "النشطة بالسحابة", count: shops.filter((s) => s.status === "ACTIVE").length },
+            { id: "FROZEN", label: "المجمدة", count: shops.filter((s) => s.status !== "ACTIVE").length },
+            { id: "LOW_POINTS", label: "رصيد منخفض (< 50)", count: shops.filter((s) => (s.points ?? 0) < 50).length },
           ].map((chip) => (
             <button
               key={chip.id}
@@ -213,7 +213,7 @@ export function AdminShopsTab({ shops = [], onTopup, onToggle }: AdminShopsTabPr
                     <td className="py-3.5 px-4">
                       <span className="font-mono font-black text-sm text-foreground flex items-center gap-1">
                         <Coins size={14} className="text-amber-500" />
-                        {(shop.pointsBalance ?? 0).toLocaleString()}
+                        {(shop.points ?? 0).toLocaleString()}
                       </span>
                     </td>
 
@@ -221,12 +221,12 @@ export function AdminShopsTab({ shops = [], onTopup, onToggle }: AdminShopsTabPr
                     <td className="py-3.5 px-4">
                       <span
                         className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          shop.isActive
+                          shop.status === "ACTIVE"
                             ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
                             : "bg-destructive/15 text-destructive border border-destructive/30"
                         }`}
                       >
-                        {shop.isActive ? (
+                        {shop.status === "ACTIVE" ? (
                           <>
                             <CheckCircle2 size={12} /> نشط
                           </>
@@ -275,13 +275,13 @@ export function AdminShopsTab({ shops = [], onTopup, onToggle }: AdminShopsTabPr
                           type="button"
                           onClick={() => onToggle(shop.id)}
                           className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
-                            shop.isActive
+                            shop.status === "ACTIVE"
                               ? "border-destructive/30 text-destructive hover:bg-destructive/10"
                               : "border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
                           }`}
-                          title={shop.isActive ? "تجميد الحساب" : "تنشيط الحساب"}
+                          title={shop.status === "ACTIVE" ? "تجميد الحساب" : "تنشيط الحساب"}
                         >
-                          {shop.isActive ? <XCircle size={14} /> : <CheckCircle2 size={14} />}
+                          {shop.status === "ACTIVE" ? <XCircle size={14} /> : <CheckCircle2 size={14} />}
                         </button>
                       </div>
                     </td>
@@ -307,7 +307,14 @@ export function AdminShopsTab({ shops = [], onTopup, onToggle }: AdminShopsTabPr
           onTopup={onTopup}
           onToggleStatus={(id) => {
             onToggle(id);
-            setSelectedShop((prev) => (prev ? { ...prev, isActive: !prev.isActive } : null));
+            setSelectedShop((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    status: prev.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE",
+                  }
+                : null
+            );
           }}
         />
       )}

@@ -1,15 +1,26 @@
 "use client";
 
 import React from "react";
-import { BarChart3, Store, Receipt, CreditCard, Shield } from "lucide-react";
-
-export type AdminTabType = "analytics" | "shops" | "invoices" | "wholesale" | "admins";
+import {
+  BarChart3,
+  Store,
+  Receipt,
+  CreditCard,
+  Shield,
+  LayoutDashboard,
+  Sparkles,
+  FileText,
+  Wallet,
+  Printer,
+} from "lucide-react";
+import type { UnifiedAdminTab } from "./layout/AdminUnifiedSidebar";
 
 interface AdminTabNavProps {
-  activeTab: AdminTabType;
-  setActiveTab: (tab: AdminTabType) => void;
+  activeTab: UnifiedAdminTab;
+  setActiveTab: (tab: UnifiedAdminTab) => void;
   shopsCount?: number;
   invoicesCount?: number;
+  docsCount?: number;
 }
 
 export function AdminTabNav({
@@ -17,34 +28,63 @@ export function AdminTabNav({
   setActiveTab,
   shopsCount = 0,
   invoicesCount = 0,
+  docsCount = 0,
 }: AdminTabNavProps) {
   const tabs = [
     {
-      id: "analytics" as AdminTabType,
-      label: "المؤشرات والتحليلات",
+      id: "analytics" as UnifiedAdminTab,
+      label: "رادار الـ 58 ولاية",
       icon: BarChart3,
+      badge: "مباشر",
     },
     {
-      id: "shops" as AdminTabType,
-      label: "شبكة المحلات والأكشاك",
+      id: "shops" as UnifiedAdminTab,
+      label: "شبكة الأكشاك",
       icon: Store,
       badge: shopsCount > 0 ? shopsCount : undefined,
     },
     {
-      id: "invoices" as AdminTabType,
-      label: "الفوترة والاشتراكات",
+      id: "invoices" as UnifiedAdminTab,
+      label: "الفوترة B2B",
       icon: Receipt,
       badge: invoicesCount > 0 ? invoicesCount : undefined,
     },
     {
-      id: "wholesale" as AdminTabType,
-      label: "كروت الشحن والموزعين",
+      id: "wholesale" as UnifiedAdminTab,
+      label: "كروت الشحن",
       icon: CreditCard,
     },
     {
-      id: "admins" as AdminTabType,
-      label: "فريق إدارة النظام",
+      id: "admins" as UnifiedAdminTab,
+      label: "فريق الإشراف",
       icon: Shield,
+    },
+    {
+      id: "overview" as UnifiedAdminTab,
+      label: "كاونتر الكشك",
+      icon: LayoutDashboard,
+    },
+    {
+      id: "services" as UnifiedAdminTab,
+      label: "استوديو الخدمات A4",
+      icon: Sparkles,
+      badge: "v2.0",
+    },
+    {
+      id: "documents" as UnifiedAdminTab,
+      label: "سجل الوثائق",
+      icon: FileText,
+      badge: docsCount > 0 ? docsCount : undefined,
+    },
+    {
+      id: "wallet" as UnifiedAdminTab,
+      label: "المحفظة والشحن",
+      icon: Wallet,
+    },
+    {
+      id: "settings" as UnifiedAdminTab,
+      label: "الطباعة والربط",
+      icon: Printer,
     },
   ];
 
@@ -59,19 +99,19 @@ export function AdminTabNav({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 cursor-pointer ${
                 isActive
-                  ? "bg-foreground text-background shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
-              <Icon size={16} />
+              <Icon size={15} />
               <span>{tab.label}</span>
               {tab.badge !== undefined && (
                 <span
                   className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-black ${
                     isActive
-                      ? "bg-background text-foreground"
+                      ? "bg-primary-foreground/20 text-primary-foreground"
                       : "bg-muted text-muted-foreground border border-border"
                   }`}
                 >
