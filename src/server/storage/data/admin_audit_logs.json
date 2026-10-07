@@ -1,0 +1,22 @@
+[
+  {
+    "id": "audit_init_1",
+    "actorId": "user_super_admin",
+    "actorName": "مدير منصة سهلة المركزي",
+    "actorRole": "SUPER_ADMIN",
+    "action": "SYSTEM_INITIALIZED",
+    "targetType": "SYSTEM",
+    "descriptionAr": "تهيئة منظومة القيادة الوطنية المركزية وتفعيل مراقبة الـ 58 ولاية 🇩🇿",
+    "timestamp": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "audit_init_2",
+    "actorId": "user_super_admin",
+    "actorName": "مدير منصة سهلة المركزي",
+    "actorRole": "SUPER_ADMIN",
+    "action": "RBAC_ENFORCED",
+    "targetType": "ADMIN",
+    "descriptionAr": "تفعيل مصفوفة الصلاحيات والحماية السيادية لحساب الجذر admin@sahla.dz",
+    "timestamp": "2026-02-01T00:00:00.000Z"
+  }
+]

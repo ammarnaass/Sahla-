@@ -5,7 +5,7 @@
 
 import crypto from "crypto";
 import { JsonStore } from "../storage/jsonStore";
-import { DEFAULT_USERS, UserRoleType } from "../config/constants";
+import { DEFAULT_USERS, UserRoleType, ADMIN_ROLES, AdminRoleType } from "../config/constants";
 
 export interface UserRecord {
   id: string;
@@ -15,8 +15,15 @@ export interface UserRecord {
   phone?: string | null;
   password?: string;
   role: UserRoleType;
+  adminRole?: AdminRoleType;
+  customPermissions?: string[];
+  assignedWilayas?: number[];
+  status?: "ACTIVE" | "SUSPENDED";
+  isRoot?: boolean;
+  lastLoginAt?: string | null;
   shopId?: string | null;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export function hashPassword(password: string): string {
@@ -48,15 +55,23 @@ class UserRepository {
     DEFAULT_USERS.forEach((defUser) => {
       const existing = this.findById(defUser.id) || this.findByPhone(defUser.phone);
       if (existing) {
-        if (!existing.email || !existing.password) {
-          this.update(existing.id, {
-            email: defUser.email,
-            secondaryEmail: defUser.secondaryEmail || null,
-            password: defUser.password,
-          });
-        }
+        const isRootUser = defUser.email === "admin@sahla.dz" || defUser.id === "user_super_admin";
+        this.update(existing.id, {
+          email: existing.email || defUser.email,
+          secondaryEmail: existing.secondaryEmail || defUser.secondaryEmail || null,
+          password: existing.password || defUser.password,
+          adminRole: existing.adminRole || (defUser.role === "SUPER_ADMIN" ? "SUPER_ADMIN" : undefined),
+          isRoot: isRootUser,
+          status: existing.status || "ACTIVE",
+        });
       } else {
-        this.create(defUser as unknown as Partial<UserRecord>);
+        const isRootUser = defUser.email === "admin@sahla.dz" || defUser.id === "user_super_admin";
+        this.create({
+          ...defUser,
+          adminRole: defUser.role === "SUPER_ADMIN" ? "SUPER_ADMIN" : undefined,
+          isRoot: isRootUser,
+          status: "ACTIVE",
+        } as unknown as Partial<UserRecord>);
       }
     });
   }
@@ -101,8 +116,15 @@ class UserRepository {
       phone: user.phone || null,
       password: passwordHash,
       role: user.role || "SHOP_ADMIN",
+      adminRole: user.adminRole || (user.role === "SUPER_ADMIN" ? "SUPER_ADMIN" : undefined),
+      customPermissions: user.customPermissions || [],
+      assignedWilayas: user.assignedWilayas || [],
+      status: user.status || "ACTIVE",
+      isRoot: user.isRoot ?? (user.email === "admin@sahla.dz"),
+      lastLoginAt: user.lastLoginAt || null,
       shopId: user.shopId || null,
       createdAt: user.createdAt || new Date().toISOString(),
+      updatedAt: user.updatedAt || new Date().toISOString(),
     };
     return this.store.insert(newUser);
   }

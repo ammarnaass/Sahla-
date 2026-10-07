@@ -46,6 +46,25 @@ export function UserNavDropdown() {
   const isSuperAdmin = session.user?.role === "SUPER_ADMIN";
   const isShopOwner = session.user?.role === "SHOP_ADMIN" || session.user?.role === "OWNER";
   const isEmployee = session.user?.role === "STAFF" || session.user?.role === "EMPLOYEE";
+  const adminRole = (session.user as any)?.adminRole;
+
+  // Specific Admin Role Title
+  const getAdminRoleTitle = () => {
+    switch (adminRole) {
+      case "OPERATIONS_ADMIN":
+        return "مدير شبكة الأكشاك";
+      case "FINANCE_ADMIN":
+        return "المدير المالي وعقود B2B";
+      case "AI_OPS_ADMIN":
+        return "مسؤول الذكاء الاصطناعي";
+      case "SECURITY_AUDITOR":
+        return "مشرف الأمان والتدقيق";
+      case "REGIONAL_SUPERVISOR":
+        return "مشرف جهوي إقليمي";
+      default:
+        return "مدير النظام العام";
+    }
+  };
 
   // Initials or short label
   const initial = (session.user?.name || (isSuperAdmin ? "م" : "ك"))[0];
@@ -65,7 +84,7 @@ export function UserNavDropdown() {
             ? "bg-gradient-to-tr from-emerald-600 via-teal-500 to-emerald-400 text-white ring-2 ring-emerald-500/40 hover:ring-emerald-500 shadow-emerald-950/20"
             : "bg-gradient-to-tr from-blue-600 to-cyan-500 text-white ring-2 ring-blue-500/40 hover:ring-blue-500"
         } hover:scale-105 active:scale-95`}
-        title={`مراقب الجلسة: ${session.user?.name || "متصل"} (${isSuperAdmin ? "مدير النظام" : "صاحب كشك"})`}
+        title={`مراقب الجلسة: ${session.user?.name || "متصل"} (${isSuperAdmin ? getAdminRoleTitle() : "صاحب كشك"})`}
       >
         {isSuperAdmin ? (
           <Crown size={19} className="text-slate-950" />
@@ -119,7 +138,7 @@ export function UserNavDropdown() {
                 >
                   {isSuperAdmin ? (
                     <>
-                      <Crown size={12} /> مدير النظام العام
+                      <Crown size={12} /> {getAdminRoleTitle()}
                     </>
                   ) : isShopOwner ? (
                     <>
