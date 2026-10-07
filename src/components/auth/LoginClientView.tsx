@@ -139,7 +139,7 @@ export function LoginClientView() {
 
         <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto', mt: { xs: 8, lg: 0 } }}>
           {/* Header & Logo */}
-          <Box mb={4}>
+          <Box sx={{ mb: 4 }}>
             <Link href="/" className="inline-flex items-center gap-3 group mb-5">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-emerald-900/20 group-hover:scale-105 transition-transform">
                 سـ
@@ -154,7 +154,7 @@ export function LoginClientView() {
               </div>
             </Link>
 
-            <Box display="flex" alignItems="center" gap={1} mb={1}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <Typography variant="h5" fontWeight="900" sx={{ fontFamily: 'var(--font-cairo)' }}>
                 تسجيل الدخول إلى المحل
               </Typography>
@@ -186,7 +186,7 @@ export function LoginClientView() {
 
           {/* Form */}
           <form onSubmit={handleSubmit}>
-            <Box display="flex" flexDirection="column" gap={2.5}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
               <TextField
                 fullWidth
                 variant="outlined"
@@ -195,12 +195,14 @@ export function LoginClientView() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 dir="ltr"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Mail size={18} className="text-slate-400" />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Mail size={18} className="text-slate-400" />
+                      </InputAdornment>
+                    ),
+                  }
                 }}
               />
 
@@ -212,28 +214,30 @@ export function LoginClientView() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 dir="ltr"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Lock size={18} className="text-slate-400" />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Lock size={18} className="text-slate-400" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }
                 }}
               />
 
-              <Box display="flex" justifyContent="space-between" alignItems="center" mt={-1}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: -1 }}>
                 <FormControlLabel
                   control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} color="primary" />}
                   label={<Typography variant="body2" color="text.secondary">تذكرني على هذا الجهاز</Typography>}
                 />
-                <Typography variant="caption" color="text.secondary" fontFamily="monospace">
+                <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
                   دعم فني: 0550-00-00-00
                 </Typography>
               </Box>
@@ -251,12 +255,12 @@ export function LoginClientView() {
           </form>
 
           {/* Quick Demo Credentials */}
-          <Box mt={4} pt={3} borderTop="1px solid" borderColor="divider">
-            <Typography variant="body2" fontWeight="bold" color="text.secondary" align="center" mb={2} display="flex" alignItems="center" justifyContent="center" gap={1}>
+          <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="body2" fontWeight="bold" color="text.secondary" align="center" sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
               <Sparkles size={16} className="text-amber-500" />
               حسابات تجريبية سريعة للتجربة الفورية:
             </Typography>
-            <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
               <Box 
                 onClick={() => handleQuickFill("najah.kiosk@gmail.com", "Shop@2026!")}
                 sx={{ 
@@ -264,10 +268,10 @@ export function LoginClientView() {
                   cursor: 'pointer', transition: 'all 0.2s', '&:hover': { borderColor: 'primary.main', bgcolor: 'action.hover' }
                 }}
               >
-                <Box display="flex" alignItems="center" gap={1} color="primary.main" fontWeight="bold" fontSize="0.85rem">
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'primary.main', fontWeight: 'bold', fontSize: '0.85rem' }}>
                   <Store size={16} /> صاحب كشك
                 </Box>
-                <Typography variant="caption" color="text.secondary" fontFamily="monospace" display="block" mt={0.5}>
+                <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace', display: 'block', mt: 0.5 }}>
                   najah.kiosk@gmail.com
                 </Typography>
               </Box>
@@ -279,17 +283,17 @@ export function LoginClientView() {
                   cursor: 'pointer', transition: 'all 0.2s', '&:hover': { borderColor: '#f59e0b', bgcolor: 'action.hover' }
                 }}
               >
-                <Box display="flex" alignItems="center" gap={1} color="#f59e0b" fontWeight="bold" fontSize="0.85rem">
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#f59e0b', fontWeight: 'bold', fontSize: '0.85rem' }}>
                   <Crown size={16} /> مدير النظام الوطني
                 </Box>
-                <Typography variant="caption" color="text.secondary" fontFamily="monospace" display="block" mt={0.5}>
+                <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace', display: 'block', mt: 0.5 }}>
                   admin@sahla.dz
                 </Typography>
               </Box>
             </Box>
           </Box>
 
-          <Typography align="center" variant="body2" color="text.secondary" mt={4}>
+          <Typography align="center" variant="body2" color="text.secondary" sx={{ mt: 4 }}>
             ليس لديك حساب بعد؟{" "}
             <Link href="/register" className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1">
               افتح حساب محلك مجاناً واحصل على 50 نقطة <Sparkles size={14} className="text-amber-500" />
@@ -316,8 +320,8 @@ export function LoginClientView() {
         <div className="absolute top-1/4 right-1/4 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <Box position="relative" zIndex={1}>
-          <Box display="inline-flex" alignItems="center" gap={1} px={2} py={0.5} borderRadius={4} border="1px solid" borderColor="primary.main" bgcolor="rgba(16, 185, 129, 0.1)" color="primary.main" fontWeight="bold" fontSize="0.75rem" mb={4}>
+        <Box sx={{ position: 'relative', zIndex: 1 }}>
+          <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, px: 2, py: 0.5, borderRadius: 4, border: '1px solid', borderColor: 'primary.main', bgcolor: 'rgba(16, 185, 129, 0.1)', color: 'primary.main', fontWeight: 'bold', fontSize: '0.75rem', mb: 4 }}>
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             منظومة سهلة السحابية · إصدار الجيل الجديد 2026
           </Box>
@@ -330,7 +334,7 @@ export function LoginClientView() {
             سهولة تامة في استقبال ملفات المواطنين عبر QR Code والطباعة اللاسلكية الحرارية، مع امتثال كامل للقانون الجزائري لحماية المعطيات الشخصية.
           </Typography>
 
-          <Box display="flex" flexDirection="column" gap={2} maxWidth={500}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 500 }}>
             <MuiCard sx={{ borderRadius: 4, bgcolor: 'background.paper', display: 'flex', alignItems: 'flex-start', p: 2 }}>
               <Box sx={{ width: 48, height: 48, borderRadius: 3, bgcolor: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: 2, color: 'primary.main', flexShrink: 0 }}>
                 <Printer size={24} />
@@ -370,8 +374,8 @@ export function LoginClientView() {
         </Box>
 
         {/* Live Network Metric */}
-        <Box position="relative" zIndex={1} mt={8} pt={4} borderTop="1px solid" borderColor="divider" display="flex" alignItems="center" justifyContent="space-between">
-          <Box display="flex" alignItems="center" gap={1}>
+        <Box sx={{ position: 'relative', zIndex: 1, mt: 8, pt: 4, borderTop: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
             <Typography variant="caption" fontWeight="bold" color="text.primary">شبكة سهلة نشطة عبر 58 ولاية</Typography>
           </Box>

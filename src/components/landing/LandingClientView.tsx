@@ -26,7 +26,7 @@ export function LandingClientView() {
         backgroundColor: currentTheme === 'dark' ? 'rgba(2, 6, 23, 0.8)' : 'rgba(248, 250, 252, 0.8)',
       }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Box display="flex" alignItems="center" gap={2}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-emerald-900/20">
               سـ
             </div>
@@ -34,7 +34,7 @@ export function LandingClientView() {
               سهلة
             </Typography>
           </Box>
-          <Box display="flex" gap={2} alignItems="center">
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <IconButton 
               onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")} 
               sx={{ color: 'text.primary' }}
@@ -50,14 +50,12 @@ export function LandingClientView() {
         </Toolbar>
       </AppBar>
 
-      <Box component="main" flexGrow={1} display="flex" flexDirection="column" alignItems="center" justifyContent="center" py={12} position="relative" overflow="hidden">
+      <Box component="main" sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 12, position: 'relative', overflow: 'hidden' }}>
         {/* Glow Effects */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl pointer-events-none" />
 
         <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-          <Box display="inline-flex" alignItems="center" gap={1.5} px={2} py={1} borderRadius="full" bgcolor="primary.main" sx={{ opacity: 0.1, position: 'absolute', top: -40, left: '50%', transform: 'translateX(-50%)', width: 'fit-content' }}>
-          </Box>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-bold mb-8">
             <Sparkles size={16} />
             المنصة الأولى لإدارة الكيوسكات في الجزائر
@@ -71,11 +69,11 @@ export function LandingClientView() {
             </span>
           </Typography>
           
-          <Typography variant="h6" color="text.secondary" paragraph sx={{ mt: 3, mb: 6, maxWidth: 600, mx: 'auto', fontFamily: 'var(--font-cairo)', fontWeight: 500 }}>
+          <Typography variant="h6" color="text.secondary" sx={{ mt: 3, mb: 6, maxWidth: 600, mx: 'auto', fontFamily: 'var(--font-cairo)', fontWeight: 500 }}>
             منظومة سحابية ذكية تتيح لك طباعة الوثائق لاسلكياً، وإدارة المخزون، وشحن الرصيد من مكان واحد.
           </Typography>
 
-          <Box display="flex" gap={3} justifyContent="center">
+          <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center' }}>
             <Link href="/register" passHref>
               <MuiButton variant="contained" size="large" disableElevation endIcon={<ArrowRight size={20} />} sx={{ borderRadius: '12px', px: 4, py: 1.5, fontSize: '1.1rem' }}>
                 افتح حساب مجاناً
@@ -85,7 +83,7 @@ export function LandingClientView() {
         </Container>
 
         <Container maxWidth="lg" sx={{ mt: 16, position: 'relative', zIndex: 1 }}>
-          <Box display="grid" gridTemplateColumns={{ xs: '1fr', md: 'repeat(3, 1fr)' }} gap={4}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 4 }}>
             <MuiCard sx={{ p: 4, borderRadius: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', bgcolor: 'background.paper', transition: 'transform 0.2s', '&:hover': { transform: 'translateY(-5px)' } }}>
               <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4">
                 <Printer className="text-emerald-600" size={32} />
