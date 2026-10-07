@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { AIProviderRouter } from "@/server/ai/providers/providerRouter";
 import { runResearchPlanner } from "@/server/education/skills/researchPlanner";
 import { runTopicIntake } from "@/server/education/skills/topicIntake";
 import { calculateJobPoints } from "@/server/education/config";
@@ -52,22 +53,79 @@ export async function POST(req: NextRequest) {
 
     const normalizedTopic = intake.normalized_topic || effectiveTopic;
 
-    // 2. Skill: research-planner (v2.0 with teacher requirements and unit grounding)
+    // 2. Skill: research-planner (AI Gateway with Algerian curriculum fallback)
     const teacherRequirements = options?.teacher_requirements || body.teacher_requirements;
     const unitId = options?.unit_id || body.unit_id;
     const unitTitle = options?.unit_title || body.unit_title;
 
-    const planResult = runResearchPlanner({
-      topic: normalizedTopic,
-      stage,
-      level: numericLevel,
-      pages,
-      style,
-      language,
-      teacher_requirements: teacherRequirements,
-      unit_id: unitId,
-      unit_title: unitTitle,
-    });
+    let planResult: any = null;
+    let providerUsed = "curriculum-rules";
+    let summaryAr = "";
+
+    try {
+      const stageName = stage === "primary" ? "الابتدائي" : stage === "secondary" ? "الثانوي" : "المتوسط";
+      const aiResponse = await AIProviderRouter.run({
+        system: `أنت خبير تربوي ومفتش مناهج معتمد في المنظومة التربوية الجزائرية (وزارة التربية الوطنية). مهمتك وضع خطة بحث وفهرس محاور أكاديمي متناسق ومتدرج لمنهاج الجيل الثاني. ركّز على الشواهد والأمثلة من الواقع الجزائري، والتزم بأي عناصر وتوجيهات يطلبها الأستاذ المشرف.`,
+        messages: [
+          {
+            role: "user",
+            content: `المطلوب: إعداد خطة وفهرس بحث مدرسي متكامل لموضوع: "${normalizedTopic}"
+- الطور: ${stageName} (المستوى: ${numericLevel})
+- المادة: ${subject}
+- عدد الصفحات المقدرة: ${pages}
+${teacherRequirements ? `- توجيهات وعناصر الأستاذ المشرف الإلزامية: "${teacherRequirements}"` : ""}
+${unitTitle ? `- المقطع التعليمي: "${unitTitle}"` : ""}
+
+أرجع النتيجة بصيغة JSON حصراً بالشكل التالي:
+{
+  "summary_ar": "ملخص منهجي موجز عن محاور الخطة وانسجامها مع المنهاج الجزائري",
+  "outline": [
+    { "id": "s1", "title": "المقدمة: ...", "type": "intro", "target_words": 150 },
+    { "id": "s2", "title": "المبحث الأول: ...", "type": "body", "target_words": 300 },
+    { "id": "s3", "title": "المبحث الثاني: ...", "type": "body", "target_words": 300 },
+    { "id": "s4", "title": "الخاتمة: ...", "type": "conclusion", "target_words": 150 }
+  ]
+}`,
+          },
+        ],
+        maxTokens: 1400,
+        temperature: 0.3,
+        metadata: { skill: "section-writer", jobId: "plan_gen" },
+      });
+
+      if (aiResponse && aiResponse.text) {
+        let cleanText = aiResponse.text.trim();
+        if (cleanText.startsWith("```json")) cleanText = cleanText.substring(7);
+        if (cleanText.startsWith("```")) cleanText = cleanText.substring(3);
+        if (cleanText.endsWith("```")) cleanText = cleanText.substring(0, cleanText.length - 3);
+        const parsed = JSON.parse(cleanText.trim());
+        if (Array.isArray(parsed.outline) && parsed.outline.length > 0) {
+          planResult = {
+            outline: parsed.outline,
+            total_target_words: parsed.outline.reduce((acc: number, item: any) => acc + (item.target_words || 200), 0),
+          };
+          summaryAr = parsed.summary_ar || "تمت صياغة الخطة بواسطة الذكاء الاصطناعي وفق المنهاج الجزائري";
+          providerUsed = aiResponse.providerId;
+        }
+      }
+    } catch (aiErr) {
+      console.warn("[ResearchPlansAPI] AI Provider fallback to rules:", (aiErr as any)?.message);
+    }
+
+    if (!planResult) {
+      planResult = runResearchPlanner({
+        topic: normalizedTopic,
+        stage,
+        level: numericLevel,
+        pages,
+        style,
+        language,
+        teacher_requirements: teacherRequirements,
+        unit_id: unitId,
+        unit_title: unitTitle,
+      });
+      summaryAr = "تمت صياغة الخطة وفق معايير المنهاج الوطني الجزائري الرسمي (الجيل الثاني)";
+    }
 
     const planId = `pl_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
     const estimatedPoints = calculateJobPoints(pages, options);
@@ -130,6 +188,8 @@ export async function POST(req: NextRequest) {
       cost_points: 0,
       estimate_points: estimatedPoints,
       outline: planResult.outline,
+      summary_ar: summaryAr,
+      provider: providerUsed,
       scope_note: intake.scope === "too_broad" ? "الموضوع واسع ويمكن تضييقه لنتائج أدق" : undefined,
     });
   } catch (error: any) {

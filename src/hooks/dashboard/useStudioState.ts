@@ -77,6 +77,12 @@ export function useStudioState() {
   const [eduCurrentPagePreview, setEduCurrentPagePreview] = useState<number>(1);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState<boolean>(false);
   const [isPlanReviewed, setIsPlanReviewed] = useState<boolean>(false);
+  const [planSummary, setPlanSummary] = useState<string>("");
+  const [planProviderUsed, setPlanProviderUsed] = useState<string>("");
+  const [planSuccessNotice, setPlanSuccessNotice] = useState<string | null>(null);
+  const [eduGeneratedSections, setEduGeneratedSections] = useState<
+    Array<{ id: string; heading: string; content: string }>
+  >([]);
   const [errorReportModal, setErrorReportModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -177,6 +183,12 @@ export function useStudioState() {
             typeof o === "string" ? o : o.title || "محور بحث"
           );
           setEduCustomPlan(titles);
+          setPlanSummary(
+            data.summary_ar ||
+              "تمت صياغة الخطة بواسطة محرك الذكاء الاصطناعي وفق معايير المنهاج الجزائري الرسمي."
+          );
+          setPlanProviderUsed(data.provider || "Gemini / AI Router");
+          setPlanSuccessNotice("تم إنشاء وتنسيق خطة البحث بالذكاء الاصطناعي بنجاح ⚡");
           setIsPlanReviewed(true);
           return;
         }
@@ -230,6 +242,9 @@ export function useStudioState() {
         ];
       }
       setEduCustomPlan(fallbackOutline);
+      setPlanSummary("تمت صياغة الخطة وفق معايير المنهاج الوطني الجزائري الرسمي (الجيل الثاني).");
+      setPlanProviderUsed("المنهاج الوطني الجزائري (قواعد دقيقة)");
+      setPlanSuccessNotice("تم توليد الخطة بالاعتماد على معايير المنهاج الرسمي!");
       setIsPlanReviewed(true);
     } finally {
       setIsGeneratingPlan(false);
@@ -274,7 +289,7 @@ export function useStudioState() {
     return { pointsCost: 10, defaultSaleDZD: 150 };
   };
 
-  const generateDocument = (
+  const generateDocument = async (
     service: ServiceDefinition,
     points: number,
     onSuccess: (doc: GeneratedDocPayload) => void,
@@ -290,6 +305,52 @@ export function useStudioState() {
     }
 
     setIsProcessing(true);
+
+    if (service.code === "SCHOOL_RESEARCH" && eduMode === "RESEARCH") {
+      try {
+        const res = await fetch("/api/education/research/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            shopId: "shop_1",
+            level: eduLevel,
+            grade: eduGradeId,
+            subject: eduSubjectId,
+            topic: eduTopic,
+            language,
+            pageCount: eduPageCount,
+            styleLevel: eduStyleLevel,
+            coverTemplate: eduCoverTemplate,
+            studentName: customerName.trim() || "تلميذ المؤسسة",
+            schoolName: eduSchoolName,
+            teacherName: eduTeacherName,
+            teacherRequirements: eduTeacherRequirements,
+            approvedOutline: eduCustomPlan,
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.sections) && data.sections.length > 0) {
+            setEduGeneratedSections(data.sections);
+          }
+          setIsProcessing(false);
+          onSuccess({
+            id: data.docId || `doc_${Date.now()}`,
+            title: data.title || `بحث مدرسي: ${eduTopic} (${eduPageCount} ص)`,
+            type: "SCHOOL_RESEARCH",
+            customerName: customerName.trim() || "تلميذ المؤسسة",
+            salePrice: data.salePriceDZD || pricing.defaultSaleDZD,
+            pointsCost: data.pointsCost || cost,
+          });
+          onClose();
+          return;
+        }
+      } catch (err) {
+        console.warn("Document generation API error, falling back locally:", err);
+      }
+    }
+
     setTimeout(() => {
       setIsProcessing(false);
 
@@ -401,6 +462,14 @@ export function useStudioState() {
     isGeneratingPlan,
     isPlanReviewed,
     generatePlanAsync,
+    planSummary,
+    setPlanSummary,
+    planProviderUsed,
+    setPlanProviderUsed,
+    planSuccessNotice,
+    setPlanSuccessNotice,
+    eduGeneratedSections,
+    setEduGeneratedSections,
     errorReportModal,
     setErrorReportModal,
     applyPresetTopic,

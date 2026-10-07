@@ -38,10 +38,13 @@ export function SchoolResearchTab({
 
   const handleExportWord = () => {
     const subjectName = ALGERIAN_SUBJECTS[studio.eduSubjectId]?.nameAr || "المادة المقررة";
-    const sections = studio.eduCustomPlan.map((heading) => ({
-      heading,
-      content: `يتناول هذا المبحث دراسة مستفيضة لعنصر "${heading}"، حيث تم تبسيط المفاهيم ومطابقتها للمنهاج الجزائري الرسمي، مع ربطها بالشواهد الواقعية والتطبيقات العلمية الميدانية لتعزيز فهم التلميذ واستيعابه الدقيق.`,
-    }));
+    const sections =
+      studio.eduGeneratedSections && studio.eduGeneratedSections.length > 0
+        ? studio.eduGeneratedSections
+        : studio.eduCustomPlan.map((heading) => ({
+            heading,
+            content: `يتناول هذا المبحث دراسة مستفيضة لعنصر "${heading}"، حيث تم تبسيط المفاهيم ومطابقتها للمنهاج الجزائري الرسمي، مع ربطها بالشواهد الواقعية والتطبيقات العلمية الميدانية لتعزيز فهم التلميذ واستيعابه الدقيق.`,
+          }));
 
     exportResearchToWord({
       title: `بحث مدرسي - ${studio.eduTopic}`,
@@ -286,6 +289,10 @@ export function SchoolResearchTab({
             isGeneratingPlan={studio.isGeneratingPlan}
             isPlanReviewed={studio.isPlanReviewed}
             generatePlanAsync={studio.generatePlanAsync}
+            planSummary={studio.planSummary}
+            planProviderUsed={studio.planProviderUsed}
+            planSuccessNotice={studio.planSuccessNotice}
+            onDismissPlanNotice={() => studio.setPlanSuccessNotice(null)}
             points={points}
             applyPresetTopic={studio.applyPresetTopic}
             getDynamicPricing={studio.getDynamicPricing}
@@ -348,6 +355,7 @@ export function SchoolResearchTab({
               eduCurrentPagePreview={studio.eduCurrentPagePreview}
               setEduCurrentPagePreview={studio.setEduCurrentPagePreview}
               eduCustomPlan={studio.eduCustomPlan}
+              eduGeneratedSections={studio.eduGeneratedSections}
               eduCoverTemplate={studio.eduCoverTemplate}
               eduStyleLevel={studio.eduStyleLevel}
               eduIncludeReviewQuestions={studio.eduIncludeReviewQuestions}

@@ -54,6 +54,7 @@ interface StudioLivePreviewA4Props {
   eduDirectorate?: string;
   eduTeacherRequirements?: string;
   eduUnitTitle?: string;
+  eduGeneratedSections?: Array<{ id: string; heading: string; content: string }>;
   onExportWord?: () => void;
   onReportError?: () => void;
   conformanceScore?: number;
@@ -93,6 +94,7 @@ export function StudioLivePreviewA4({
   eduCurrentPagePreview = 1,
   setEduCurrentPagePreview,
   eduCustomPlan = [],
+  eduGeneratedSections = [],
   eduCoverTemplate = "OFFICIAL",
   eduStyleLevel = "MODERATE",
   eduIncludeReviewQuestions = true,
@@ -369,41 +371,64 @@ export function StudioLivePreviewA4({
                 </div>
               )}
 
-              {/* Sample Content Paragraphs */}
-              <div className="space-y-2.5 text-[11px] text-slate-800 leading-relaxed">
-                <div className="font-bold text-slate-900 text-xs text-emerald-800">
-                  {activePage === eduPageCount
+              {/* Dynamic Content Paragraphs */}
+              {(() => {
+                const sectionIdx = activePage - (eduIncludeCover ? 2 : 1);
+                const isLastPage = activePage === eduPageCount;
+                const genSection = eduGeneratedSections && eduGeneratedSections[sectionIdx];
+                const planTitle = eduCustomPlan && eduCustomPlan[sectionIdx];
+
+                const heading =
+                  genSection?.heading ||
+                  planTitle ||
+                  (isLastPage
                     ? "الخاتمة والاستنتاجات النهائية:"
-                    : `المبحث ${activePage - 1}: العرض والتحليل المفصل`}
-                </div>
-                <p className="text-justify text-[10px] text-slate-700 leading-relaxed">
-                  {activePage === eduPageCount
-                    ? "وفي ختام هذا البحث المتواضع، نستنتج أن دراسة هذا الموضوع تبرز مدى الأهمية البالغة التي توليها المنظومة التربوية والوطنية لهذه القضية، مع التأكيد على ضرورة ترسيخ هذه المعارف ونقلها للأجيال الصاعدة وتطبيقها في الحياة العملية."
-                    : "يعتبر هذا الموضوع من أهم المحاور المقررة في المنهاج الدراسي، حيث يتناول الأسس النظرية والمفاهيم الجوهرية التي تمكن المتعلم من استيعاب الظواهر المعنية بدقة، مع ربطها بالأمثلة التطبيقية والشواهد الواقعية المستمدة من البيئة الجزائرية الأصيلة."}
-                </p>
+                    : `المبحث ${Math.max(1, sectionIdx + 1)}: العرض والتحليل المفصل`);
 
-                {/* Educational Review Questions (PRD Section 8: النزاهة الأكاديمية) */}
-                {activePage === eduPageCount && eduIncludeReviewQuestions && (
-                  <div className="mt-2.5 p-2.5 bg-blue-50/80 rounded border border-blue-200 text-[9.5px] text-blue-900 space-y-1">
-                    <span className="font-bold text-blue-950 block">💡 أسئلة مراجعة ومفردات الدرس (لتحفيز الفهم وتجنب الغش):</span>
-                    <ul className="list-disc list-inside space-y-0.5 text-blue-800 pr-1">
-                      <li>ما هي الفكرة الأساسية التي يعالجها موضوع "{eduTopic}" بأسلوبك الخاص؟</li>
-                      <li>استخرج مثالين واقعيين وردا في البحث يربطان المفاهيم بالمنهاج الدراسي.</li>
-                      <li>لخص أهم ما توصلت إليه الخاتمة في جملتين لدعم مشاركتك في القسم.</li>
-                    </ul>
-                  </div>
-                )}
+                const content =
+                  genSection?.content ||
+                  (isLastPage
+                    ? "وفي ختام هذا البحث المتكامل، نستنتج أن دراسة هذا الموضوع تبرز مدى الأهمية البالغة التي توليها المنظومة التربوية والوطنية لهذه القضية، مع التأكيد على ضرورة ترسيخ هذه المعارف ونقلها للأجيال الصاعدة وتطبيقها في الحياة العملية."
+                    : `يعتبر هذا الموضوع من أهم المحاور المقررة في المنهاج الدراسي، حيث يتناول الأسس النظرية والمفاهيم الجوهرية لعنصر "${heading}" التي تمكن المتعلم من استيعاب الظواهر المعنية بدقة، مع ربطها بالأمثلة التطبيقية والشواهد الواقعية المستمدة من البيئة الجزائرية الأصيلة.`);
 
-                {/* Verified ONPS References (PRD Section 5.4) */}
-                {activePage === eduPageCount && eduIncludeSources && (
-                  <div className="mt-2.5 p-2 bg-slate-50 rounded border border-slate-200 text-[9px] text-slate-600 space-y-1">
-                    <span className="font-bold text-slate-900 block">قائمة المراجع والمصادر الرسمية المعتمدة:</span>
-                    <div>1. الكتاب المدرسي المقرر لوزارة التربية الوطنية لمادة {subjectInfo.nameAr} - ديوان المطبوعات المدرسية (ONPS).</div>
-                    <div>2. المنهاج والوثيقة المرافقة لمادة {subjectInfo.nameAr}، المعهد الوطني للبحث في التربية (INRE).</div>
-                    <div>3. الموسوعة الجزائرية للتاريخ والجغرافيا والعلوم، منشورات ديوان المطبوعات الجامعية (OPU).</div>
+                return (
+                  <div className="space-y-2.5 text-[11px] text-slate-800 leading-relaxed">
+                    <div className="font-bold text-slate-900 text-xs text-emerald-800 flex items-center justify-between">
+                      <span>{heading}</span>
+                      {eduGeneratedSections && eduGeneratedSections.length > 0 && (
+                        <span className="text-[8.5px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono">
+                          AI ⚡ موثق
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-justify text-[10px] text-slate-700 leading-relaxed whitespace-pre-line">
+                      {content}
+                    </div>
+
+                    {/* Educational Review Questions (PRD Section 8: النزاهة الأكاديمية) */}
+                    {isLastPage && eduIncludeReviewQuestions && (
+                      <div className="mt-2.5 p-2.5 bg-blue-50/80 rounded border border-blue-200 text-[9.5px] text-blue-900 space-y-1">
+                        <span className="font-bold text-blue-950 block">💡 أسئلة مراجعة ومفردات الدرس (لتحفيز الفهم وتجنب الغش):</span>
+                        <ul className="list-disc list-inside space-y-0.5 text-blue-800 pr-1">
+                          <li>ما هي الفكرة الأساسية التي يعالجها موضوع "{eduTopic}" بأسلوبك الخاص؟</li>
+                          <li>استخرج مثالين واقعيين وردا في البحث يربطان المفاهيم بالمنهاج الدراسي.</li>
+                          <li>لخص أهم ما توصلت إليه الخاتمة في جملتين لدعم مشاركتك في القسم.</li>
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Verified ONPS References (PRD Section 5.4) */}
+                    {isLastPage && eduIncludeSources && (
+                      <div className="mt-2.5 p-2 bg-slate-50 rounded border border-slate-200 text-[9px] text-slate-600 space-y-1">
+                        <span className="font-bold text-slate-900 block">قائمة المراجع والمصادر الرسمية المعتمدة:</span>
+                        <div>1. الكتاب المدرسي المقرر لوزارة التربية الوطنية لمادة {subjectInfo.nameAr} - ديوان المطبوعات المدرسية (ONPS).</div>
+                        <div>2. المنهاج والوثيقة المرافقة لمادة {subjectInfo.nameAr}، المعهد الوطني للبحث في التربية (INRE).</div>
+                        <div>3. الموسوعة الجزائرية للتاريخ والجغرافيا والعلوم، منشورات ديوان المطبوعات الجامعية (OPU).</div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                );
+              })()}
 
               {/* Page Footer */}
               <div className="pt-3 border-t text-center text-[9px] text-slate-400 font-mono">

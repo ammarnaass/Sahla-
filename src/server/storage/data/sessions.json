@@ -16,31 +16,78 @@
     "createdAt": "2026-10-05 15:01:55"
   },
   {
+    "id": "sahla_session_1791365290835_0xniyzu",
     "token": "sahla_session_1791365290835_0xniyzu",
     "userId": "user_super_admin",
     "shopId": "shop_default",
-    "createdAt": "2026-10-07T09:28:10.836Z",
-    "expiresAt": "2026-11-06T09:28:10.836Z"
+    "expiresAt": "2026-11-06T09:28:10.836Z",
+    "createdAt": "2026-10-07 09:28:10"
   },
   {
+    "id": "sahla_session_1791370629715_cwxykf9",
     "token": "sahla_session_1791370629715_cwxykf9",
     "userId": "user_super_admin",
     "shopId": "shop_default",
-    "createdAt": "2026-10-07T10:57:09.715Z",
-    "expiresAt": "2026-11-06T10:57:09.715Z"
+    "expiresAt": "2026-11-06T10:57:09.715Z",
+    "createdAt": "2026-10-07 10:57:09"
   },
   {
+    "id": "sahla_session_1791371423383_6hbfsbz",
     "token": "sahla_session_1791371423383_6hbfsbz",
     "userId": "user_super_admin",
     "shopId": "shop_default",
-    "createdAt": "2026-10-07T11:10:23.383Z",
-    "expiresAt": "2026-11-06T11:10:23.383Z"
+    "expiresAt": "2026-11-06T11:10:23.383Z",
+    "createdAt": "2026-10-07 11:10:23"
   },
   {
-    "token": "sahla_session_1791371475623_l1jmd6j",
+    "id": "sahla_session_1791374678593_et0d5zj",
+    "token": "sahla_session_1791374678593_et0d5zj",
     "userId": "user_super_admin",
     "shopId": "shop_default",
-    "createdAt": "2026-10-07T11:11:15.623Z",
-    "expiresAt": "2026-11-06T11:11:15.623Z"
+    "expiresAt": "2026-11-06T12:04:38.593Z",
+    "createdAt": "2026-10-07 12:04:38"
+  },
+  {
+    "id": "sahla_session_1791377864958_3dt9s8t",
+    "token": "sahla_session_1791377864958_3dt9s8t",
+    "userId": "user_super_admin",
+    "shopId": "shop_default",
+    "expiresAt": "2026-11-06T12:57:44.959Z",
+    "createdAt": "2026-10-07 12:57:44"
+  },
+  {
+    "token": "sahla_session_1791380008353_o6eif64",
+    "userId": "user_super_admin",
+    "shopId": "shop_default",
+    "createdAt": "2026-10-07T13:33:28.353Z",
+    "expiresAt": "2026-11-06T13:33:28.353Z"
+  },
+  {
+    "token": "sahla_session_1791383853258_sc22z6d",
+    "userId": "user_super_admin",
+    "shopId": "shop_default",
+    "createdAt": "2026-10-07T14:37:33.258Z",
+    "expiresAt": "2026-11-06T14:37:33.258Z"
+  },
+  {
+    "token": "sahla_session_1791383964306_c3mz0qp",
+    "userId": "user_super_admin",
+    "shopId": "shop_default",
+    "createdAt": "2026-10-07T14:39:24.306Z",
+    "expiresAt": "2026-11-06T14:39:24.306Z"
+  },
+  {
+    "token": "sahla_session_1791397067461_ztj0fha",
+    "userId": "user_super_admin",
+    "shopId": "shop_default",
+    "createdAt": "2026-10-07T18:17:47.461Z",
+    "expiresAt": "2026-11-06T18:17:47.461Z"
+  },
+  {
+    "token": "sahla_session_1791398290138_uj7brs0",
+    "userId": "user_shop_admin",
+    "shopId": "shop_1",
+    "createdAt": "2026-10-07T18:38:10.138Z",
+    "expiresAt": "2026-11-06T18:38:10.138Z"
   }
 ]

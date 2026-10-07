@@ -95,6 +95,10 @@ interface StudioDynamicFormProps {
   isGeneratingPlan?: boolean;
   isPlanReviewed?: boolean;
   generatePlanAsync?: () => Promise<void>;
+  planSummary?: string;
+  planProviderUsed?: string;
+  planSuccessNotice?: string | null;
+  onDismissPlanNotice?: () => void;
   eduCustomPlan?: string[];
   setEduCustomPlan?: (p: string[]) => void;
   points?: number;
@@ -175,6 +179,10 @@ export function StudioDynamicForm({
   isGeneratingPlan = false,
   isPlanReviewed = false,
   generatePlanAsync,
+  planSummary = "",
+  planProviderUsed = "",
+  planSuccessNotice = null,
+  onDismissPlanNotice,
   eduCustomPlan = [],
   setEduCustomPlan,
   points = 50,
@@ -540,25 +548,25 @@ export function StudioDynamicForm({
             </div>
           )}
 
-          {/* 8. Step 1: Interactive Outline Editor (PRD Section 5.1) */}
+          {/* 8. Step 1: Interactive Outline Editor & AI Plan Result (PRD Section 5.1) */}
           {eduMode === "RESEARCH" && (
-            <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-2.5">
-
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-3">
+              {/* Header & Trigger */}
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                   <SparklesIcon className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-                  <span>الخطوة 1: خطة وفهرس البحث (توليد ومراجعة مجانية):</span>
+                  <span>الخطوة 1: خطة وفهرس البحث بالذكاء الاصطناعي (توليد ومراجعة مجانية):</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => generatePlanAsync && generatePlanAsync()}
                   disabled={isGeneratingPlan}
-                  className="text-[10.5px] px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 text-white rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                  className="text-[10.5px] px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 text-white rounded-xl font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                 >
                   {isGeneratingPlan ? (
                     <>
                       <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>جاري التوليد بالذكاء الاصطناعي...</span>
+                      <span>جاري الصياغة بالذكاء الاصطناعي...</span>
                     </>
                   ) : (
                     <>
@@ -569,62 +577,188 @@ export function StudioDynamicForm({
                 </button>
               </div>
 
+              {/* Success Feedback Alert */}
+              {planSuccessNotice && (
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center justify-between animate-fade-in shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <CheckCircleIcon size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span>{planSuccessNotice}</span>
+                  </div>
+                  {onDismissPlanNotice && (
+                    <button
+                      type="button"
+                      onClick={onDismissPlanNotice}
+                      className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 text-xs px-1 cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Prominent Plan Result Container */}
               {eduCustomPlan.length === 0 ? (
-                <div className="p-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-center text-xs text-slate-500 dark:text-slate-400">
-                  <p>لا توجد خطة محددة حالياً لهذا البحث.</p>
+                <div className="p-4 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
+                  <p className="font-medium">لم يتم إنشاء خطة وفهرس لهذا البحث بعد.</p>
                   <button
                     type="button"
                     onClick={() => generatePlanAsync && generatePlanAsync()}
-                    className="mt-1.5 text-emerald-600 dark:text-emerald-400 font-bold hover:underline cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 cursor-pointer shadow-xs transition-all"
                   >
-                    اضغط هنا لتوليد خطة فورية متوافقة مع المنهاج الجزائري
+                    <span>✨</span>
+                    <span>اضغط هنا لتوليد خطة فورية بالذكاء الاصطناعي</span>
                   </button>
                 </div>
               ) : (
-                <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
-                  {eduCustomPlan.map((heading, idx) => (
-                    <div key={idx} className="flex items-center gap-2 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] transition-colors shadow-2xs">
-                      <span className="text-emerald-600 dark:text-emerald-400 font-bold shrink-0">{idx + 1}.</span>
-                      <input
-                        type="text"
-                        value={heading}
-                        onChange={(e) => {
-                          if (setEduCustomPlan) {
-                            const updated = [...eduCustomPlan];
-                            updated[idx] = e.target.value;
-                            setEduCustomPlan(updated);
-                          }
-                        }}
-                        className="flex-1 bg-transparent text-slate-800 dark:text-slate-200 outline-none focus:text-slate-950 dark:focus:text-white text-[11px] font-medium"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (setEduCustomPlan && eduCustomPlan.length > 1) {
-                            setEduCustomPlan(eduCustomPlan.filter((_, i) => i !== idx));
-                          }
-                        }}
-                        className="text-slate-400 hover:text-rose-500 shrink-0 text-xs px-1 cursor-pointer transition-colors"
-                        title="حذف هذا المحور"
-                      >
-                        ✕
-                      </button>
+                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-950/20 p-3.5 space-y-3 shadow-2xs">
+                  {/* Status & Engine Badges */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-emerald-500/20">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-xs font-black text-slate-900 dark:text-white">
+                        نتيجة خطة البحث المعتمدة
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                        {eduCustomPlan.length} محاور
+                      </span>
                     </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (setEduCustomPlan) {
-                        setEduCustomPlan([
-                          ...eduCustomPlan,
-                          `المبحث ${eduCustomPlan.length}: محور إضافي مخصص`,
-                        ]);
-                      }
-                    }}
-                    className="w-full py-1 text-[10.5px] border border-dashed border-emerald-500/40 text-emerald-700 dark:text-emerald-400 rounded-lg font-bold hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all cursor-pointer"
-                  >
-                    + إضافة محور جديد للخطة
-                  </button>
+
+                    <div className="flex items-center gap-1.5">
+                      <span className="px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
+                        ⚡ {planProviderUsed || "محرك الذكاء الاصطناعي"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Methodology Summary Box */}
+                  {planSummary && (
+                    <div className="p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-emerald-500/20 text-[11px] text-slate-700 dark:text-slate-300 flex items-start gap-2 shadow-2xs">
+                      <span className="text-emerald-600 dark:text-emerald-400 font-bold shrink-0">💡 التوجيه المنهجي:</span>
+                      <p className="leading-relaxed font-medium">{planSummary}</p>
+                    </div>
+                  )}
+
+                  {/* Interactive Chapter List */}
+                  <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+                    {eduCustomPlan.map((heading, idx) => {
+                      const isIntro = idx === 0 || heading.includes("مقدمة");
+                      const isConclusion = idx === eduCustomPlan.length - 1 || heading.includes("خاتمة");
+                      const isRef = heading.includes("مراجع") || heading.includes("مصادر");
+                      const tag = isIntro ? "مقدمة" : isConclusion ? "خاتمة" : isRef ? "مراجع" : `مبحث ${idx}`;
+
+                      return (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] transition-all hover:border-emerald-500/40 shadow-2xs group"
+                        >
+                          <div className="flex items-center gap-1 shrink-0">
+                            <span className="w-5 h-5 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-mono font-black text-[10px] flex items-center justify-center">
+                              {idx + 1}
+                            </span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold">
+                              {tag}
+                            </span>
+                          </div>
+
+                          <input
+                            type="text"
+                            value={heading}
+                            onChange={(e) => {
+                              if (setEduCustomPlan) {
+                                const updated = [...eduCustomPlan];
+                                updated[idx] = e.target.value;
+                                setEduCustomPlan(updated);
+                              }
+                            }}
+                            className="flex-1 bg-transparent text-slate-800 dark:text-slate-200 outline-none focus:text-slate-950 dark:focus:text-white text-[11px] font-medium"
+                          />
+
+                          {/* Reorder Buttons */}
+                          <div className="flex items-center gap-0.5 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+                            {idx > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (setEduCustomPlan) {
+                                    const updated = [...eduCustomPlan];
+                                    const temp = updated[idx];
+                                    updated[idx] = updated[idx - 1];
+                                    updated[idx - 1] = temp;
+                                    setEduCustomPlan(updated);
+                                  }
+                                }}
+                                className="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 text-[10px] cursor-pointer"
+                                title="تحريك لأعلى"
+                              >
+                                ▲
+                              </button>
+                            )}
+                            {idx < eduCustomPlan.length - 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (setEduCustomPlan) {
+                                    const updated = [...eduCustomPlan];
+                                    const temp = updated[idx];
+                                    updated[idx] = updated[idx + 1];
+                                    updated[idx + 1] = temp;
+                                    setEduCustomPlan(updated);
+                                  }
+                                }}
+                                className="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 text-[10px] cursor-pointer"
+                                title="تحريك لأسفل"
+                              >
+                                ▼
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Delete Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (setEduCustomPlan && eduCustomPlan.length > 1) {
+                                setEduCustomPlan(eduCustomPlan.filter((_, i) => i !== idx));
+                              }
+                            }}
+                            className="text-slate-400 hover:text-rose-500 shrink-0 text-xs px-1 cursor-pointer transition-colors"
+                            title="حذف هذا المحور"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Actions Footer */}
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (setEduCustomPlan) {
+                          setEduCustomPlan([
+                            ...eduCustomPlan,
+                            `المبحث ${eduCustomPlan.length}: محور إضافي مخصص`,
+                          ]);
+                        }
+                      }}
+                      className="flex-1 py-1.5 text-[10.5px] border border-dashed border-emerald-500/40 text-emerald-700 dark:text-emerald-400 rounded-xl font-bold hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all cursor-pointer flex items-center justify-center gap-1"
+                    >
+                      <span>+</span>
+                      <span>إضافة محور جديد للخطة</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => generatePlanAsync && generatePlanAsync()}
+                      disabled={isGeneratingPlan}
+                      className="py-1.5 px-3 text-[10.5px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                    >
+                      <span>🔄</span>
+                      <span>إعادة التوليد</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
