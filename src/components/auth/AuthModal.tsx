@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/Modal";
 import { useAuth } from "@/contexts/AuthContext";
@@ -94,12 +95,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
 
     onClose();
     router.push("/dashboard");
-  };
-
-  const handleQuickFill = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setErrorMsg("");
   };
 
   return (
@@ -227,25 +222,22 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
               )}
             </button>
 
-            {/* Quick Demo Fill */}
+            {/* Quick Portal Navigation */}
             <div className="pt-3 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-[11px]">
-              <span className="text-slate-500 dark:text-slate-400">تجربة سريعة:</span>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleQuickFill("najah.kiosk@gmail.com", "Shop@2026!")}
-                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-400 font-bold cursor-pointer transition-colors"
-                >
-                  صاحب كشك
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickFill("admin@sahla.dz", "Admin@2026!")}
-                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-cyan-700 dark:text-cyan-400 font-bold cursor-pointer transition-colors"
-                >
-                  مدير المنصة
-                </button>
-              </div>
+              <Link
+                href="/admin"
+                onClick={onClose}
+                className="text-amber-600 dark:text-amber-400 font-bold hover:underline flex items-center gap-1"
+              >
+                <span>👑 لوحة تحكم مدير النظام</span>
+              </Link>
+              <Link
+                href="/dashboard"
+                onClick={onClose}
+                className="text-slate-500 dark:text-slate-400 hover:text-emerald-600 font-medium hover:underline flex items-center gap-1"
+              >
+                <span>معاينة كضيف ←</span>
+              </Link>
             </div>
           </form>
         ) : (

@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button as MuiButton } from "@mui/material";
-import { Mail, QrCode, AlertTriangle, CheckCircle2, Sparkles } from "lucide-react";
+import { Mail, QrCode, AlertTriangle, Sparkles, Crown, Compass } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LoginForm } from "./LoginForm";
 import { QrLoginScanner } from "./QrLoginScanner";
-import { DemoCredentialsBar } from "./DemoCredentialsBar";
+import { AuthStateMonitor } from "./AuthStateMonitor";
 import { AuthTrustSidebar } from "./AuthTrustSidebar";
 
 export function LoginClientView() {
@@ -24,7 +24,6 @@ export function LoginClientView() {
   const [rememberMe, setRememberMe] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [quickFillSuccess, setQuickFillSuccess] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,14 +58,6 @@ export function LoginClientView() {
     }
   };
 
-  const handleQuickFill = (demoEmail: string, demoPass: string, roleName: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setErrorMsg("");
-    setQuickFillSuccess(`تم ملء بيانات ${roleName} بنجاح`);
-    setTimeout(() => setQuickFillSuccess(null), 3000);
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-300 relative overflow-hidden antialiased">
       {/* Background Decorative Gradients */}
@@ -87,7 +78,17 @@ export function LoginClientView() {
           </div>
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          {/* Guest Tour Link */}
+          <Link
+            href="/dashboard"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/60 hover:bg-muted border border-border text-foreground text-xs font-bold transition-all hover:border-emerald-500/40"
+            title="التجول في الموقع واستكشاف الكاونتر كزائر"
+          >
+            <Compass size={14} className="text-emerald-500" />
+            <span>التجول في الموقع</span>
+          </Link>
+
           <ThemeToggle variant="icon" />
 
           <Link href="/register">
@@ -113,6 +114,9 @@ export function LoginClientView() {
       <div className="flex-1 flex flex-col lg:flex-row items-center justify-center p-4 sm:p-8 lg:p-12 z-10">
         {/* Right Column: Auth Card */}
         <div className="w-full max-w-md my-auto">
+          {/* 1. Live Auth State Monitor */}
+          <AuthStateMonitor />
+
           <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border shadow-2xl backdrop-blur-xl relative">
             <div className="text-center mb-6">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold mb-3 border border-emerald-500/20">
@@ -152,17 +156,11 @@ export function LoginClientView() {
               </button>
             </div>
 
-            {/* Error & Success Feedback */}
+            {/* Error Feedback */}
             {errorMsg && (
               <div className="mb-5 p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive flex items-center gap-2 text-xs font-bold">
                 <AlertTriangle size={16} className="shrink-0" />
                 <span>{errorMsg}</span>
-              </div>
-            )}
-            {quickFillSuccess && (
-              <div className="mb-5 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center gap-2 text-xs font-bold">
-                <CheckCircle2 size={16} className="shrink-0" />
-                <span>{quickFillSuccess}</span>
               </div>
             )}
 
@@ -180,12 +178,56 @@ export function LoginClientView() {
               />
             ) : (
               <QrLoginScanner
-                onSimulateScan={() => handleQuickFill("najah.kiosk@gmail.com", "Shop@2026!", "صاحب كشك")}
+                onSimulateScan={async () => {
+                  setIsSubmitting(true);
+                  try {
+                    const res = await loginWithEmail("najah.kiosk@gmail.com", "Shop@2026!");
+                    if (res.success) {
+                      router.push("/dashboard");
+                    } else {
+                      setErrorMsg("تعذر مسح رمز QR");
+                    }
+                  } finally {
+                    setIsSubmitting(false);
+                  }
+                }}
               />
             )}
 
-            {/* Quick Demo Credentials */}
-            <DemoCredentialsBar onSelect={handleQuickFill} />
+            {/* Direct Super Admin Access */}
+            <div className="mt-6 pt-5 border-t border-border">
+              <Link
+                href="/admin"
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/20 to-amber-500/10 hover:from-amber-500/20 hover:to-amber-500/30 border border-amber-500/30 text-amber-700 dark:text-amber-300 font-black text-xs sm:text-sm flex items-center justify-between transition-all group shadow-xs"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform">
+                    <Crown size={16} />
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold leading-tight">لوحة تحكم مدير النظام</div>
+                    <div className="text-[10px] text-muted-foreground font-normal">
+                      المنظومة المركزية لمتابعة 58 ولاية (Super Admin)
+                    </div>
+                  </div>
+                </div>
+                <span className="flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 group-hover:-translate-x-1 transition-transform">
+                  <span>دخول الإدارة</span>
+                  <span>←</span>
+                </span>
+              </Link>
+            </div>
+
+            {/* Guest Tour Platform Button */}
+            <div className="mt-3">
+              <Link
+                href="/dashboard"
+                className="w-full py-2.5 px-4 rounded-xl bg-muted/50 hover:bg-muted border border-border text-foreground hover:text-emerald-600 dark:hover:text-emerald-400 text-xs font-bold flex items-center justify-center gap-2 transition-all hover:border-emerald-500/40"
+              >
+                <Compass size={15} className="text-emerald-500" />
+                <span>التجول في الموقع واستكشاف الكاونتر كزائر</span>
+              </Link>
+            </div>
 
             <div className="text-center text-xs text-muted-foreground mt-6 font-cairo">
               ليس لديك حساب بعد؟{" "}
