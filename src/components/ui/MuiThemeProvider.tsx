@@ -8,6 +8,8 @@ import { prefixer } from "stylis";
 import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
 
+import { colors } from "@/lib/theme/colors";
+
 // Create rtl cache
 const cacheRtl = createCache({
   key: "muirtl",
@@ -22,18 +24,20 @@ export function MuiThemeProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
+  const isDark = resolvedTheme === "dark";
+
   const theme = useMemo(
     () =>
       createTheme({
         direction: "rtl",
         palette: {
-          mode: resolvedTheme === "dark" ? "dark" : "light",
+          mode: isDark ? "dark" : "light",
           primary: {
-            main: resolvedTheme === "dark" ? "#10b981" : "#059669", // emerald
+            main: isDark ? colors.semantic.dark.primary : colors.semantic.light.primary,
           },
           background: {
-            default: resolvedTheme === "dark" ? "#020617" : "#f8fafc",
-            paper: resolvedTheme === "dark" ? "#0f172a" : "#ffffff",
+            default: isDark ? colors.semantic.dark.background : colors.semantic.light.background,
+            paper: isDark ? colors.semantic.dark.paper : colors.semantic.light.paper,
           },
         },
         typography: {

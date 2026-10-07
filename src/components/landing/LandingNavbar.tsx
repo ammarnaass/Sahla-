@@ -1,170 +1,135 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { useTheme } from "@/components/ui/ThemeProvider";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Sun, Moon, Globe, ChevronDown, ArrowLeft } from "lucide-react";
+import { useTheme } from "next-themes";
+import {
+  AppBar,
+  Toolbar,
+  Container,
+  Box,
+  IconButton,
+  Button as MuiButton,
+} from "@mui/material";
+import { Sun, Moon } from "lucide-react";
+import { headerNavLinks } from "@/config/navigation";
+import { siteConfig } from "@/config/site";
 
-interface LandingNavbarProps {
-  onOpenAuth: (mode?: "login" | "register") => void;
-}
-
-export function LandingNavbar({ onOpenAuth }: LandingNavbarProps) {
-  const { theme, resolvedTheme, setTheme } = useTheme();
-  const { locale, setLocale, t } = useLanguage();
-  const { isLoggedIn, session } = useAuth();
-  const [langMenuOpen, setLangMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const currentTheme = mounted ? (resolvedTheme || theme || "dark") : "dark";
+export function LandingNavbar({ mounted }: { mounted: boolean }) {
+  const { theme, setTheme } = useTheme();
+  const currentTheme = mounted ? theme : "dark";
 
   return (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-background/85 border-b border-border transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
-        {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-emerald-950/20 group-hover:scale-105 transition-transform">
-            سـ
-          </div>
-          <div className="flex flex-col text-right">
-            <span className="text-xl font-extrabold text-foreground tracking-tight flex items-center gap-1.5 font-display">
-              <span>سهلة</span>
-              <Badge variant="primary" className="text-[10px] font-bold px-1.5 py-0">
-                Sahla
-              </Badge>
-            </span>
-            <span className="text-[10px] text-muted-foreground font-medium">
-              المنصة الرقمية للكيوسكات والمكتبات 🇩🇿
-            </span>
-          </div>
-        </Link>
-
-        {/* Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-          <Link
-            href="/pricing"
-            className="text-primary font-bold hover:text-primary/80 transition-colors"
-          >
-            باقات الاشتراك SaaS
-          </Link>
-          <a href="#how-it-works" className="hover:text-foreground transition-colors">
-            {t("landing.howItWorksTitle")}
-          </a>
-          <a href="#services" className="hover:text-foreground transition-colors">
-            {t("nav.services")}
-          </a>
-          <a href="#calculator" className="hover:text-foreground transition-colors">
-            {t("landing.calcTitle")}
-          </a>
-          <a href="#faq" className="hover:text-foreground transition-colors">
-            {t("landing.faqTitle")}
-          </a>
-        </nav>
-
-        {/* Right Actions: Lang Switcher, Theme Toggle, Auth CTA */}
-        <div className="flex items-center gap-2">
-          {/* Language Switcher */}
-          <div className="relative">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setLangMenuOpen(!langMenuOpen)}
-              className="h-9 px-2.5 text-xs font-bold gap-1 cursor-pointer"
-              aria-label="تبديل اللغة"
-            >
-              <Globe className="w-3.5 h-3.5 text-muted-foreground" />
-              <span>{locale === "ar" ? "عربي" : locale === "fr" ? "FR" : "EN"}</span>
-              <ChevronDown className="w-3 h-3 text-muted-foreground opacity-70" />
-            </Button>
-
-            {langMenuOpen && (
-              <div
-                className="absolute top-11 left-0 sm:right-0 sm:left-auto w-32 bg-popover text-popover-foreground border border-border rounded-xl shadow-xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
-                onClick={() => setLangMenuOpen(false)}
-              >
-                <button
-                  onClick={() => setLocale("ar")}
-                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-muted transition-colors cursor-pointer ${
-                    locale === "ar" ? "text-primary font-bold bg-primary/10" : ""
-                  }`}
-                >
-                  العربية (RTL)
-                </button>
-                <button
-                  onClick={() => setLocale("fr")}
-                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-muted transition-colors cursor-pointer ${
-                    locale === "fr" ? "text-primary font-bold bg-primary/10" : ""
-                  }`}
-                >
-                  Français (FR)
-                </button>
-                <button
-                  onClick={() => setLocale("en")}
-                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-muted transition-colors cursor-pointer ${
-                    locale === "en" ? "text-primary font-bold bg-primary/10" : ""
-                  }`}
-                >
-                  English (EN)
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Theme Toggle */}
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
-            className="w-9 h-9 rounded-xl cursor-pointer"
-            aria-label="تبديل الوضع الليلي والنهاري"
-          >
-            {currentTheme === "light" ? (
-              <Sun className="w-4 h-4 text-amber-500" />
-            ) : (
-              <Moon className="w-4 h-4 text-muted-foreground" />
-            )}
-          </Button>
-
-          {/* User Auth Buttons or Go to Dashboard */}
-          {isLoggedIn ? (
-            <Link href="/dashboard">
-              <Button size="sm" variant="primary" className="gap-1.5">
-                <span>{session?.shop?.name || t("nav.home")}</span>
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-            </Link>
-          ) : (
-            <div className="flex items-center gap-1.5">
-              <Link href="/login">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="hidden sm:inline-flex text-xs font-bold text-muted-foreground hover:text-foreground"
-                >
-                  {t("common.login")}
-                </Button>
-              </Link>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => onOpenAuth("register")}
-                className="shadow-sm text-xs font-bold"
-              >
-                {t("common.startFree")}
-              </Button>
+    <AppBar
+      position="sticky"
+      elevation={0}
+      sx={{
+        bgcolor: "background.default",
+        borderBottom: "1px solid",
+        borderColor: "divider",
+        backdropFilter: "blur(16px)",
+        backgroundColor:
+          currentTheme === "dark"
+            ? "rgba(2, 6, 23, 0.85)"
+            : "rgba(255, 255, 255, 0.85)",
+        zIndex: 50,
+      }}
+    >
+      <Container maxWidth="xl">
+        <Toolbar sx={{ justifyContent: "space-between", py: 1, px: { xs: 0, sm: 2 } }}>
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-emerald-900/25 group-hover:scale-105 transition-transform">
+              سـ
             </div>
-          )}
-        </div>
-      </div>
-    </header>
+            <div className="flex flex-col">
+              <span className="font-black text-lg text-foreground tracking-tight flex items-center gap-1.5 font-cairo">
+                {siteConfig.name}
+                <span className="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  {siteConfig.version}
+                </span>
+              </span>
+              <span className="text-xs text-muted-foreground font-medium">
+                {siteConfig.description}
+              </span>
+            </div>
+          </Link>
+
+          {/* Navigation Links */}
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
+            {headerNavLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className={`transition-colors hover:text-foreground ${
+                  link.highlight
+                    ? "text-emerald-600 dark:text-emerald-400 font-bold"
+                    : ""
+                }`}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          {/* Action Buttons */}
+          <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
+            <IconButton
+              onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
+              aria-label="تبديل المظهر"
+              sx={{
+                color: "text.primary",
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: "10px",
+                p: 1,
+              }}
+            >
+              {currentTheme === "dark" ? (
+                <Sun size={18} className="text-amber-400" />
+              ) : (
+                <Moon size={18} className="text-slate-600" />
+              )}
+            </IconButton>
+
+            <Link href="/login">
+              <MuiButton
+                variant="outlined"
+                sx={{
+                  borderRadius: "10px",
+                  fontWeight: 700,
+                  px: 2.5,
+                  py: 0.8,
+                  fontSize: "0.875rem",
+                  borderColor: "divider",
+                  color: "text.primary",
+                  "&:hover": { borderColor: "primary.main", bgcolor: "action.hover" },
+                }}
+              >
+                دخول المحل
+              </MuiButton>
+            </Link>
+
+            <Link href="/register" className="hidden sm:inline-block">
+              <MuiButton
+                variant="contained"
+                disableElevation
+                sx={{
+                  borderRadius: "10px",
+                  fontWeight: 700,
+                  px: 2.5,
+                  py: 0.8,
+                  fontSize: "0.875rem",
+                  bgcolor: "#10b981",
+                  "&:hover": { bgcolor: "#059669" },
+                }}
+              >
+                افتح حساباً مجاناً
+              </MuiButton>
+            </Link>
+          </Box>
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }
-

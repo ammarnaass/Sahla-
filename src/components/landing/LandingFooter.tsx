@@ -2,86 +2,72 @@
 
 import React from "react";
 import Link from "next/link";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { PhoneIcon, ShieldCheckIcon } from "@/components/ui/Icons";
+import { Container } from "@mui/material";
+import { siteConfig } from "@/config/site";
+import { footerQuickLinks, footerLegalLinks } from "@/config/navigation";
 
 export function LandingFooter() {
-  const { t } = useLanguage();
-
   return (
-    <footer className="border-t border-slate-200 dark:border-slate-800/80 bg-slate-100/90 dark:bg-slate-950 text-slate-600 dark:text-slate-400 py-12 text-sm transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="py-12 border-t border-border bg-card text-muted-foreground text-sm font-cairo">
+      <Container maxWidth="lg">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-          {/* Col 1: Brand & Bio */}
-          <div className="md:col-span-2 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white font-extrabold text-lg shadow-md shadow-emerald-500/20">
+          {/* Brand Info */}
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-black">
                 سـ
               </div>
-              <span className="text-xl font-black text-slate-900 dark:text-white">سهلة · Sahla</span>
+              <span className="font-black text-foreground text-lg">{siteConfig.name}</span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-md leading-relaxed">
-              المنصة الرقمية المتكاملة لتمكين أصحاب الكيوسكات، المكتبات ومقاهي الإنترنت في مختلف ولايات الجزائر من إنجاز وثائق احترافية لزبائنهم في دقائق معدودة.
+            <p className="text-xs text-muted-foreground max-w-sm leading-relaxed">
+              المنصة الوطنية الرائدة لرقمنة الأكشاك ومراكز الطباعة في الجزائر. نربط أصحاب المحلات بحلول سحابية ذكية ترفع الإنتاجية وتحمي البيانات.
             </p>
-            <div className="flex items-center gap-3 text-xs text-emerald-700 dark:text-emerald-400 font-semibold">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 dark:bg-emerald-950/60 border border-emerald-500/20 dark:border-emerald-800/50">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
-                <span>الخدمة شغالة ومتاحة في 58 ولاية جزائرية</span>
-              </span>
-            </div>
           </div>
 
-          {/* Col 2: Legal & Laws */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-              <ShieldCheckIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>الإطار القانوني</span>
-            </h4>
+          {/* Quick Links */}
+          <div>
+            <h4 className="font-bold text-foreground text-sm mb-3">روابط سريعة</h4>
             <ul className="space-y-2 text-xs">
-              <li>
-                <span className="text-slate-800 dark:text-slate-200 font-medium">قانون رقم 18-07:</span> حماية الأشخاص الطبيعيين في معالجة المعطيات ذات الطابع الشخصي.
-              </li>
-              <li>
-                <span className="text-slate-800 dark:text-slate-200 font-medium">قانون رقم 18-05:</span> التجارة الإلكترونية والدفع الإلكتروني المعتمد.
-              </li>
-              <li>
-                <Link href="/privacy" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-                  سياسة الخصوصية وحماية البيانات
-                </Link>
-              </li>
+              {footerQuickLinks.map((link) => (
+                <li key={link.href}>
+                  <a href={link.href} className="hover:text-foreground transition-colors">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Col 3: Support & Contact */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">المساعدة والدعم</h4>
-            <div className="space-y-2.5 text-xs">
-              <a
-                href="https://wa.me/213555000000"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 font-bold hover:bg-emerald-500/20 transition-colors cursor-pointer"
-              >
-                <PhoneIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>تواصل معنا عبر واتساب</span>
-              </a>
-              <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
-                فريق الدعم الفني متواجد لمساعدتك طيلة أيام الأسبوع من 08:00 إلى 20:00.
-              </p>
-            </div>
+          {/* Legal & Support */}
+          <div>
+            <h4 className="font-bold text-foreground text-sm mb-3">الدعم القانوني</h4>
+            <ul className="space-y-2 text-xs">
+              {footerLegalLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="hover:text-foreground transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                  هاتف الدعم: {siteConfig.supportPhone}
+                </span>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-8 border-t border-slate-200 dark:border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
-          <div>
-            © {new Date().getFullYear()} سهلة · Sahla. {t("landing.footerNotice")}
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-slate-500 dark:text-slate-400">صنع بكل فخر لأصحاب المحلات في الجزائر 🇩🇿</span>
-          </div>
+        {/* Bottom Rights */}
+        <div className="pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between text-xs text-muted-foreground gap-4">
+          <p>
+            © {new Date().getFullYear()} {siteConfig.name}. جميع الحقوق محفوظة لجمهورية الجزائر الديمقراطية الشعبية 🇩🇿
+          </p>
+          <p className="flex items-center gap-1">
+            صُنع بكل فخر لدعم أصحاب المشاريع الصغيرة في الجزائر 🇩🇿
+          </p>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }
