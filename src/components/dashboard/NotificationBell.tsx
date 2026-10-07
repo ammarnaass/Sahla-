@@ -79,8 +79,21 @@ export function NotificationBell() {
           />
 
           <div
-            className="absolute top-12 left-0 sm:left-auto sm:right-0 w-84 sm:w-96 max-w-[92vw] bg-card border border-border rounded-2xl shadow-2xl p-3.5 z-50 animate-in fade-in zoom-in-95 duration-150 text-right space-y-2.5"
+            dir="rtl"
+            className="
+              fixed inset-x-3 top-18 z-50 
+              sm:absolute sm:top-13 sm:inset-x-auto sm:left-0 sm:right-auto 
+              w-auto sm:w-[390px] max-w-[calc(100vw-1.5rem)]
+              bg-card/95 backdrop-blur-2xl border border-border 
+              rounded-2xl shadow-2xl p-3.5 
+              animate-in fade-in zoom-in-95 duration-150 text-right 
+              flex flex-col max-h-[calc(100vh-5.5rem)] sm:max-h-[580px]
+              space-y-2.5 ring-1 ring-border/50
+            "
           >
+            {/* Caret pointing directly under the Bell button on sm screens */}
+            <div className="hidden sm:block absolute -top-1.5 left-4.5 w-3 h-3 bg-card border-t border-l border-border rotate-45 pointer-events-none z-10" />
+
             {/* Header */}
             <div className="flex items-center justify-between pb-2 border-b border-border">
               <div className="flex items-center gap-2">
@@ -142,7 +155,7 @@ export function NotificationBell() {
             </div>
 
             {/* List */}
-            <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+            <div className="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0 max-h-72 sm:max-h-80 custom-scrollbar">
               {filteredNotifications.length === 0 ? (
                 <div className="py-8 text-center text-xs text-muted-foreground">
                   <p>لا توجد إشعارات حالياً في هذا القسم.</p>
