@@ -1,207 +1,60 @@
-# Design System Master File
-
-> **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
-> If that file exists, its rules **override** this Master file.
-> If not, strictly follow the rules below.
+# Sahla Design System Master Specification · Sahla 2.0
+> **منظومة التصميم المعتمدة · سهلة · الجزائر 🇩🇿**
+> **Current Version:** 2.0.4 (Tailwind CSS v4 + Shadcn/UI + MUI RTL)
 
 ---
 
-**Project:** Sahla
-**Generated:** 2026-10-05 16:07:02
-**Category:** SaaS (General)
+## 1. الهوية البصرية وفلسفة التصميم (Visual Identity & Philosophy)
+- **Brand Essence:** منصة ذكية لخدمات الطباعة والمعاملات الإدارية والتعليمية لأكشاك ومكتبات الجزائر الـ 58 ولاية.
+- **Visual Style:** Glassmorphic Modern Luxury (زجاجي نظيف، عالي التباين، احترافي، مريح للعين في ساعات العمل الطويلة).
+- **RTL-First:** تخطيط عربي بالكامل مع دعم لغات متعددة ومحاذاة رقمية دقيقة (`font-mono` للدينار الجزائري والأرقام).
 
 ---
 
-## Global Rules
+## 2. باليت الألوان الرسمية (Color Palette & Semantic Tokens)
 
-### Color Palette
-
-| Role | Hex | CSS Variable |
-|------|-----|--------------|
-| Primary | `#F59E0B` | `--color-primary` |
-| On Primary | `#0F172A` | `--color-on-primary` |
-| Secondary | `#FBBF24` | `--color-secondary` |
-| Accent/CTA | `#8B5CF6` | `--color-accent` |
-| Background | `#0F172A` | `--color-background` |
-| Foreground | `#F8FAFC` | `--color-foreground` |
-| Muted | `#272F42` | `--color-muted` |
-| Border | `#334155` | `--color-border` |
-| Destructive | `#EF4444` | `--color-destructive` |
-| Ring | `#F59E0B` | `--color-ring` |
-
-**Color Notes:** Gold trust + purple tech
-
-### Typography
-
-- **Heading Font:** EB Garamond
-- **Body Font:** Lato
-- **Mood:** legal, professional, traditional, trustworthy, formal, authoritative
-- **Google Fonts:** [EB Garamond + Lato](https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap)
-
-**CSS Import:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap');
-```
-
-### Spacing Variables
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-xs` | `4px` / `0.25rem` | Tight gaps |
-| `--space-sm` | `8px` / `0.5rem` | Icon gaps, inline spacing |
-| `--space-md` | `16px` / `1rem` | Standard padding |
-| `--space-lg` | `24px` / `1.5rem` | Section padding |
-| `--space-xl` | `32px` / `2rem` | Large gaps |
-| `--space-2xl` | `48px` / `3rem` | Section margins |
-| `--space-3xl` | `64px` / `4rem` | Hero padding |
-
-### Shadow Depths
-
-| Level | Value | Usage |
-|-------|-------|-------|
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle lift |
-| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Cards, buttons |
-| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, dropdowns |
-| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
+### الألوان الأساسية المعتمدة (Brand Colors)
+| الرمز / الدور | كود الوضع الفاتح (Light) | كود الوضع المظلم (Dark) | متغير CSS |
+|--------------|-------------------------|------------------------|-----------|
+| **Primary (الزمردي)** | `#059669` (Emerald 600) | `#10b981` (Emerald 500) | `--primary` |
+| **Primary Hover** | `#047857` (Emerald 700) | `#059669` (Emerald 600) | `--color-primary-hover` |
+| **Background** | `#f8fafc` (Slate 50) | `#080c14` (Deep OLED) | `--background` |
+| **Card / Paper** | `#ffffff` (Pure White) | `#0f172a` (Slate 900) | `--card` |
+| **Border** | `#e2e8f0` (Slate 200) | `#1e293b` (Slate 800) | `--border` |
+| **Text Primary** | `#0f172a` (Slate 900) | `#f8fafc` (Slate 50) | `--foreground` |
+| **Text Muted** | `#475569` (Slate 600) | `#94a3b8` (Slate 400) | `--muted-foreground` |
+| **Accent / Warning** | `#d97706` (Amber 600) | `#f59e0b` (Amber 500) | `--accent` |
+| **Destructive** | `#ef4444` (Red 500) | `#dc2626` (Red 600) | `--destructive` |
 
 ---
 
-## Component Specs
-
-### Buttons
-
-```css
-/* Primary Button */
-.btn-primary {
-  background: #8B5CF6;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/* Secondary Button */
-.btn-secondary {
-  background: transparent;
-  color: #F59E0B;
-  border: 2px solid #F59E0B;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-```
-
-### Cards
-
-```css
-.card {
-  background: #0F172A;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-```
-
-### Inputs
-
-```css
-.input {
-  padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 200ms ease;
-}
-
-.input:focus {
-  border-color: #F59E0B;
-  outline: none;
-  box-shadow: 0 0 0 3px #F59E0B20;
-}
-```
-
-### Modals
-
-```css
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
-}
-```
+## 3. معمارية الطبقات المنظمة (5-Layer Modular Architecture)
+يتم تنظيم جميع الأنماط تحت مسار `src/styles/` عبر التقسيم التالي:
+1. **Layer 0 (Tokens):** `palette.css`, `typography.css`, `elevation.css`, `motion.css`
+2. **Layer 1 (Base):** `resets.css`, `a11y.css`
+3. **Layer 2 (Surfaces):** `canvas.css`, `glass.css`, `bezel.css`
+4. **Layer 3 (Components):** `buttons.css`, `navigation.css`, `badges.css`
+5. **Layer 4 (Feedback):** `skeletons.css`, `toasts.css`, `animations.css`
 
 ---
 
-## Style Guidelines
-
-**Style:** Flat Design
-
-**Keywords:** 2D, minimalist, bold colors, no shadows, clean lines, simple shapes, typography-focused, modern, icon-heavy
-
-**Best For:** Web apps, mobile apps, cross-platform, startup MVPs, user-friendly, SaaS, dashboards, corporate
-
-**Key Effects:** No gradients/shadows, simple hover (color/opacity shift), fast loading, clean transitions (150-200ms ease), minimal icons
-
-### Page Pattern
-
-**Pattern Name:** Hero + Features + CTA
-
-- **CTA Placement:** Above fold
-- **Section Order:** Hero > Features > CTA
+## 4. الخطوط والطباعة (Typography Hierarchy)
+- **العناوين والنصوص العربية الأساسية:** `Cairo` (`--font-cairo`, `font-cairo`)
+- **القراءات والأوصاف الطويلة:** `Tajawal` (`--font-tajawal`, `font-tajawal`)
+- **الأرقام والعملات (دج) والأكواد:** `font-mono` (Fira Code / ui-monospace)
+- **الأحرف اللاتينية المساعدة:** `Outfit` (`--font-family-en`)
 
 ---
 
-## Anti-Patterns (Do NOT Use)
-
-- ❌ Excessive animation
-- ❌ Dark mode by default
-
-### Additional Forbidden Patterns
-
-- ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
-- ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
-- ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout
-- ❌ **Low contrast text** — Maintain 4.5:1 minimum contrast ratio
-- ❌ **Instant state changes** — Always use transitions (150-300ms)
-- ❌ **Invisible focus states** — Focus states must be visible for a11y
+## 5. هرمية الحواف المستديرة (Border-Radius Hierarchy)
+- **الأزرار وحقول الإدخال القياسية:** `rounded-xl` (`12px` / `0.75rem`)
+- **البطاقات واللوحات (Cards & Modals):** `rounded-2xl` (`16px` / `1rem`)
+- **شارات Eyebrow والحبوب (Pills):** `rounded-full`
+- **الحاويات الكبرى والقوائم:** `rounded-2xl` (تجنب `rounded-3xl` العشوائي لضمان التناسق)
 
 ---
 
-## Pre-Delivery Checklist
-
-Before delivering any UI code, verify:
-
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
-- [ ] `cursor-pointer` on all clickable elements
-- [ ] Hover states with smooth transitions (150-300ms)
-- [ ] Light mode: text contrast 4.5:1 minimum
-- [ ] Focus states visible for keyboard navigation
-- [ ] `prefers-reduced-motion` respected
-- [ ] Responsive: 375px, 768px, 1024px, 1440px
-- [ ] No content hidden behind fixed navbars
-- [ ] No horizontal scroll on mobile
+## 6. قواعد التباين وإمكانية الوصول (Accessibility & WCAG 2.1)
+- الحد الأدنى لنسبة تباين النصوص العادية هو **4.5:1** وفي العناوين الكبيرة **3:1**.
+- لا يُسمح باستخدام `text-emerald-400` بمفرده في الوضع الفاتح؛ يجب دائماً إقرانه بصيغة التباين: `text-emerald-700 dark:text-emerald-400` أو `text-emerald-600 dark:text-emerald-400`.
+- يُمنع تمرير ألوان هكس مجردة (`#10b981`) داخل خصائص `sx` لـ Material-UI؛ بل تُستخدم مراجع الثيم الموحدة (`bgcolor: "primary.main"`, `"&:hover": { bgcolor: "primary.dark" }`).

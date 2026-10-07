@@ -26,7 +26,7 @@ export function DocumentsHeader({ onOpenStudio, printSuccessNotice }: DocumentsH
           <Button
             variant="ghost"
             onClick={() => onOpenStudio("SCHOOL_RESEARCH")}
-            className="text-xs bg-slate-900 border border-slate-800 text-emerald-400 hover:text-white py-2.5 px-3 flex items-center gap-1.5"
+            className="text-xs bg-card border border-border text-emerald-600 dark:text-emerald-400 hover:text-primary py-2.5 px-3 flex items-center gap-1.5"
           >
             <span>🎓</span>
             <span>مكتبة الامتحانات والبحوث</span>

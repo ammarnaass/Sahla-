@@ -8,7 +8,7 @@ interface WalletBalanceWidgetProps {
 
 export function WalletBalanceWidget({ points }: WalletBalanceWidgetProps) {
   return (
-    <div className="lg:col-span-1 p-6 rounded-3xl bg-gradient-to-br from-emerald-50 via-white to-slate-50 dark:from-emerald-950/50 dark:via-slate-900 dark:to-slate-900 border border-emerald-500/30 dark:border-emerald-500/40 relative overflow-hidden shadow-xl flex flex-col justify-between transition-colors">
+    <div className="lg:col-span-1 p-6 rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-slate-50 dark:from-emerald-950/50 dark:via-slate-900 dark:to-slate-900 border border-emerald-500/30 dark:border-emerald-500/40 relative overflow-hidden shadow-xl flex flex-col justify-between transition-colors">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold">

@@ -60,7 +60,7 @@ export function SidebarNavLinks({
       category: "core",
       shortcut: "⌘2",
       badge: "جديد",
-      icon: <SparklesIcon size={16} className="text-emerald-400" />,
+      icon: <SparklesIcon size={16} className="text-emerald-600 dark:text-emerald-400" />,
     },
     {
       id: "documents",

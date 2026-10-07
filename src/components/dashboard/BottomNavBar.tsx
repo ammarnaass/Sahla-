@@ -68,7 +68,7 @@ export function BottomNavBar({ activeTab = "overview", onSelectTab }: BottomNavB
   });
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 md:hidden safe-bottom">
+    <nav className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-md border-t border-border md:hidden safe-bottom">
       <div className="flex items-center justify-around h-16 px-2">
         {visibleNavItems.map((item) => {
           const isActive = activeTab === item.id;
@@ -78,7 +78,7 @@ export function BottomNavBar({ activeTab = "overview", onSelectTab }: BottomNavB
               type="button"
               onClick={() => onSelectTab && onSelectTab(item.id)}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 transition-colors select-none ${
-                isActive ? "text-emerald-400 font-bold" : "text-slate-400 hover:text-slate-200"
+                isActive ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <span className="shrink-0">{item.icon}</span>

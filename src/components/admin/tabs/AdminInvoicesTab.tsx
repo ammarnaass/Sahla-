@@ -32,11 +32,11 @@ export function AdminInvoicesTab({
 
   const totalPaidDZD = invoices
     .filter((i) => i.status === "PAID")
-    .reduce((sum, i) => sum + i.totalAmountDZD, 0);
+    .reduce((sum, i) => sum + (i.totalAmountDZD || 0), 0);
 
   const totalPendingDZD = invoices
     .filter((i) => i.status === "PENDING")
-    .reduce((sum, i) => sum + i.totalAmountDZD, 0);
+    .reduce((sum, i) => sum + (i.totalAmountDZD || 0), 0);
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -85,8 +85,8 @@ export function AdminInvoicesTab({
               mt: 2,
               borderRadius: "10px",
               fontWeight: 700,
-              bgcolor: "#10b981",
-              "&:hover": { bgcolor: "#059669" },
+              bgcolor: "primary.main",
+              "&:hover": { bgcolor: "primary.dark" },
             }}
           >
             إصدار فاتورة جديدة +
@@ -174,7 +174,7 @@ export function AdminInvoicesTab({
                       {inv.wilaya}
                     </td>
                     <td className="py-3.5 px-4 font-mono font-black text-sm text-foreground">
-                      {inv.totalAmountDZD.toLocaleString()} دج
+                      {(inv.totalAmountDZD ?? 0).toLocaleString()} دج
                     </td>
                     <td className="py-3.5 px-4">
                       <span className="font-mono text-[11px] text-muted-foreground px-2 py-0.5 rounded-md bg-muted border border-border">

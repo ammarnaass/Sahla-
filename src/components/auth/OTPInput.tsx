@@ -117,7 +117,7 @@ export function OTPInput({
 
       {/* Demo helper badge for immediate testing */}
       {demoCode && (
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-mono">
           <span>💡 رمز التجربة السريع:</span>
           <button
             type="button"
@@ -125,7 +125,7 @@ export function OTPInput({
               onChange(demoCode);
               onComplete(demoCode);
             }}
-            className="underline font-bold hover:text-emerald-300"
+            className="underline font-bold hover:text-emerald-600 dark:hover:text-emerald-300"
           >
             {demoCode} (اضغط للتعبئة)
           </button>
@@ -147,17 +147,17 @@ export function OTPInput({
             value={digit}
             onChange={(e) => handleDigitChange(idx, e.target.value)}
             onKeyDown={(e) => handleKeyDown(idx, e)}
-            className="w-11 h-14 sm:w-12 sm:h-16 text-center text-xl sm:text-2xl font-black rounded-xl bg-slate-900 border border-slate-800 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 focus:outline-none transition-all disabled:opacity-50 font-mono"
+            className="w-11 h-14 sm:w-12 sm:h-16 text-center text-xl sm:text-2xl font-black rounded-xl bg-card border border-border text-foreground focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 focus:outline-none transition-all disabled:opacity-50 font-mono"
           />
         ))}
       </div>
 
       {/* Error or attempts remaining */}
       {error && (
-        <div className="text-xs font-bold text-red-400 bg-red-500/10 p-2.5 rounded-xl border border-red-500/20">
+        <div className="text-xs font-bold text-red-500 dark:text-red-400 bg-red-500/10 p-2.5 rounded-xl border border-red-500/20">
           ⚠️ {error}
           {remainingAttempts !== undefined && remainingAttempts > 0 && (
-            <span className="block mt-1 text-[11px] text-red-300">
+            <span className="block mt-1 text-[11px] text-red-600 dark:text-red-300">
               تبقّت لك {remainingAttempts} محاولات قبل القفل المؤقت.
             </span>
           )}
@@ -165,11 +165,11 @@ export function OTPInput({
       )}
 
       {/* Resend Timer & Choices */}
-      <div className="pt-2 text-xs text-slate-400 flex flex-col items-center gap-2">
+      <div className="pt-2 text-xs text-muted-foreground flex flex-col items-center gap-2">
         {!canResend ? (
           <p>
             يمكنك طلب رمز جديد بعد:{" "}
-            <span className="font-bold text-emerald-400 font-mono">{timer} ثانية</span>
+            <span className="font-bold text-emerald-700 dark:text-emerald-400 font-mono">{timer} ثانية</span>
           </p>
         ) : (
           <button
@@ -179,7 +179,7 @@ export function OTPInput({
               setTimer(60);
               setCanResend(false);
             }}
-            className="text-emerald-400 font-bold hover:underline"
+            className="text-emerald-700 dark:text-emerald-400 font-bold hover:underline"
           >
             إعادة إرسال الرمز عبر رسالة SMS ↺
           </button>

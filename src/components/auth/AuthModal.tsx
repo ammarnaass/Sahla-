@@ -110,12 +110,12 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
         <div className="flex items-center gap-2">
           {mode === "login" ? (
             <>
-              <LockIcon className="w-5 h-5 text-emerald-400" />
+              <LockIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               <span>تسجيل الدخول إلى المحل</span>
             </>
           ) : (
             <>
-              <SparklesIcon className="w-5 h-5 text-emerald-400" />
+              <SparklesIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               <span>فتح حساب محل جديد (50 نقطة هدية)</span>
             </>
           )}

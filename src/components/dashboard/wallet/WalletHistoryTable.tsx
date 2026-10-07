@@ -9,7 +9,7 @@ interface WalletHistoryTableProps {
 
 export function WalletHistoryTable({ ledger }: WalletHistoryTableProps) {
   return (
-    <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl transition-colors">
+    <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl transition-colors">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-base font-extrabold text-slate-900 dark:text-white">سجل حركات الرصيد (Ledger) 📜</h3>

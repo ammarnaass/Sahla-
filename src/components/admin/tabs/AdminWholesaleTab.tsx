@@ -135,8 +135,8 @@ export function AdminWholesaleTab({
                 px: 4,
                 fontWeight: 800,
                 fontSize: "0.95rem",
-                bgcolor: "#10b981",
-                "&:hover": { bgcolor: "#059669" },
+                bgcolor: "primary.main",
+                "&:hover": { bgcolor: "primary.dark" },
               }}
             >
               {isGenerating ? "جاري التوليد والتشفير..." : "توليد الدفعة فورياً ⚡"}

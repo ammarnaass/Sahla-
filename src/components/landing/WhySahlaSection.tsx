@@ -9,25 +9,25 @@ export function WhySahlaSection() {
 
   const benefits = [
     {
-      icon: <SparklesIcon size={24} className="text-emerald-400" />,
+      icon: <SparklesIcon size={24} className="text-emerald-600 dark:text-emerald-400" />,
       title: t("landing.why1Title"),
       desc: t("landing.why1Desc"),
       stat: "0 دج اشتراك شهري",
     },
     {
-      icon: <ShieldCheckIcon size={24} className="text-teal-400" />,
+      icon: <ShieldCheckIcon size={24} className="text-teal-600 dark:text-teal-400" />,
       title: t("landing.why2Title"),
       desc: t("landing.why2Desc"),
       stat: "100% جزائري ومطابق",
     },
     {
-      icon: <BoltIcon size={24} className="text-amber-400" />,
+      icon: <BoltIcon size={24} className="text-amber-600 dark:text-amber-400" />,
       title: t("landing.why3Title"),
       desc: t("landing.why3Desc"),
       stat: "< 800KB فائق السرعة",
     },
     {
-      icon: <CustomersIcon size={24} className="text-cyan-400" />,
+      icon: <CustomersIcon size={24} className="text-cyan-600 dark:text-cyan-400" />,
       title: t("landing.why4Title"),
       desc: t("landing.why4Desc"),
       stat: "عربي · فرنسي · إنجليزي",
@@ -53,7 +53,7 @@ export function WhySahlaSection() {
           {benefits.map((b, idx) => (
             <div
               key={idx}
-              className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 transition-all duration-200 flex flex-col justify-between group shadow-sm hover:shadow-xl hover:-translate-y-1"
+              className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 transition-all duration-200 flex flex-col justify-between group shadow-sm hover:shadow-xl hover:-translate-y-1"
             >
               <div>
                 <div className="w-13 h-13 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">

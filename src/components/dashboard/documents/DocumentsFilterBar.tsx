@@ -24,7 +24,7 @@ export function DocumentsFilterBar({
   onFilterChange,
 }: DocumentsFilterBarProps) {
   return (
-    <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 shadow-lg transition-colors">
+    <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 shadow-lg transition-colors">
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         {/* Search Input */}
         <div className="w-full sm:max-w-xs relative">

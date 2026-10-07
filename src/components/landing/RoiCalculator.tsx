@@ -50,13 +50,14 @@ export function RoiCalculator() {
               max={500}
               step={10}
               sx={{
-                color: "#10b981",
+                color: "primary.main",
                 height: 8,
                 "& .MuiSlider-thumb": {
                   width: 24,
                   height: 24,
-                  backgroundColor: "#fff",
-                  border: "3px solid #10b981",
+                  backgroundColor: "background.paper",
+                  border: "3px solid",
+                  borderColor: "primary.main",
                 },
               }}
             />
@@ -99,8 +100,8 @@ export function RoiCalculator() {
                   px: 5,
                   py: 1.4,
                   fontWeight: 800,
-                  bgcolor: "#10b981",
-                  "&:hover": { bgcolor: "#059669" },
+                  bgcolor: "primary.main",
+                  "&:hover": { bgcolor: "primary.dark" },
                 }}
               >
                 ابدأ في زيادة مداخيلك اليوم

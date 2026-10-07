@@ -76,8 +76,8 @@ export function AdminHeader({ onOpenBroadcast }: AdminHeaderProps) {
               borderRadius: "10px",
               fontWeight: 700,
               fontSize: "0.8rem",
-              bgcolor: "#10b981",
-              "&:hover": { bgcolor: "#059669" },
+              bgcolor: "primary.main",
+              "&:hover": { bgcolor: "primary.dark" },
             }}
           >
             الرئيسية

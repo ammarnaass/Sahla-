@@ -172,7 +172,7 @@ export function CreateInvoiceModal({
               size="small"
               disabled={isSubmitting}
               disableElevation
-              sx={{ borderRadius: "10px", fontWeight: 700, bgcolor: "#10b981", "&:hover": { bgcolor: "#059669" } }}
+              sx={{ borderRadius: "10px", fontWeight: 700, bgcolor: "primary.main", "&:hover": { bgcolor: "primary.dark" } }}
             >
               {isSubmitting ? "جاري الإصدار..." : "إصدار الفاتورة الرسمية ✓"}
             </MuiButton>

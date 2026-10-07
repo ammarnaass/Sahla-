@@ -34,11 +34,19 @@ export function MuiThemeProvider({ children }: { children: React.ReactNode }) {
           mode: isDark ? "dark" : "light",
           primary: {
             main: isDark ? colors.semantic.dark.primary : colors.semantic.light.primary,
+            dark: isDark ? colors.semantic.dark.primaryHover : colors.semantic.light.primaryHover,
+            light: isDark ? colors.emerald[400] : colors.emerald[600],
+            contrastText: "#ffffff",
           },
           background: {
             default: isDark ? colors.semantic.dark.background : colors.semantic.light.background,
             paper: isDark ? colors.semantic.dark.paper : colors.semantic.light.paper,
           },
+          text: {
+            primary: isDark ? colors.semantic.dark.textPrimary : colors.semantic.light.textPrimary,
+            secondary: isDark ? colors.semantic.dark.textSecondary : colors.semantic.light.textSecondary,
+          },
+          divider: isDark ? colors.semantic.dark.border : colors.semantic.light.border,
         },
         typography: {
           fontFamily: "inherit",

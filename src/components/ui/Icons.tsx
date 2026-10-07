@@ -307,7 +307,7 @@ export function RefreshCwIcon({ size = 20, className = "", ...props }: IconProps
 /**
  * Service Code to Icon Mapping Helper
  */
-export function getServiceIcon(code: string, size: number | string = 24, className = "text-emerald-400") {
+export function getServiceIcon(code: string, size: number | string = 24, className = "text-emerald-600 dark:text-emerald-400") {
   switch (code) {
     case "CV_GEN":
       return <DocCvIcon size={size} className={className} />;

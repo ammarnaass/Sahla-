@@ -23,7 +23,7 @@ export function WirelessPrintBridge({
   onTestPrint,
 }: WirelessPrintBridgeProps) {
   return (
-    <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6 transition-colors">
+    <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6 transition-colors">
       <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h3 className="text-base font-extrabold text-slate-900 dark:text-white">

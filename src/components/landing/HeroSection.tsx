@@ -50,8 +50,8 @@ export function HeroSection() {
                 fontSize: "1.05rem",
                 fontWeight: 800,
                 width: { xs: "100%", sm: "auto" },
-                bgcolor: "#10b981",
-                "&:hover": { bgcolor: "#059669" },
+                bgcolor: "primary.main",
+                "&:hover": { bgcolor: "primary.dark" },
                 boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)",
               }}
             >

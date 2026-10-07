@@ -19,7 +19,7 @@ export function AdminShopsTable({
   onToggleStatus,
 }: AdminShopsTableProps) {
   return (
-    <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-4 transition-colors">
+    <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-4 transition-colors">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 className="text-base font-extrabold text-slate-900 dark:text-white">دليل المحلات والكيوسكات المعتمدة</h3>

@@ -27,7 +27,7 @@ export const ConformanceReportModal: React.FC<ConformanceReportModalProps> = ({
         {/* Header */}
         <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
               <ShieldCheckIcon size={18} />
             </div>
             <div>
@@ -58,7 +58,7 @@ export const ConformanceReportModal: React.FC<ConformanceReportModalProps> = ({
         <div className="p-4 bg-gradient-to-r from-emerald-950/30 via-slate-900 to-slate-950 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="text-center">
-              <div className="text-2xl font-black font-mono text-emerald-400">
+              <div className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400">
                 {scorePct}%
               </div>
               <span className="text-[10px] text-slate-400">درجة المطابقة</span>
@@ -71,7 +71,7 @@ export const ConformanceReportModal: React.FC<ConformanceReportModalProps> = ({
                 محاولات التحقق والإصلاح: <span className="font-bold text-white">{report.attempts}</span>
               </div>
               <div className="text-[11px] text-slate-400">
-                حد النجاح المعتمد: <span className="text-emerald-400 font-mono">≥ 85%</span> بدون أخطاء حرجة
+                حد النجاح المعتمد: <span className="text-emerald-600 dark:text-emerald-400 font-mono">≥ 85%</span> بدون أخطاء حرجة
               </div>
             </div>
           </div>
@@ -126,7 +126,7 @@ export const ConformanceReportModal: React.FC<ConformanceReportModalProps> = ({
               {/* Status Badge */}
               <div>
                 {check.status === "ok" && (
-                  <span className="flex items-center gap-1 text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full font-bold">
+                  <span className="flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full font-bold">
                     <CheckCircleIcon size={12} />
                     <span>مطابق</span>
                   </span>

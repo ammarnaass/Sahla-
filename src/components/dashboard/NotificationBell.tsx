@@ -58,7 +58,7 @@ export function NotificationBell() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-colors relative"
+        className="w-10 h-10 rounded-xl bg-card border border-border text-foreground hover:text-primary flex items-center justify-center transition-colors relative"
         aria-label="الإشعارات"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -71,7 +71,7 @@ export function NotificationBell() {
         </svg>
 
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white font-mono text-[10px] font-black flex items-center justify-center border-2 border-slate-950 animate-pulse">
+          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white font-mono text-[10px] font-black flex items-center justify-center border-2 border-background animate-pulse">
             {unreadCount}
           </span>
         )}
@@ -79,14 +79,14 @@ export function NotificationBell() {
 
       {isOpen && (
         <div
-          className="absolute top-12 left-0 sm:left-auto sm:right-0 w-80 max-w-[90vw] bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-3 z-50 animate-in fade-in zoom-in-95 duration-100 text-right"
+          className="absolute top-12 left-0 sm:left-auto sm:right-0 w-80 max-w-[90vw] bg-card border border-border rounded-2xl shadow-2xl p-3 z-50 animate-in fade-in zoom-in-95 duration-100 text-right"
         >
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800 mb-2 px-1">
-            <h4 className="text-xs font-bold text-white">مركز الإشعارات</h4>
+          <div className="flex items-center justify-between pb-2 border-b border-border mb-2 px-1">
+            <h4 className="text-xs font-bold text-foreground">مركز الإشعارات</h4>
             {unreadCount > 0 && (
               <button
                 onClick={markAllRead}
-                className="text-[11px] text-emerald-400 hover:underline font-semibold"
+                className="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline font-semibold"
               >
                 تحديد الكل كمقروء
               </button>
@@ -100,15 +100,15 @@ export function NotificationBell() {
                 onClick={() => markOneRead(item.id)}
                 className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-colors ${
                   item.read
-                    ? "bg-slate-950/40 border-slate-800/60 text-slate-400"
-                    : "bg-emerald-950/20 border-emerald-500/30 text-slate-200"
+                    ? "bg-muted/40 border-border text-muted-foreground"
+                    : "bg-emerald-500/10 border-emerald-500/30 text-foreground"
                 }`}
               >
                 <div className="flex items-center justify-between gap-1 mb-1">
-                  <span className="font-bold text-white">{item.title}</span>
-                  <span className="text-[10px] text-slate-400 font-mono">{item.date}</span>
+                  <span className="font-bold text-foreground">{item.title}</span>
+                  <span className="text-[10px] text-muted-foreground font-mono">{item.date}</span>
                 </div>
-                <p className="text-[11px] leading-relaxed text-slate-300">{item.body}</p>
+                <p className="text-[11px] leading-relaxed text-muted-foreground">{item.body}</p>
               </div>
             ))}
           </div>

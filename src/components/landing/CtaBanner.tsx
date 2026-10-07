@@ -27,8 +27,8 @@ export function CtaBanner() {
                 py: 1.6,
                 fontSize: "1.1rem",
                 fontWeight: 800,
-                bgcolor: "#10b981",
-                "&:hover": { bgcolor: "#059669" },
+                bgcolor: "primary.main",
+                "&:hover": { bgcolor: "primary.dark" },
                 boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)",
               }}
             >

@@ -20,9 +20,9 @@ export function LegalConsentCheckbox({ checked, onChange, error }: LegalConsentC
           type="checkbox"
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
-          className="mt-1 w-4 h-4 rounded border-slate-700 bg-slate-900 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-0 focus:ring-2 accent-emerald-600 shrink-0"
+          className="mt-1 w-4 h-4 rounded border-border bg-card text-emerald-600 focus:ring-emerald-500 focus:ring-offset-0 focus:ring-2 accent-emerald-600 shrink-0"
         />
-        <span className="text-xs text-slate-300 leading-relaxed group-hover:text-white transition-colors">
+        <span className="text-xs text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors">
           أوافق على{" "}
           <button
             type="button"
@@ -30,7 +30,7 @@ export function LegalConsentCheckbox({ checked, onChange, error }: LegalConsentC
               e.preventDefault();
               setShowTermsModal(true);
             }}
-            className="text-emerald-400 font-bold hover:underline"
+            className="text-emerald-700 dark:text-emerald-400 font-bold hover:underline"
           >
             شروط الاستخدام
           </button>{" "}
@@ -41,7 +41,7 @@ export function LegalConsentCheckbox({ checked, onChange, error }: LegalConsentC
               e.preventDefault();
               setShowPrivacyModal(true);
             }}
-            className="text-emerald-400 font-bold hover:underline"
+            className="text-emerald-700 dark:text-emerald-400 font-bold hover:underline"
           >
             سياسة الخصوصية
           </button>{" "}
@@ -50,7 +50,7 @@ export function LegalConsentCheckbox({ checked, onChange, error }: LegalConsentC
       </label>
 
       {error && (
-        <p className="text-xs text-red-400 font-medium">⚠️ {error}</p>
+        <p className="text-xs text-red-500 dark:text-red-400 font-medium">⚠️ {error}</p>
       )}
 
       {/* Terms Modal */}

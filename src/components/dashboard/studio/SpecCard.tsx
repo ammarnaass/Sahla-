@@ -29,7 +29,7 @@ export const SpecCard: React.FC<SpecCardProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-emerald-500/20 pb-3 mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
             <SparklesIcon className="w-4 h-4" />
           </div>
           <div>
@@ -121,7 +121,7 @@ export const SpecCard: React.FC<SpecCardProps> = ({
       {/* Action Footer */}
       <div className="flex items-center justify-between pt-2 border-t border-slate-800">
         <div className="text-[11px] text-slate-400 flex items-center gap-1">
-          <ShieldCheckIcon size={14} className="text-emerald-400" />
+          <ShieldCheckIcon size={14} className="text-emerald-600 dark:text-emerald-400" />
           <span>مطابقة حتمية قبل خصم أي نقطة</span>
         </div>
 

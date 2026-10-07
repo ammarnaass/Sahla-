@@ -19,7 +19,7 @@ export function CelebrationScreen({
   return (
     <div className="space-y-6 max-w-lg mx-auto py-6 text-center">
       {/* Celebration Icon */}
-      <div className="w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-4xl mx-auto border border-emerald-500/30 animate-pulse">
+      <div className="w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-4xl mx-auto border border-emerald-500/30 animate-pulse">
         🎯
       </div>
 

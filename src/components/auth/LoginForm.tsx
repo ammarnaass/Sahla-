@@ -126,7 +126,7 @@ export function LoginForm({
               size="small"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              sx={{ color: "text.secondary", "&.Mui-checked": { color: "#10b981" } }}
+              sx={{ color: "text.secondary", "&.Mui-checked": { color: "primary.main" } }}
             />
           }
           label={
@@ -155,8 +155,8 @@ export function LoginForm({
           borderRadius: "12px",
           fontWeight: 800,
           fontSize: "0.95rem",
-          bgcolor: "#10b981",
-          "&:hover": { bgcolor: "#059669" },
+          bgcolor: "primary.main",
+          "&:hover": { bgcolor: "primary.dark" },
           boxShadow: "0 8px 20px -4px rgba(16, 185, 129, 0.35)",
         }}
       >

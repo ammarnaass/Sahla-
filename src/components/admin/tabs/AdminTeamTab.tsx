@@ -113,8 +113,8 @@ export function AdminTeamTab({ adminsList, onCreateAdmin, isCreating }: AdminTea
                 borderRadius: "12px",
                 py: 1.4,
                 fontWeight: 800,
-                bgcolor: "#10b981",
-                "&:hover": { bgcolor: "#059669" },
+                bgcolor: "primary.main",
+                "&:hover": { bgcolor: "primary.dark" },
               }}
             >
               {isCreating ? "جاري الإنشاء..." : "إنشاء حساب المشرف ✓"}

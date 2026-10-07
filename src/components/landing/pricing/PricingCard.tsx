@@ -115,11 +115,11 @@ export function PricingCard({ plan, isAnnual }: PricingCardProps) {
             py: plan.popular ? 1.6 : 1.4,
             fontWeight: 800,
             fontSize: plan.popular ? "1rem" : "0.95rem",
-            bgcolor: plan.popular ? "#10b981" : undefined,
+            bgcolor: plan.popular ? "primary.main" : undefined,
             borderColor: !plan.popular ? "border" : undefined,
             color: !plan.popular ? "text.primary" : "#fff",
             "&:hover": {
-              bgcolor: plan.popular ? "#059669" : "action.hover",
+              bgcolor: plan.popular ? "primary.dark" : "action.hover",
               borderColor: !plan.popular ? "primary.main" : undefined,
             },
             boxShadow: plan.popular ? "0 10px 20px -5px rgba(16, 185, 129, 0.4)" : undefined,

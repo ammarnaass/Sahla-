@@ -56,16 +56,16 @@ export function ShopRegistrationForm({ phone, onSubmit, isLoading }: ShopRegistr
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 text-right">
-      <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center justify-between">
+      <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs flex items-center justify-between">
         <span>مرحباً بك! هذه أول مرة تسجل برقمك:</span>
-        <span className="font-mono font-bold text-white" dir="ltr">
+        <span className="font-mono font-bold text-foreground" dir="ltr">
           {phone}
         </span>
       </div>
 
       {/* Shop Name */}
       <div>
-        <label className="block text-xs font-bold text-slate-300 mb-1.5">
+        <label className="block text-xs font-bold text-foreground mb-1.5">
           اسم المحل أو المكتبة *
         </label>
         <input
@@ -76,14 +76,14 @@ export function ShopRegistrationForm({ phone, onSubmit, isLoading }: ShopRegistr
             setShopName(e.target.value);
             if (errors.shopName) setErrors((prev) => ({ ...prev, shopName: "" }));
           }}
-          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+          className="w-full bg-card border border-border rounded-xl px-3.5 py-3 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
         />
-        {errors.shopName && <p className="text-xs text-red-400 mt-1">⚠️ {errors.shopName}</p>}
+        {errors.shopName && <p className="text-xs text-red-500 dark:text-red-400 mt-1">⚠️ {errors.shopName}</p>}
       </div>
 
       {/* Owner Name */}
       <div>
-        <label className="block text-xs font-bold text-slate-300 mb-1.5">
+        <label className="block text-xs font-bold text-foreground mb-1.5">
           اسم صاحب المحل أو المسؤول *
         </label>
         <input
@@ -94,24 +94,24 @@ export function ShopRegistrationForm({ phone, onSubmit, isLoading }: ShopRegistr
             setOwnerName(e.target.value);
             if (errors.ownerName) setErrors((prev) => ({ ...prev, ownerName: "" }));
           }}
-          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+          className="w-full bg-card border border-border rounded-xl px-3.5 py-3 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
         />
-        {errors.ownerName && <p className="text-xs text-red-400 mt-1">⚠️ {errors.ownerName}</p>}
+        {errors.ownerName && <p className="text-xs text-red-500 dark:text-red-400 mt-1">⚠️ {errors.ownerName}</p>}
       </div>
 
       {/* Wilaya Selection (58 Algerian Wilayas) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-bold text-slate-300 mb-1.5">
+          <label className="block text-xs font-bold text-foreground mb-1.5">
             الولاية (58 ولاية) *
           </label>
           <select
             value={wilayaCode}
             onChange={(e) => setWilayaCode(Number(e.target.value))}
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+            className="w-full bg-card border border-border rounded-xl px-3 py-3 text-xs sm:text-sm text-foreground focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
           >
             {ALGERIAN_WILAYAS.map((w) => (
-              <option key={w.code} value={w.code} className="bg-slate-900 text-white">
+              <option key={w.code} value={w.code} className="bg-card text-foreground">
                 {w.code} - {w.nameAr} ({w.nameFr})
               </option>
             ))}
@@ -120,16 +120,16 @@ export function ShopRegistrationForm({ phone, onSubmit, isLoading }: ShopRegistr
 
         {/* Activity Type */}
         <div>
-          <label className="block text-xs font-bold text-slate-300 mb-1.5">
+          <label className="block text-xs font-bold text-foreground mb-1.5">
             نوع النشاط *
           </label>
           <select
             value={activityType}
             onChange={(e) => setActivityType(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+            className="w-full bg-card border border-border rounded-xl px-3 py-3 text-xs sm:text-sm text-foreground focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
           >
             {ACTIVITY_TYPES.map((act) => (
-              <option key={act.code} value={act.code} className="bg-slate-900 text-white">
+              <option key={act.code} value={act.code} className="bg-card text-foreground">
                 {act.nameAr}
               </option>
             ))}

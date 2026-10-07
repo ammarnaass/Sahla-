@@ -26,20 +26,20 @@ export function DocumentsTable({
     switch (type) {
       case "SCHOOL_RESEARCH":
       case "EXAM":
-        return <SchoolCapIcon size={18} className="text-emerald-400" />;
+        return <SchoolCapIcon size={18} className="text-emerald-600 dark:text-emerald-400" />;
       case "CV":
-        return <DocCvIcon size={18} className="text-emerald-400" />;
+        return <DocCvIcon size={18} className="text-emerald-600 dark:text-emerald-400" />;
       case "ID_PHOTO":
-        return <CameraPhotoIcon size={18} className="text-emerald-400" />;
+        return <CameraPhotoIcon size={18} className="text-emerald-600 dark:text-emerald-400" />;
       case "INVOICE":
-        return <InvoiceBillIcon size={18} className="text-emerald-400" />;
+        return <InvoiceBillIcon size={18} className="text-emerald-600 dark:text-emerald-400" />;
       default:
-        return <DocCvIcon size={18} className="text-emerald-400" />;
+        return <DocCvIcon size={18} className="text-emerald-600 dark:text-emerald-400" />;
     }
   };
 
   return (
-    <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden transition-colors">
+    <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden transition-colors">
       <div className="overflow-x-auto">
         <table className="w-full text-right text-xs">
           <thead>

@@ -96,8 +96,8 @@ export function LandingNavbar({ mounted }: { mounted?: boolean }) {
                   px: 2.5,
                   py: 0.8,
                   fontSize: "0.875rem",
-                  bgcolor: "#10b981",
-                  "&:hover": { bgcolor: "#059669" },
+                  bgcolor: "primary.main",
+                  "&:hover": { bgcolor: "primary.dark" },
                 }}
               >
                 افتح حساباً مجاناً
