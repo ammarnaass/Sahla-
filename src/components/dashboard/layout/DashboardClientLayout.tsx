@@ -8,21 +8,13 @@ import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { OfflineBanner } from "@/components/dashboard/OfflineBanner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useTheme } from "@/components/ui/ThemeProvider";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { DashboardTabProvider, useDashboardTab } from "@/contexts/DashboardTabContext";
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const { session } = useAuth();
   const { locale, setLocale } = useLanguage();
   const { activeTab, setActiveTab } = useDashboardTab();
-  const { theme, resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const currentTheme = mounted ? (resolvedTheme || theme || "dark") : "dark";
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col md:flex-row selection:bg-emerald-500 selection:text-white transition-colors duration-200">
@@ -107,15 +99,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Theme Toggle Button (Desktop & Mobile) */}
-            <button
-              type="button"
-              onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
-              title={currentTheme === "dark" ? "التبديل إلى الوضع النهاري (Light Mode)" : "التبديل إلى الوضع الليلي (Dark Mode)"}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
-              aria-label="تبديل الوضع الليلي والنهاري"
-            >
-              <span className="text-sm">{currentTheme === "dark" ? "🌙" : "☀️"}</span>
-            </button>
+            <ThemeToggle variant="icon" />
 
             {/* Notification Bell */}
             <NotificationBell />

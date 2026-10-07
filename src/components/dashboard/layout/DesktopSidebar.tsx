@@ -6,6 +6,7 @@ import { useTheme } from "@/components/ui/ThemeProvider";
 import { SidebarShopProfile } from "./SidebarShopProfile";
 import { SidebarNavLinks } from "./SidebarNavLinks";
 import { SidebarWalletWidget } from "./SidebarWalletWidget";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { ArrowLeftIcon, WirelessPrintIcon } from "@/components/ui/Icons";
 
 export interface DesktopSidebarProps {
@@ -103,28 +104,10 @@ export function DesktopSidebar({
 
         {/* Theme toggle & Logout */}
         <div className={`flex ${isCollapsed ? "flex-col items-center" : "flex-row"} gap-1.5`}>
-          <button
-            type="button"
-            onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
-            title="تبديل المظهر (ليلي / نهاري)"
-            className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-slate-900/80 transition-all cursor-pointer ${
-              isCollapsed ? "w-10 h-10 justify-center p-0" : "flex-1"
-            }`}
-          >
-            {isCollapsed ? (
-              <span>{currentTheme === "dark" ? "🌙" : "☀️"}</span>
-            ) : (
-              <>
-                <span className="flex items-center gap-1.5">
-                  <span>{currentTheme === "dark" ? "🌙" : "☀️"}</span>
-                  <span className="text-[11px]">المظهر</span>
-                </span>
-                <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold">
-                  {currentTheme === "dark" ? "ليلي" : "نهاري"}
-                </span>
-              </>
-            )}
-          </button>
+          <ThemeToggle
+            variant={isCollapsed ? "icon" : "button"}
+            className={isCollapsed ? "w-10 h-10 p-0" : "flex-1"}
+          />
 
           <button
             type="button"

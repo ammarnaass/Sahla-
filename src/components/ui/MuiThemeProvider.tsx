@@ -2,7 +2,7 @@
 
 import React, { useMemo, useEffect, useState } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/ui/ThemeProvider";
 import rtlPlugin from "stylis-plugin-rtl";
 import { prefixer } from "stylis";
 import { CacheProvider } from "@emotion/react";

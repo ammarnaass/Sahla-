@@ -102,7 +102,7 @@ export function AdminShopsTab({ shops = [], onTopup, onToggle }: AdminShopsTabPr
                     <td className="py-3.5 px-4">
                       <span className="font-mono font-black text-sm text-foreground flex items-center gap-1">
                         <Coins size={14} className="text-amber-500" />
-                        {shop.pointsBalance.toLocaleString()}
+                        {(shop.pointsBalance ?? 0).toLocaleString()}
                       </span>
                     </td>
                     <td className="py-3.5 px-4">

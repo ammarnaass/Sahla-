@@ -4,10 +4,10 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTheme } from "next-themes";
-import { IconButton, Button as MuiButton } from "@mui/material";
-import { Sun, Moon, Mail, QrCode, AlertTriangle, CheckCircle2, Sparkles } from "lucide-react";
+import { Button as MuiButton } from "@mui/material";
+import { Mail, QrCode, AlertTriangle, CheckCircle2, Sparkles } from "lucide-react";
 import { siteConfig } from "@/config/site";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LoginForm } from "./LoginForm";
 import { QrLoginScanner } from "./QrLoginScanner";
 import { DemoCredentialsBar } from "./DemoCredentialsBar";
@@ -16,8 +16,6 @@ import { AuthTrustSidebar } from "./AuthTrustSidebar";
 export function LoginClientView() {
   const router = useRouter();
   const { loginWithEmail } = useAuth();
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
 
   // Form State
   const [activeTab, setActiveTab] = useState<"email" | "qr">("email");
@@ -27,12 +25,6 @@ export function LoginClientView() {
   const [errorMsg, setErrorMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quickFillSuccess, setQuickFillSuccess] = useState<string | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const currentTheme = mounted ? theme : "dark";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,23 +88,7 @@ export function LoginClientView() {
         </Link>
 
         <div className="flex items-center gap-3">
-          <IconButton
-            onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
-            aria-label="تبديل المظهر"
-            sx={{
-              color: "text.primary",
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: "10px",
-              p: 0.9,
-            }}
-          >
-            {currentTheme === "dark" ? (
-              <Sun size={18} className="text-amber-400" />
-            ) : (
-              <Moon size={18} className="text-slate-600" />
-            )}
-          </IconButton>
+          <ThemeToggle variant="icon" />
 
           <Link href="/register">
             <MuiButton

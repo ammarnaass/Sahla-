@@ -2,23 +2,18 @@
 
 import React from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import {
   AppBar,
   Toolbar,
   Container,
   Box,
-  IconButton,
   Button as MuiButton,
 } from "@mui/material";
-import { Sun, Moon } from "lucide-react";
 import { headerNavLinks } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
-export function LandingNavbar({ mounted }: { mounted: boolean }) {
-  const { theme, setTheme } = useTheme();
-  const currentTheme = mounted ? theme : "dark";
-
+export function LandingNavbar({ mounted }: { mounted?: boolean }) {
   return (
     <AppBar
       position="sticky"
@@ -28,10 +23,7 @@ export function LandingNavbar({ mounted }: { mounted: boolean }) {
         borderBottom: "1px solid",
         borderColor: "divider",
         backdropFilter: "blur(16px)",
-        backgroundColor:
-          currentTheme === "dark"
-            ? "rgba(2, 6, 23, 0.85)"
-            : "rgba(255, 255, 255, 0.85)",
+        backgroundColor: "var(--color-surface-header, rgba(2, 6, 23, 0.85))",
         zIndex: 50,
       }}
     >
@@ -74,23 +66,7 @@ export function LandingNavbar({ mounted }: { mounted: boolean }) {
 
           {/* Action Buttons */}
           <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
-            <IconButton
-              onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
-              aria-label="تبديل المظهر"
-              sx={{
-                color: "text.primary",
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: "10px",
-                p: 1,
-              }}
-            >
-              {currentTheme === "dark" ? (
-                <Sun size={18} className="text-amber-400" />
-              ) : (
-                <Moon size={18} className="text-slate-600" />
-              )}
-            </IconButton>
+            <ThemeToggle variant="icon" />
 
             <Link href="/login">
               <MuiButton
