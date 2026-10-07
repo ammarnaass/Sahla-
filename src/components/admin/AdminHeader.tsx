@@ -3,11 +3,15 @@
 import React from "react";
 import Link from "next/link";
 import { Button as MuiButton } from "@mui/material";
-import { Crown, ArrowLeft, ExternalLink, ShieldCheck } from "lucide-react";
+import { Crown, ArrowLeft, ExternalLink, ShieldCheck, Radio } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
-export function AdminHeader() {
+interface AdminHeaderProps {
+  onOpenBroadcast?: () => void;
+}
+
+export function AdminHeader({ onOpenBroadcast }: AdminHeaderProps) {
   return (
     <header className="sticky top-0 z-30 backdrop-blur-md bg-background/85 border-b border-border px-4 sm:px-6 h-16 flex items-center justify-between transition-colors">
       <div className="flex items-center gap-3">
@@ -31,7 +35,17 @@ export function AdminHeader() {
         </Link>
       </div>
 
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2 sm:gap-2.5">
+        <button
+          type="button"
+          onClick={onOpenBroadcast}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-400 border border-amber-500/30 transition-all cursor-pointer font-cairo shadow-xs active:scale-95"
+          title="بث تنبيه عاجل لجميع الأكشاك في الـ 58 ولاية"
+        >
+          <Radio size={14} className="animate-pulse text-amber-600 dark:text-amber-400" />
+          <span className="hidden sm:inline">بث وطني</span>
+        </button>
+
         <ThemeToggle variant="icon" />
 
         <Link href="/dashboard">

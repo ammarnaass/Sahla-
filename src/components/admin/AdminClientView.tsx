@@ -10,6 +10,7 @@ import { AdminWholesaleTab } from "./tabs/AdminWholesaleTab";
 import { AdminTeamTab } from "./tabs/AdminTeamTab";
 import { CreateInvoiceModal } from "./modals/CreateInvoiceModal";
 import { InvoicePrintModal } from "./modals/InvoicePrintModal";
+import { NationalBroadcastModal } from "./modals/NationalBroadcastModal";
 import type { ShopRecord } from "@/server/repositories/shopRepository";
 import type { InvoiceRecord } from "@/server/repositories/invoiceRepository";
 
@@ -62,6 +63,7 @@ export default function AdminClientView() {
   // Modals & Generation State
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceRecord | null>(null);
   const [showCreateInvoiceModal, setShowCreateInvoiceModal] = useState(false);
+  const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const [isCreatingInvoice, setIsCreatingInvoice] = useState(false);
   const [isGeneratingCards, setIsGeneratingCards] = useState(false);
   const [lastBatch, setLastBatch] = useState<any>(null);
@@ -266,7 +268,7 @@ export default function AdminClientView() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors antialiased selection:bg-emerald-500 selection:text-white">
       {/* 1. Header */}
-      <AdminHeader />
+      <AdminHeader onOpenBroadcast={() => setShowBroadcastModal(true)} />
 
       {/* 2. Feedback Notification Banner */}
       {actionNotice && (
@@ -345,6 +347,12 @@ export default function AdminClientView() {
         invoice={selectedInvoice}
         onClose={() => setSelectedInvoice(null)}
         onToggleStatus={handleToggleInvoiceStatus}
+      />
+
+      <NationalBroadcastModal
+        isOpen={showBroadcastModal}
+        onClose={() => setShowBroadcastModal(false)}
+        onBroadcastSent={(msg) => setActionNotice(msg)}
       />
     </div>
   );
