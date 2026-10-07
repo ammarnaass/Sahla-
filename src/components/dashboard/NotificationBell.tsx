@@ -31,10 +31,11 @@ export function NotificationBell() {
   const {
     notifications,
     unreadCount,
-    activeToast,
-    dismissToast,
     markAsRead,
     markAllAsRead,
+    isMuted,
+    toggleMute,
+    sendTestNotification,
   } = useNotifications();
 
   const filteredNotifications = notifications.filter((item) => {
@@ -91,15 +92,30 @@ export function NotificationBell() {
                 )}
               </div>
 
-              {unreadCount > 0 && (
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => markAllAsRead()}
-                  className="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline font-bold cursor-pointer"
+                  onClick={toggleMute}
+                  title={isMuted ? "تشغيل صوت التنبيهات" : "كتم صوت التنبيهات"}
+                  className={`px-1.5 py-0.5 rounded-md text-[11px] font-bold transition-colors cursor-pointer ${
+                    isMuted
+                      ? "text-red-500 bg-red-500/10 hover:bg-red-500/20"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
                 >
-                  تحديد الكل كمقروء
+                  {isMuted ? "🔕 مكتوم" : "🔔 بالصوت"}
                 </button>
-              )}
+
+                {unreadCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => markAllAsRead()}
+                    className="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline font-bold cursor-pointer"
+                  >
+                    تحديد الكل
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Filter Tabs */}
@@ -208,57 +224,40 @@ export function NotificationBell() {
               )}
             </div>
 
-            {/* Footer: Full Archive Tab Link */}
-            <div className="pt-2.5 mt-2 border-t border-border flex items-center justify-between text-xs">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("notifications");
-                  setIsOpen(false);
-                }}
-                className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 font-bold flex items-center gap-1 cursor-pointer transition-colors"
-              >
-                <span>فتح مركز وسجل الإشعارات الكامل ←</span>
-              </button>
-              <span className="text-[10px] text-muted-foreground font-mono">
-                {notifications.length} إشعار
-              </span>
+            {/* Footer: Full Archive Tab Link & Sound Test */}
+            <div className="pt-2.5 mt-2 border-t border-border flex flex-col gap-2 text-xs">
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("notifications");
+                    setIsOpen(false);
+                  }}
+                  className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <span>فتح مركز وسجل الإشعارات الكامل ←</span>
+                </button>
+                <span className="text-[10px] text-muted-foreground font-mono">
+                  {notifications.length} إشعار
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between pt-1 border-t border-border/40 text-[10.5px]">
+                <button
+                  type="button"
+                  onClick={() => sendTestNotification()}
+                  className="text-muted-foreground hover:text-foreground font-medium flex items-center gap-1 cursor-pointer"
+                  title="إرسال إشعار تجريبي لاختبار الصوت والمودال في الزاوية اليسرى"
+                >
+                  <span>⚡ تجربة إشعار وصوت الكاونتر</span>
+                </button>
+                <span className="text-[10px] text-muted-foreground">
+                  {isMuted ? "الصوت معطّل" : "الصوت مفعّل ✓"}
+                </span>
+              </div>
             </div>
           </div>
         </>
-      )}
-
-      {/* 3. Live Toast Alert on Incoming Event */}
-      {activeToast && (
-        <div className="fixed bottom-5 left-5 z-50 max-w-sm w-full bg-card border border-emerald-500/40 rounded-2xl p-3.5 shadow-2xl animate-fade-in text-right space-y-1.5">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-              <span className="text-xs font-bold text-foreground">{activeToast.title}</span>
-            </div>
-            <button
-              type="button"
-              onClick={dismissToast}
-              className="text-muted-foreground hover:text-foreground text-xs px-1 cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
-            {activeToast.body}
-          </p>
-          {activeToast.action_url && (
-            <div className="pt-1 text-left">
-              <a
-                href={activeToast.action_url}
-                onClick={dismissToast}
-                className="inline-block px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold shadow-xs"
-              >
-                {activeToast.action_label || "معاينة"}
-              </a>
-            </div>
-          )}
-        </div>
       )}
     </div>
   );

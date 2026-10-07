@@ -209,45 +209,57 @@ export async function dispatchNotification({
 3. **الصوت التنبيهي البيداغوجي (Chime Audio):**
    - تشغيل رنين مقتضب ولطيف عند وصول إشعار عالي الأولوية، مع زر كتم دائم في الإعدادات.
 
-### 6.2 شريط التنبيهات اللحظية العائم (Floating Toast Stack)
-* مصفوفة تنبيهات تظهر في الزاوية اليسرى السفلية (`bottom-left`) للشاشات العربية:
-  - تنزلق بسلاسة للأعلى (`animate-slide-up`).
-  - تختفي تلقائياً بعد 4 ثوانٍ أو عند النقر عليها.
-  - تحتوي على شريط تقدم زمني دقيق يبين وقت الاختفاء.
+### 6.2 المودال الصوتي التفاعلي العائم أسفل الشاشة بالجانب الأيسر (Bottom-Left Audio Toast Modal)
+* **الموقع والحجم:**
+  - يتموضع في الزاوية اليسرى السفلية (`fixed bottom-5 left-5 z-[9999]`) بعرض مريح (`sm:w-[420px]`).
+  - مصمم وفق أرقى معايير الزجاج البلوري الداكن/الفاتح (Glassmorphism) مع توهج محيطي (Border Glow & Ambient Light) متوافق مع نمط الإشعار.
+* **المميزات التفاعلية:**
+  - **مؤشر البث اللحظي:** شارة نابضة متحركة (`animate-ping`) مع علامة الإشعار الفوري.
+  - **أدوات الصوت السريعة:** زر إعادة تشغيل الرنين (`Volume2`) وزر كتم/تفعيل الصوت المباشر (`BellRing / VolumeX`).
+  - **الإجراءات المباشرة:** أزرار توجيه فورية تنقل المشغل لتبويب البحث أو المستندات أو المحفظة بضغطة واحدة مع التحديد التلقائي كمقروء.
+  - **شريط العد التنازلي الذكي (Smart Countdown Bar):** شريط زمني (10 ثوانٍ) ينقص بنعومة، ويتوقف مؤقتاً عند تمرير مؤشر الفأرة (`Pause on Hover`) لتمكين صاحب الكشك من قراءة المحتوى والتفاعل دون اختفاء التنبيه.
+
+### 6.3 نظام الرنين الصوتي البيداغوجي المدمج (Web Audio API Sound Engine)
+* **المسار:** [`src/lib/audio/soundEffects.ts`](file:///home/ammar/Sahla%20/src/lib/audio/soundEffects.ts)
+* **المعمارية:** يعتمد بنسبة 100% على **Web Audio API** التوليدي عبر المذبذبات المتناسقة (Oscillators)، مما يوفر:
+  1. **صفر استهلاك للإنترنت:** لا يحتاج لتحميل ملفات صوتية (MP3/WAV)، ويعمل بالكامل دون اتصال (Offline-ready).
+  2. **سرعة فائقة (Zero Latency):** رنين فوري يبدأ في أجزاء من الثانية فور استلام حزمة الـ SSE.
+  3. **نغمات صوتية تمايزية (Harmonic Sound Profiles):**
+     - **نغمة الذكاء الاصطناعي (`ai_ready`):** تآلف موسيقي ثلاثي النغمات صاعد (C5 -> E5 -> G5 -> C6) يوحي بالإنجاز والحداثة.
+     - **نغمة الرصيد والمحفظة (`wallet`):** رنين جرس مزدوج لطيف (A5 -> D6).
+     - **نغمة التحذير والعاجل (`warning`):** نغمة هادئة ذات تردد منخفض للتنبيه دون إزعاج.
+     - **النغمة الافتراضية (`chime`):** رنين هادئ كلاسيكي (G5 -> C6).
+  4. **احترام سياسات المتصفح:** فك قفل الـ `AudioContext` تلقائياً عند أول تفاعل للمستخدم مع الشاشة، وحفظ حالة الكتم في التخزين المحلي (`localStorage`).
 
 ---
 
 ## 🚀 7. مراحل التنفيذ التفصيلية (Implementation Roadmap)
 
-### 🟢 المرحلة الأولى: البنية التحتية وقاعدة البيانات ومكتبة المعالجة (DB & Engine Core)
-1. إنشاء جدول `notifications` وجدول `notification_preferences` في قاعدة بيانات SQLite (`src/lib/db.ts`).
-2. إنشاء وحدة توزيع الإشعارات المركزية [`src/server/notifications/dispatcher.ts`](file:///home/ammar/Sahla%20/src/server/notifications/dispatcher.ts).
-3. بناء مسار استعلام الإشعارات وتحديدها كمقروءة [`src/app/api/v1/notifications/route.ts`](file:///home/ammar/Sahla%20/src/app/api/v1/notifications/route.ts).
+### 🟢 المرحلة الأولى: البنية التحتية وقاعدة البيانات ومكتبة المعالجة (DB & Engine Core) — [مكتملة ✓]
+1. إنشاء جدول `notifications` وجدول `notification_preferences` في SQLite عبر [`src/server/notifications/dispatcher.ts`](file:///home/ammar/Sahla%20/src/server/notifications/dispatcher.ts).
+2. بناء ناقل الأحداث المركزي بالذاكرة `notificationBus`.
+3. إنشاء مسارات الـ REST: القراءة، الإنشاء، التحديث، والتحديد الجماعي كمقروء في [`src/app/api/v1/notifications/route.ts`](file:///home/ammar/Sahla%20/src/app/api/v1/notifications/route.ts).
 
-### 🟡 المرحلة الثانية: قناة البث الحي اللحظي وسياق الواجهة (Live Streaming & Context)
-1. إنشاء مسار بث الأحداث بالزمن الحقيقي [`/api/v1/notifications/stream`](file:///home/ammar/Sahla%20/src/app/api/v1/notifications/stream/route.ts) عبر Server-Sent Events (SSE).
-2. بناء React Context و Hook مخصص [`src/contexts/NotificationContext.tsx`](file:///home/ammar/Sahla%20/src/contexts/NotificationContext.tsx) لإدارة الإشعارات، العدادات، والتشغيل الصوتي.
+### 🟡 المرحلة الثانية: قناة البث الحي اللحظي وسياق الواجهة (Live Streaming & Context) — [مكتملة ✓]
+1. إنشاء مسار بث الأحداث المباشر [`/api/v1/notifications/stream`](file:///home/ammar/Sahla%20/src/app/api/v1/notifications/stream/route.ts) عبر Server-Sent Events (SSE) مع Heartbeat دوري كل 25 ثانية.
+2. بناء React Context و Hook مخصص [`src/contexts/NotificationContext.tsx`](file:///home/ammar/Sahla%20/src/contexts/NotificationContext.tsx) مع إدارة التوستات الحية والتحديث التفاؤلي والاسترجاع الاحتياطي.
 
-### 🔵 المرحلة الثالثة: ترقية الواجهات التفاعلية (Interactive UI Upgrade)
-1. إعادة كتابة وتطوير [`src/components/dashboard/NotificationBell.tsx`](file:///home/ammar/Sahla%20/src/components/dashboard/NotificationBell.tsx) لدعم التبويبات، الإجراءات المباشرة، والتحديث الحي.
-2. تطوير مكون شريط التوست اللحظي [`src/components/ui/ToastContainer.tsx`](file:///home/ammar/Sahla%20/src/components/ui/ToastContainer.tsx) المنسجم مع نظام التصميم الجزائري لسهلة.
-3. دمج التفضيلات وإمكانية كتم الصوت أو تعديل حد النقاط في لوحة الإعدادات.
+### 🔵 المرحلة الثالثة: المودال الصوتي وجرس التنبيهات والأرشيف (Interactive UI & Audio Modal) — [مكتملة ✓]
+1. بناء محرك الصوت التوليدي الخفيف [`src/lib/audio/soundEffects.ts`](file:///home/ammar/Sahla%20/src/lib/audio/soundEffects.ts).
+2. تطوير المودال الصوتي التفاعلي في أسفل الشاشة بالجانب الأيسر [`src/components/dashboard/notifications/NotificationModalToast.tsx`](file:///home/ammar/Sahla%20/src/components/dashboard/notifications/NotificationModalToast.tsx).
+3. ترقية جرس الإشعارات [`src/components/dashboard/NotificationBell.tsx`](file:///home/ammar/Sahla%20/src/components/dashboard/NotificationBell.tsx) وإضافة تحكم الصوت وتجربة التنبيه.
+4. إنشاء تبويب مركز وسجل الإشعارات الكامل [`src/components/dashboard/notifications/NotificationsTab.tsx`](file:///home/ammar/Sahla%20/src/components/dashboard/notifications/NotificationsTab.tsx) مع أدوات البحث والفرز.
 
-### 🟣 المرحلة الرابعة: الربط الشامل بكافة أحداث المنصة (End-to-End Platform Hooks)
-1. **ربط استوديو البحوث والذكاء الاصطناعي:**
-   - إرسال إشعار فوري عند اكتمال خطة البحث في `/api/v1/research/plans`.
-   - إرسال إشعار فوري عند اكتمال توليد المستند الكامل في `/api/education/research/generate`.
-2. **ربط النظام المالي:**
-   - إرسال إشعار عند خصم النقاط واقتراب الرصيد من الحد الأدنى (< 20 نقطة).
-   - إرسال إشعار تأكيد عند شحن الرصيد.
-3. **ربط القانون 18-07:**
-   - إرسال تنبيه قبل 6 ساعات من حذف الوثائق المؤقتة.
+### 🟣 المرحلة الرابعة: الربط الشامل بأحداث المنصة (End-to-End Platform Hooks) — [مكتملة ✓]
+1. **استوديو البحوث المدرسية:** إرسال إشعار فوري صوتي عند صياغة خطة البحث وعند اكتمال الملف النهائي مع توجيه مباشر لكاونتر الطباعة.
+2. **رصيد المحفظة:** إرسال إشعارات استهلاك وتنبيه عند انخفاض الرصيد.
 
 ---
 
 ## 📋 8. مخرجات النجاح ومعايير القبول (Acceptance Criteria)
 - [x] وثيقة معمارية شاملة تحدد بدقة كل جوانب النظام وتكامله مع الذكاء الاصطناعي.
-- [ ] دعم كامل للغة العربية ومطابقة معايير التصميم الراقية لمنصة سهلة.
-- [ ] تحديث عداد الإشعارات فوراً بدون الحاجة لتحديث الصفحة (Zero Reloads).
-- [ ] استهلاك منخفض جداً للموارد في الخادم والمتصفح عبر SSE.
-- [ ] توثيق كامل للـ APIs والمسارات البرمجية في وثائق المنصة.
+- [x] دعم كامل للغة العربية ومطابقة معايير التصميم الراقية لمنصة سهلة.
+- [x] ظهور مودال تفاعلي مصحوب برنين صوتي في الزاوية اليسرى السفلية فور ورود أي إشعار.
+- [x] إمكانية كتم أو تفعيل الصوت وتجربة التنبيه مباشرة من الواجهة.
+- [x] تحديث عداد الإشعارات وسجل الجرس فوراً عبر البث المباشر (SSE) دون الحاجة لتحديث الصفحة.
+- [x] استهلاك منخفض جداً للموارد في الخادم والمتصفح وتوافق مع الأجهزة الضعيفة والأكشاك في الجزائر.

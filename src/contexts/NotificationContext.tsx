@@ -1,7 +1,19 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import type { NotificationRecord } from "@/server/notifications/dispatcher";
+import {
+  playNotificationSound,
+  isSoundMuted,
+  setSoundMuted,
+  type SoundEffectType,
+} from "@/lib/audio/soundEffects";
 
 interface NotificationContextValue {
   notifications: NotificationRecord[];
@@ -12,6 +24,10 @@ interface NotificationContextValue {
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   refetch: () => Promise<void>;
+  isMuted: boolean;
+  toggleMute: () => void;
+  playChime: (type?: SoundEffectType) => void;
+  sendTestNotification: (customTitle?: string, customBody?: string) => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
@@ -27,10 +43,28 @@ export function NotificationProvider({
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeToast, setActiveToast] = useState<NotificationRecord | null>(null);
+  const [isMuted, setIsMutedState] = useState<boolean>(false);
+
+  // Read initial mute state on client mount
+  useEffect(() => {
+    setIsMutedState(isSoundMuted());
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    setIsMutedState((prev) => {
+      const next = !prev;
+      setSoundMuted(next);
+      return next;
+    });
+  }, []);
+
+  const playChime = useCallback((type: SoundEffectType = "chime") => {
+    playNotificationSound(type);
+  }, []);
 
   const fetchNotifications = useCallback(async () => {
     try {
-      const res = await fetch(`/api/v1/notifications?shopId=${shopId}&limit=20`);
+      const res = await fetch(`/api/v1/notifications?shopId=${shopId}&limit=25`);
       if (res.ok) {
         const data = await res.json();
         setNotifications(data.notifications || []);
@@ -70,8 +104,28 @@ export function NotificationProvider({
         try {
           const payload = JSON.parse(event.data);
           if (payload.notification) {
-            setNotifications((prev) => [payload.notification, ...prev.filter((n) => n.id !== payload.notification.id)]);
-            setActiveToast(payload.notification);
+            const notif: NotificationRecord = payload.notification;
+            setNotifications((prev) => [
+              notif,
+              ...prev.filter((n) => n.id !== notif.id),
+            ]);
+            setActiveToast(notif);
+
+            // Determine sound profile and play chime immediately
+            const isAi = notif.type.startsWith("AI_");
+            const isWallet =
+              notif.type.includes("BALANCE") || notif.type.includes("POINTS");
+            const isUrgent = notif.priority === "URGENT";
+
+            const soundType: SoundEffectType = isAi
+              ? "ai_ready"
+              : isWallet
+              ? "wallet"
+              : isUrgent
+              ? "warning"
+              : "chime";
+
+            playNotificationSound(soundType);
           }
           if (typeof payload.unreadCount === "number") {
             setUnreadCount(payload.unreadCount);
@@ -101,7 +155,7 @@ export function NotificationProvider({
       });
 
       eventSource.onerror = () => {
-        // SSE disconnected or not supported; start fallback polling
+        // SSE disconnected or not supported; fallback to regular poll
         eventSource?.close();
         if (!pollInterval) {
           fetchNotifications();
@@ -109,7 +163,6 @@ export function NotificationProvider({
         }
       };
     } catch {
-      // Fallback
       fetchNotifications();
       pollInterval = setInterval(fetchNotifications, 35000);
     }
@@ -161,6 +214,41 @@ export function NotificationProvider({
     }
   }, [shopId]);
 
+  const sendTestNotification = useCallback(
+    async (
+      customTitle = "⚡ جاهز للطباعة: تم إعداد البحث المدرسي بنجاح",
+      customBody = "أنهى الذكاء الاصطناعي معالجة فصول البحث والمراجع وفق معايير وزارة التربية الوطنية. يمكنك المعاينة والطباعة الفورية بالكاونتر."
+    ) => {
+      try {
+        const res = await fetch("/api/v1/notifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            shopId,
+            type: "AI_RESEARCH_COMPLETED",
+            priority: "NORMAL",
+            title: customTitle,
+            body: customBody,
+            actionUrl: "#school-research",
+            actionLabel: "معاينة البحث المدرسي",
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.notification) {
+            // Immediate local fallback in case SSE took milliseconds to broadcast
+            setActiveToast(data.notification);
+            playNotificationSound("ai_ready");
+          }
+        }
+      } catch (err) {
+        console.warn("[NotificationContext] Failed to dispatch test notification:", err);
+      }
+    },
+    [shopId]
+  );
+
   return (
     <NotificationContext.Provider
       value={{
@@ -172,6 +260,10 @@ export function NotificationProvider({
         markAsRead,
         markAllAsRead,
         refetch: fetchNotifications,
+        isMuted,
+        toggleMute,
+        playChime,
+        sendTestNotification,
       }}
     >
       {children}

@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { DashboardTabProvider, useDashboardTab } from "@/contexts/DashboardTabContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { NotificationModalToast } from "@/components/dashboard/notifications/NotificationModalToast";
 import { Sparkles, Crown, UserCheck, ShieldCheck } from "lucide-react";
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
@@ -127,6 +128,9 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
       {/* Mobile Bottom Navigation Bar with Tab sync */}
       <BottomNavBar activeTab={activeTab} onSelectTab={(t) => setActiveTab(t as any)} />
+
+      {/* Floating Bottom-Left Sound Notification Modal */}
+      <NotificationModalToast />
     </div>
   );
 }

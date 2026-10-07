@@ -32,6 +32,9 @@ export function NotificationsTab() {
     markAsRead,
     markAllAsRead,
     refetch,
+    isMuted,
+    toggleMute,
+    sendTestNotification,
   } = useNotifications();
 
   const { setActiveTab } = useDashboardTab();
@@ -95,6 +98,30 @@ export function NotificationsTab() {
 
           {/* Quick Actions */}
           <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+            {/* Test Notification & Sound */}
+            <button
+              type="button"
+              onClick={() => sendTestNotification()}
+              className="px-3 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold transition-all cursor-pointer shadow-2xs flex items-center gap-1.5"
+              title="إرسال إشعار تجريبي لاختبار الصوت والمودال في الزاوية اليسرى السفلية"
+            >
+              <span>⚡ تجربة إشعار وصوت الكاونتر</span>
+            </button>
+
+            {/* Mute/Unmute */}
+            <button
+              type="button"
+              onClick={toggleMute}
+              className={`px-3 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                isMuted
+                  ? "bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400"
+                  : "bg-muted/60 hover:bg-muted border-border text-foreground"
+              }`}
+              title={isMuted ? "الصوت معطل - اضغط لتفعيله" : "الصوت مفعّل - اضغط لتعطيله"}
+            >
+              <span>{isMuted ? "🔕 صوت مكتوم" : "🔔 الصوت مفعّل"}</span>
+            </button>
+
             {unreadCount > 0 && (
               <button
                 type="button"
