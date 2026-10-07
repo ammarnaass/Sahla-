@@ -5,18 +5,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
-import { 
-  Box, 
-  Typography, 
-  TextField, 
-  Button as MuiButton, 
-  IconButton, 
-  InputAdornment, 
-  Checkbox, 
+import {
+  Box,
+  Typography,
+  TextField,
+  Button as MuiButton,
+  IconButton,
+  InputAdornment,
+  Checkbox,
   FormControlLabel,
   Card as MuiCard,
-  CardContent,
-  Chip
+  Chip,
 } from "@mui/material";
 import {
   Mail,
@@ -33,6 +32,10 @@ import {
   Sun,
   Moon,
   ArrowRight,
+  QrCode,
+  CheckCircle2,
+  PhoneCall,
+  Laptop,
 } from "lucide-react";
 
 export function LoginClientView() {
@@ -41,18 +44,21 @@ export function LoginClientView() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const currentTheme = mounted ? theme : "dark";
-
+  // Form State
+  const [activeTab, setActiveTab] = useState<"email" | "qr">("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [quickFillSuccess, setQuickFillSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentTheme = mounted ? theme : "dark";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,300 +94,402 @@ export function LoginClientView() {
     }
   };
 
-  const handleQuickFill = (demoEmail: string, demoPass: string) => {
+  const handleQuickFill = (demoEmail: string, demoPass: string, roleName: string) => {
     setEmail(demoEmail);
     setPassword(demoPass);
     setErrorMsg("");
+    setQuickFillSuccess(`تم ملء بيانات ${roleName} بنجاح`);
+    setTimeout(() => setQuickFillSuccess(null), 3000);
   };
 
   return (
-    <Box 
-      sx={{ 
-        minHeight: '100dvh', 
-        bgcolor: 'background.default',
-        color: 'text.primary',
-        display: 'flex',
-        flexDirection: { xs: 'column', lg: 'row' },
-        transition: 'background-color 0.3s ease'
-      }}
-    >
-      {/* ─── Right Column: Auth Form ─── */}
-      <Box 
-        sx={{ 
-          flex: 1, 
-          display: 'flex', 
-          flexDirection: 'column', 
-          justifyContent: 'center', 
-          px: { xs: 3, sm: 6, lg: 8 },
-          py: 6,
-          position: 'relative'
-        }}
-      >
-        {/* Floating Theme & Return Switchers */}
-        <Box sx={{ position: 'absolute', top: 24, right: 24, display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Link href="/" passHref>
-            <MuiButton 
-              variant="text" 
-              color="inherit" 
-              startIcon={<ArrowRight size={16} />}
-              sx={{ fontWeight: 'bold', color: 'text.secondary', '&:hover': { color: 'text.primary' } }}
-            >
-              الرئيسية
-            </MuiButton>
-          </Link>
-          <IconButton 
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-300 relative overflow-hidden antialiased">
+      {/* Background Decorative Gradients & Mesh */}
+      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
+
+      {/* ─── Top Floating Header ─── */}
+      <header className="w-full px-6 py-4 flex items-center justify-between border-b border-border/40 backdrop-blur-md bg-background/50 z-20">
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-black text-lg shadow-md shadow-emerald-900/20 group-hover:scale-105 transition-transform">
+            سـ
+          </div>
+          <div className="flex flex-col">
+            <span className="font-black text-base text-foreground font-cairo leading-none">
+              سهلة · Sahla
+            </span>
+            <span className="text-[10px] text-muted-foreground font-medium">
+              الرجوع للرئيسية
+            </span>
+          </div>
+        </Link>
+
+        <div className="flex items-center gap-3">
+          <IconButton
             onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
-            sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}
+            aria-label="Toggle theme"
+            sx={{
+              color: "text.primary",
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: "10px",
+              p: 0.9,
+            }}
           >
-            {currentTheme === "light" ? <Sun size={18} className="text-amber-500" /> : <Moon size={18} className="text-slate-400" />}
+            {currentTheme === "dark" ? (
+              <Sun size={18} className="text-amber-400" />
+            ) : (
+              <Moon size={18} className="text-slate-600" />
+            )}
           </IconButton>
-        </Box>
 
-        <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto', mt: { xs: 8, lg: 0 } }}>
-          {/* Header & Logo */}
-          <Box sx={{ mb: 4 }}>
-            <Link href="/" className="inline-flex items-center gap-3 group mb-5">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-emerald-900/20 group-hover:scale-105 transition-transform">
-                سـ
-              </div>
-              <div className="flex flex-col">
-                <Typography variant="h6" fontWeight="900" sx={{ fontFamily: 'var(--font-cairo)', lineHeight: 1 }}>
-                  سهلة · Sahla
-                </Typography>
-                <Typography variant="caption" fontWeight="bold" color="primary">
-                  منظومة الأكشاك والمكتبات
-                </Typography>
-              </div>
-            </Link>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <Typography variant="h5" fontWeight="900" sx={{ fontFamily: 'var(--font-cairo)' }}>
-                تسجيل الدخول إلى المحل
-              </Typography>
-              <Chip label="كاونتر 2.0" color="primary" size="small" sx={{ fontWeight: 'bold', height: 20, fontSize: '0.65rem' }} />
-            </Box>
-            <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'var(--font-cairo)' }}>
-              أدخل بريدك الإلكتروني (جيميل) وكلمة المرور للوصول إلى لوحة التحكم وطابعاتك السحابية.
-            </Typography>
-          </Box>
-
-          {/* Error Banner */}
-          {errorMsg && (
-            <Box 
-              sx={{ 
-                mb: 3, p: 2, borderRadius: 3, 
-                bgcolor: 'error.main', 
-                color: 'error.contrastText',
-                display: 'flex', alignItems: 'center', gap: 1.5,
-                background: currentTheme === 'dark' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
+          <Link href="/register">
+            <MuiButton
+              variant="outlined"
+              size="small"
+              sx={{
+                borderRadius: "10px",
+                fontWeight: 700,
+                fontSize: "0.8rem",
+                borderColor: "divider",
+                color: "text.primary",
+                "&:hover": { borderColor: "primary.main", bgcolor: "action.hover" },
               }}
             >
-              <AlertTriangle size={18} className="text-red-500" />
-              <Typography variant="body2" fontWeight="bold" color="error.main">
-                {errorMsg}
-              </Typography>
-            </Box>
-          )}
+              فتح حساب جديد
+            </MuiButton>
+          </Link>
+        </div>
+      </header>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="البريد الإلكتروني (جيميل)"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                dir="ltr"
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Mail size={18} className="text-slate-400" />
-                      </InputAdornment>
-                    ),
-                  }
-                }}
-              />
+      {/* ─── Main Two-Column Layout ─── */}
+      <div className="flex-1 flex flex-col lg:flex-row items-center justify-center p-4 sm:p-8 lg:p-12 z-10">
+        {/* ─── Right Column: Shadcn Auth Card ─── */}
+        <div className="w-full max-w-md my-auto">
+          <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border shadow-2xl backdrop-blur-xl relative">
+            {/* Card Header */}
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold mb-3 border border-emerald-500/20">
+                <Sparkles size={14} /> كاونتر الأكشاك والمكتبات 2.0
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-foreground font-cairo tracking-tight">
+                تسجيل الدخول إلى المحل
+              </h1>
+              <p className="text-xs text-muted-foreground mt-1.5 font-cairo">
+                أدخل بيانات حسابك للوصول إلى لوحة التحكم وطابعاتك السحابية.
+              </p>
+            </div>
 
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="كلمة المرور"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                dir="ltr"
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Lock size={18} className="text-slate-400" />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }
-                }}
-              />
-
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: -1 }}>
-                <FormControlLabel
-                  control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} color="primary" />}
-                  label={<Typography variant="body2" color="text.secondary">تذكرني على هذا الجهاز</Typography>}
-                />
-                <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
-                  دعم فني: 0550-00-00-00
-                </Typography>
-              </Box>
-
-              <MuiButton
-                type="submit"
-                variant="contained"
-                size="large"
-                disabled={isSubmitting}
-                sx={{ mt: 1, borderRadius: 3, py: 1.5, fontSize: '1rem', fontFamily: 'var(--font-cairo)' }}
+            {/* Shadcn-Style Tabs: Email vs QR Code */}
+            <div className="grid grid-cols-2 p-1 rounded-xl bg-muted/50 border border-border mb-6 text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => { setActiveTab("email"); setErrorMsg(""); }}
+                className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  activeTab === "email"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
-                {isSubmitting ? "جاري الدخول..." : "تسجيل الدخول إلى المحل"}
-              </MuiButton>
-            </Box>
-          </form>
-
-          {/* Quick Demo Credentials */}
-          <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="body2" fontWeight="bold" color="text.secondary" align="center" sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-              <Sparkles size={16} className="text-amber-500" />
-              حسابات تجريبية سريعة للتجربة الفورية:
-            </Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-              <Box 
-                onClick={() => handleQuickFill("najah.kiosk@gmail.com", "Shop@2026!")}
-                sx={{ 
-                  p: 2, borderRadius: 4, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider',
-                  cursor: 'pointer', transition: 'all 0.2s', '&:hover': { borderColor: 'primary.main', bgcolor: 'action.hover' }
-                }}
+                <Mail size={15} /> بالبريد الإلكتروني
+              </button>
+              <button
+                type="button"
+                onClick={() => { setActiveTab("qr"); setErrorMsg(""); }}
+                className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  activeTab === "qr"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'primary.main', fontWeight: 'bold', fontSize: '0.85rem' }}>
-                  <Store size={16} /> صاحب كشك
-                </Box>
-                <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace', display: 'block', mt: 0.5 }}>
-                  najah.kiosk@gmail.com
-                </Typography>
-              </Box>
+                <QrCode size={15} /> دخول سريع بـ QR
+              </button>
+            </div>
 
-              <Box 
-                onClick={() => handleQuickFill("admin@sahla.dz", "Admin@2026!")}
-                sx={{ 
-                  p: 2, borderRadius: 4, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider',
-                  cursor: 'pointer', transition: 'all 0.2s', '&:hover': { borderColor: '#f59e0b', bgcolor: 'action.hover' }
-                }}
+            {/* Error Message Alert */}
+            {errorMsg && (
+              <div className="mb-5 p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive flex items-center gap-2 text-xs font-bold animate-fadeIn">
+                <AlertTriangle size={16} className="shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            {/* Quick Fill Success Notification */}
+            {quickFillSuccess && (
+              <div className="mb-5 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center gap-2 text-xs font-bold animate-fadeIn">
+                <CheckCircle2 size={16} className="shrink-0" />
+                <span>{quickFillSuccess}</span>
+              </div>
+            )}
+
+            {activeTab === "email" ? (
+              /* ─── Form Content ─── */
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1.5 font-cairo">
+                    البريد الإلكتروني (جيميل)
+                  </label>
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    placeholder="example@gmail.com"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    dir="ltr"
+                    size="small"
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Mail size={16} className="text-muted-foreground" />
+                          </InputAdornment>
+                        ),
+                        sx: {
+                          borderRadius: "12px",
+                          bgcolor: "background.paper",
+                          "& fieldset": { borderColor: "divider" },
+                          "&:hover fieldset": { borderColor: "primary.main" },
+                        },
+                      },
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-foreground font-cairo">
+                      كلمة المرور
+                    </label>
+                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer">
+                      نسيت كلمة المرور؟
+                    </span>
+                  </div>
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    placeholder="••••••••"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    dir="ltr"
+                    size="small"
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Lock size={16} className="text-muted-foreground" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                              size="small"
+                            >
+                              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                        sx: {
+                          borderRadius: "12px",
+                          bgcolor: "background.paper",
+                          "& fieldset": { borderColor: "divider" },
+                          "&:hover fieldset": { borderColor: "primary.main" },
+                        },
+                      },
+                    }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        sx={{ color: "text.secondary", "&.Mui-checked": { color: "#10b981" } }}
+                      />
+                    }
+                    label={
+                      <span className="text-xs text-muted-foreground font-cairo">
+                        تذكرني على هذا الجهاز
+                      </span>
+                    }
+                  />
+                  <div className="text-[11px] text-muted-foreground font-mono flex items-center gap-1">
+                    <PhoneCall size={12} className="text-emerald-500" />
+                    <span>0550-00-00-00</span>
+                  </div>
+                </div>
+
+                <MuiButton
+                  fullWidth
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  disabled={isSubmitting}
+                  disableElevation
+                  sx={{
+                    mt: 1,
+                    py: 1.4,
+                    borderRadius: "12px",
+                    fontWeight: 800,
+                    fontSize: "0.95rem",
+                    bgcolor: "#10b981",
+                    "&:hover": { bgcolor: "#059669" },
+                    boxShadow: "0 8px 20px -4px rgba(16, 185, 129, 0.35)",
+                  }}
+                >
+                  {isSubmitting ? "جاري التحقق والربط..." : "تسجيل الدخول إلى المحل"}
+                </MuiButton>
+              </form>
+            ) : (
+              /* ─── Fast QR Login Tab ─── */
+              <div className="py-6 text-center space-y-4">
+                <div className="w-44 h-44 mx-auto rounded-2xl bg-muted/40 border-2 border-dashed border-emerald-500/40 p-4 flex flex-col items-center justify-center">
+                  <QrCode size={88} className="text-emerald-600 dark:text-emerald-400 mb-2 animate-pulse" />
+                  <span className="text-[11px] font-bold text-muted-foreground">
+                    كود جلسة الكاونتر المباشرة
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground max-w-xs mx-auto font-cairo">
+                  افتح تطبيق سهلة على هاتفك واضغط على <strong>مسح QR</strong> للدخول المباشر إلى هذا الحاسوب بدون كلمة سر.
+                </p>
+                <MuiButton
+                  variant="outlined"
+                  size="small"
+                  onClick={() => handleQuickFill("najah.kiosk@gmail.com", "Shop@2026!", "صاحب كشك")}
+                  sx={{ borderRadius: "10px", fontSize: "0.8rem", fontWeight: 700 }}
+                >
+                  محاكاة المسح الناجح (تجربة)
+                </MuiButton>
+              </div>
+            )}
+
+            {/* ─── Quick Demo Accounts (بطاقات التجربة الفورية) ─── */}
+            <div className="mt-8 pt-5 border-t border-border">
+              <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-muted-foreground mb-3 font-cairo">
+                <Sparkles size={14} className="text-amber-500" />
+                حسابات تجريبية جاهزة للاختبار بنقرة واحدة:
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5">
+                {/* Demo Kiosk */}
+                <button
+                  type="button"
+                  onClick={() => handleQuickFill("najah.kiosk@gmail.com", "Shop@2026!", "صاحب كشك")}
+                  className="p-2.5 rounded-xl bg-muted/30 border border-border hover:border-emerald-500/50 hover:bg-emerald-500/5 text-right transition-all group"
+                >
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-0.5">
+                    <Store size={14} /> صاحب كشك
+                  </div>
+                  <div className="text-[10px] text-muted-foreground font-mono truncate">
+                    najah.kiosk@gmail.com
+                  </div>
+                </button>
+
+                {/* Demo Super Admin */}
+                <button
+                  type="button"
+                  onClick={() => handleQuickFill("admin@sahla.dz", "Admin@2026!", "مدير النظام")}
+                  className="p-2.5 rounded-xl bg-muted/30 border border-border hover:border-amber-500/50 hover:bg-amber-500/5 text-right transition-all group"
+                >
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 mb-0.5">
+                    <Crown size={14} /> مدير النظام
+                  </div>
+                  <div className="text-[10px] text-muted-foreground font-mono truncate">
+                    admin@sahla.dz
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Bottom Register Prompt */}
+            <div className="text-center text-xs text-muted-foreground mt-6 font-cairo">
+              ليس لديك حساب بعد؟{" "}
+              <Link
+                href="/register"
+                className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#f59e0b', fontWeight: 'bold', fontSize: '0.85rem' }}>
-                  <Crown size={16} /> مدير النظام الوطني
-                </Box>
-                <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace', display: 'block', mt: 0.5 }}>
-                  admin@sahla.dz
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
+                افتح حساب محلك مجاناً واحصل على 50 نقطة
+              </Link>
+            </div>
+          </div>
+        </div>
 
-          <Typography align="center" variant="body2" color="text.secondary" sx={{ mt: 4 }}>
-            ليس لديك حساب بعد؟{" "}
-            <Link href="/register" className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1">
-              افتح حساب محلك مجاناً واحصل على 50 نقطة <Sparkles size={14} className="text-amber-500" />
-            </Link>
-          </Typography>
-        </Box>
-      </Box>
+        {/* ─── Left Column: Value Proposition & Live Trust (Desktop Only) ─── */}
+        <div className="hidden lg:flex flex-col justify-center flex-1 max-w-lg mr-12 p-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold mb-6 border border-emerald-500/20 w-fit">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+            شبكة سحابية وطنية متصلة على مدار الساعة
+          </div>
 
-      {/* ─── Left Column: Value Prop Showcase ─── */}
-      <Box 
-        sx={{ 
-          display: { xs: 'none', lg: 'flex' },
-          flexDirection: 'column',
-          justifyContent: 'center',
-          flex: 1.2,
-          p: { lg: 6, xl: 10 },
-          position: 'relative',
-          overflow: 'hidden',
-          bgcolor: currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.4)' : 'rgba(241, 245, 249, 0.4)',
-          borderRight: '1px solid',
-          borderColor: 'divider'
-        }}
-      >
-        <div className="absolute top-1/4 right-1/4 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+          <h2 className="text-3xl font-black text-foreground font-cairo mb-4 leading-tight">
+            المحطة الرقمية الشاملة لكافة خدمات المواطنين في محلك 🇩🇿
+          </h2>
 
-        <Box sx={{ position: 'relative', zIndex: 1 }}>
-          <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, px: 2, py: 0.5, borderRadius: 4, border: '1px solid', borderColor: 'primary.main', bgcolor: 'rgba(16, 185, 129, 0.1)', color: 'primary.main', fontWeight: 'bold', fontSize: '0.75rem', mb: 4 }}>
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            منظومة سهلة السحابية · إصدار الجيل الجديد 2026
-          </Box>
+          <p className="text-muted-foreground text-sm font-cairo leading-relaxed mb-8">
+            صُممت سهلة لتمنح الأكشاك والمكتبات ومراكز الطباعة أسرع تجربة خدمة زبائن، مع التزام تام بحماية المعطيات الشخصية وفق القانون 18-07.
+          </p>
 
-          <Typography variant="h3" fontWeight="900" sx={{ fontFamily: 'var(--font-cairo)', mb: 2, lineHeight: 1.3 }}>
-            المنصة السحابية الموحدة لإدارة الأكشاك ومراكز الطباعة في الجزائر 🇩🇿
-          </Typography>
+          <div className="space-y-4">
+            <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-card border border-border shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                <Printer size={20} />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-foreground font-cairo">
+                  جسر طباعة لاسلكي وحراري فوري
+                </h4>
+                <p className="text-xs text-muted-foreground font-cairo mt-0.5">
+                  طباعة المستندات الصادرة من هواتف الزبائن دون فلاش ديسك ودون تثبيت تعريفات معقدة.
+                </p>
+              </div>
+            </div>
 
-          <Typography variant="subtitle1" color="text.secondary" sx={{ fontFamily: 'var(--font-cairo)', mb: 6, maxWidth: 500, lineHeight: 1.6 }}>
-            سهولة تامة في استقبال ملفات المواطنين عبر QR Code والطباعة اللاسلكية الحرارية، مع امتثال كامل للقانون الجزائري لحماية المعطيات الشخصية.
-          </Typography>
+            <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-card border border-border shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+                <ShieldCheck size={20} />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-foreground font-cairo">
+                  مطابقة القانون 18-07 لحماية المعطيات
+                </h4>
+                <p className="text-xs text-muted-foreground font-cairo mt-0.5">
+                  حذف تلقائي للملفات بعد الطباعة مع تشفير شامل يحمي خصوصية الزبون ومسؤوليتك.
+                </p>
+              </div>
+            </div>
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 500 }}>
-            <MuiCard sx={{ borderRadius: 4, bgcolor: 'background.paper', display: 'flex', alignItems: 'flex-start', p: 2 }}>
-              <Box sx={{ width: 48, height: 48, borderRadius: 3, bgcolor: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: 2, color: 'primary.main', flexShrink: 0 }}>
-                <Printer size={24} />
-              </Box>
-              <Box>
-                <Typography variant="subtitle2" fontWeight="bold" sx={{ fontFamily: 'var(--font-cairo)' }}>جسر طباعة حراري لاسلكي متزامن</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'var(--font-cairo)', mt: 0.5 }}>
-                  بدون تعريفات أو كوابل معقدة، يستقبل الكاونتر مهام الطباعة تلقائياً وفورياً.
-                </Typography>
-              </Box>
-            </MuiCard>
+            <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-card border border-border shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <CreditCard size={20} />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-foreground font-cairo">
+                  شحن رصيد سهل عبر الذهبية و CIB
+                </h4>
+                <p className="text-xs text-muted-foreground font-cairo mt-0.5">
+                  شحن فوري لنقاط الطباعة والمبيعات ببطاقتك البنكية أو بكروت الخدش المعتمدة.
+                </p>
+              </div>
+            </div>
+          </div>
 
-            <MuiCard sx={{ borderRadius: 4, bgcolor: 'background.paper', display: 'flex', alignItems: 'flex-start', p: 2 }}>
-              <Box sx={{ width: 48, height: 48, borderRadius: 3, bgcolor: 'rgba(20, 184, 166, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: 2, color: '#0d9488', flexShrink: 0 }}>
-                <ShieldCheck size={24} />
-              </Box>
-              <Box>
-                <Typography variant="subtitle2" fontWeight="bold" sx={{ fontFamily: 'var(--font-cairo)' }}>مطابقة القانون 18-07 لحماية المعطيات</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'var(--font-cairo)', mt: 0.5 }}>
-                  تشفير آمن للوثائق وحذف تلقائي نهائي بعد انقضاء المدة المحددة (24 إلى 72 ساعة).
-                </Typography>
-              </Box>
-            </MuiCard>
-
-            <MuiCard sx={{ borderRadius: 4, bgcolor: 'background.paper', display: 'flex', alignItems: 'flex-start', p: 2 }}>
-              <Box sx={{ width: 48, height: 48, borderRadius: 3, bgcolor: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: 2, color: '#d97706', flexShrink: 0 }}>
-                <CreditCard size={24} />
-              </Box>
-              <Box>
-                <Typography variant="subtitle2" fontWeight="bold" sx={{ fontFamily: 'var(--font-cairo)' }}>نظام شحن نقاط بالجملة وبالدفع الإلكتروني</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'var(--font-cairo)', mt: 0.5 }}>
-                  شحن رصيد المحل ببطاقات الخدش من الموزعين أو بالبطاقة الذهبية / CIB في ثوانٍ.
-                </Typography>
-              </Box>
-            </MuiCard>
-          </Box>
-        </Box>
-
-        {/* Live Network Metric */}
-        <Box sx={{ position: 'relative', zIndex: 1, mt: 8, pt: 4, borderTop: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-            <Typography variant="caption" fontWeight="bold" color="text.primary">شبكة سهلة نشطة عبر 58 ولاية</Typography>
-          </Box>
-          <Typography variant="caption" fontWeight="bold" color="primary.main" fontFamily="monospace">1,240+ محل تجاري مسجل</Typography>
-        </Box>
-      </Box>
-    </Box>
+          <div className="mt-8 pt-6 border-t border-border flex items-center justify-between text-xs text-muted-foreground font-cairo">
+            <span className="flex items-center gap-1.5 font-bold text-foreground">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              1,240+ محل تجاري مسجل عبر 58 ولاية
+            </span>
+            <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+              متاح 24/7
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
