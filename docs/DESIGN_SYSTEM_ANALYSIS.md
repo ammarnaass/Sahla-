@@ -1,11 +1,11 @@
-# 🎨 التحليل المعماري الشامل لنظام التصميم (Sahla 2.0 Design System)
-### دراسة هندسة الألوان، المكونات، ودليل التخصيص والتطوير للمطورين
+# 🎨 التحليل المعماري الشامل لنظام التصميم ورصد الأخطاء
+### منصة سهلة 2.0 · Sahla Design System Deep-Dive & Code Audit
 
 ---
 
 ## 📌 1. نظرة عامة على معمارية نظام التصميم (Architecture Overview)
 
-يعتمد نظام التصميم في منصة **سهلة (Sahla 2.0)** على معمارية هجينة حديثة (Hybrid Architecture) تمزج بين:
+يعتمد نظام التصميم في منصة **سهلة (Sahla 2.0)** على معمارية هجينة معاصرة (Hybrid Architecture):
 1. **محرك Tailwind CSS v4 المعماري المتقدم:** مع تنظيم خماسي الطبقات (5-Layer Modular Micro-Styles Architecture).
 2. **مكونات Shadcn UI الموجهة بالرموز الدلالية (Semantic Tokens + CVA):** لضمان المرونة القصوى والأداء العالي.
 3. **تكامل متقدم مع Material-UI v6:** مدعوم بمحرك الـ RTL التلقائي (`stylis-plugin-rtl`) ومزامنة فورية مع الوضعين الليلي والنهاري.
@@ -46,7 +46,6 @@ graph TD
 تدار جميع المتغيرات في `src/styles/surfaces/canvas.css` ومربوطة بـ `next-themes` عبر كلاس `.dark` على وسم `<html>`:
 
 ```css
-/* مثال على الفرق بين الوضعين المظلم والمشرق */
 /* ── الوضع المشرق (Light Mode) ── */
 html:not(.dark) {
   --background: #f8fafc;        /* رمادي فائق النقاء */
@@ -74,266 +73,188 @@ html.dark {
 }
 ```
 
-> **التأثير الانتقالي السلس (Smooth Transition):**
-> تم تعيين انتقال زمني `0.25s ease` على `html, body` لضمان عدم حدوث وميض مزعج للعين عند نقر زر المظهر.
-
----
-
-### 2.3 جسر التوافق مع Material UI (MUI Theme Bridge)
-يتم ربط المتغيرات مع مكتبة `@mui/material` في `src/components/ui/MuiThemeProvider.tsx`:
-- يحقن محول اتجاه الكتابة من اليمين لليسار (`cacheRtl`).
-- يحدد `palette.mode = isDark ? "dark" : "light"` فورياً عند تبديل المظهر.
-- يوحّد حواف العناصر (`borderRadius: 12px`) لتطابق فلسفة Shadcn UI.
-- يعطل التحويل التلقائي للأحرف اللاتينية إلى كبيرة (`textTransform: "none"`).
-
 ---
 
 ## 🧩 3. تحليل هيكل المكونات والأسطح (Components & Surfaces)
 
 ### 3.1 طبقة الأسطح والزجاج (Surfaces & Glassmorphism)
-تمنح المنصة مظهراً فخماً (Premium SaaS Feel) من خلال ملفات الأسطح في `src/styles/surfaces/`:
 - **`glass.css`:**
-  - كلاس `.glass-sidebar`: شريط جانبي بلوري مائل مع تأثير `backdrop-filter: blur(20px)`.
-  - كلاس `.glass-card-subtle`: كروت شفافة عصرية مع تأثير رفع طفيف وتوهج زمردي خفيف عند التمرير (`Hover Elevation`).
+  - `.glass-sidebar`: شريط جانبي بلوري مائل مع تأثير `backdrop-filter: blur(20px)`.
+  - `.glass-card-subtle`: كروت شفافة عصرية مع تأثير رفع طفيف وتوهج زمردي خفيف عند التمرير (`Hover Elevation`).
 - **`bezel.css`:**
-  - كلاسات `.bezel-surface` و `.bezel-inner`: حدود ثنائية دقيقة تعطي إيحاء المعدن المصقول لأجهزة الكاونتر والبطاقات الرسمية.
+  - `.bezel-surface` و `.bezel-inner`: حدود ثنائية دقيقة تعطي إيحاء المعدن المصقول لأجهزة الكاونتر والبطاقات الرسمية.
 
----
-
-### 3.2 المكونات الذرية القابلة لإعادة الاستخدام (Reusable UI Components)
-
-1. **زر التحكم بالثيم (`ThemeToggle.tsx`):**
-   - يدعم 3 أنماط:
-     - `variant="icon"`: زر مربع بحجم `w-9 h-9` مع دوران وتكبير خفيف للأيقونة.
-     - `variant="button"`: زر كامل يعرض حالة الثيم مع شارة تفاعلية ("نهاري ☀️" / "ليلي 🌙").
-     - `variant="chip"`: كبسولة مدمجة.
-   - محمي من وميض الـ SSR وتضارب الـ Hydration عبر فحص `mounted`.
-
-2. **الأزرار التفاعلية (`button.tsx`):**
-   - مبني بالاعتماد على مكتبة `class-variance-authority (cva)`.
-   - الأنواع المدعومة (`variants`):
-     - `primary`: تدرج لوني زمردي إلى التركوازي (`from-emerald-600 to-teal-600`).
-     - `secondary`: مظهر هادئ مع حدود دقيقة.
-     - `gold`: تدرج ذهبي كهرماني فاخر لرتب المشرفين والمدفوعات.
-     - `destructive` / `danger`: أحمر ياقوتي للإجراءات الحرجة.
-     - `outline`: حدود زمردية شفافة مع تعبئة عند التحويم.
-     - `ghost`: شفاف تماماً حتى يتم التحويم.
-   - الأحجام المدعومة (`size`): `sm` (36px), `md` (44px), `lg` (48px), `icon` (40x40px).
-
-3. **البطاقات والحاويات (`card.tsx`):**
-   - مكوّن Shadcn متكامل يضم: `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`.
-   - يتكيف تلقائياً مع `--card` و `--border` في المظهرين.
-
-4. **حقول الإدخال والنماذج (`material-text-field.tsx` و `input.tsx`):**
-   - حقول Material UI مع تسميات طافية (Floating Labels) متوافقة 100% مع الكتابة من اليمين لليسار (RTL).
-   - حقول Shadcn مبسطة مع حواف `rounded-2xl` وخلفية تكيفية.
-
----
-
-### 3.3 المكونات المركبة والشاشات الرئيسية (Organisms & Views)
-
-```
-src/components/
-├── landing/                # واجهة الهبوط والتعريف بالمنصة
-│   ├── LandingNavbar.tsx   # شريط التنقل العلوي مع ThemeToggle
-│   ├── hero/               # القسم الرئيسي والنداء للعمل
-│   └── pricing/            # جدول وبطاقات الأسعار
-├── admin/                  # لوحة تحكم مدير النظام الوطني (Super Admin)
-│   ├── AdminHeader.tsx     # هيدر الإدارة مع زر "بث وطني" و ThemeToggle
-│   ├── AdminTabNav.tsx     # شريط التبويبات الخماسية الحديث
-│   ├── wilayas/            # مصفوفة الـ 58 ولاية التفاعلية
-│   ├── live/               # شريط النشاط الحي وصحة السحابة
-│   ├── tabs/               # تبويبات التحليلات، المحلات، الفوترة، الكروت، الفريق
-│   └── modals/             # نوافذ التفاصيل، الفواتير، والبث العاجل
-├── dashboard/              # لوحة كاونتر صاحب المحل
-│   ├── DesktopSidebar.tsx  # القائمة الجانبية التكيفية مع الطي والتوسيع
-│   ├── BottomNavBar.tsx    # شريط التنقل السفلي للأجهزة المحمولة
-│   └── layout/             # هيدر الكاونتر والإشعارات اللحظية
-└── auth/                   # شاشات الدخول والتسجيل
-    ├── LoginClientView.tsx # دخول بالبريد أو QR Code
-    └── RegisterClientView.tsx # فتح حساب محل جديد
-```
+### 3.2 المكونات الأساسية (Reusable UI Components)
+1. **`ThemeToggle.tsx`:** زر المظهر الموحد بثلاثة أشكال (`icon`, `button`, `chip`) مع منع وميض التحميل (Hydration Flash-Free).
+2. **`button.tsx`:** مدعوم بمكتبة CVA مع أنماط `primary`, `secondary`, `gold`, `destructive`, `outline`, `ghost`, `link`.
+3. **`card.tsx`:** بطاقات سحابية متوافقة تلقائياً مع الثيم.
+4. **`material-text-field.tsx`:** حقول إدخال Material UI مهيأة للكتابة باللغة العربية (RTL).
 
 ---
 
 ## 🛠️ 4. دليل التعديل والتخصيص خطوة بخطوة (Customization Guide)
 
-### السيناريو 1: كيف تغيّر لون الهوية البصرية الأساسي (Brand Color)
-إذا أردت تغيير اللون الأساسي للموقع من الأخضر الزمردي إلى لون آخر (مثلاً الأزرق الملكي `#2563eb` أو البنفسجي `#7c3aed`):
-
-1. **تحديث متغيرات Tailwind v4 في `src/styles/tokens/palette.css`:**
-   ```css
-   @theme {
-     /* استبدال قيم --color-primary-50 إلى 900 بدرجات اللون الجديد */
-     --color-primary-500: #2563eb;
-     --color-primary-600: #1d4ed8;
-     --color-primary-700: #1e40af;
-   }
-   ```
-
-2. **تحديث المتغيرات الدلالية في `src/styles/surfaces/canvas.css`:**
-   ```css
-   html:not(.dark) {
-     --primary: #1d4ed8;        /* للوضع النهاري */
-     --color-border-focus: #1d4ed8;
-     --ring: #1d4ed8;
-   }
-
-   html.dark {
-     --primary: #3b82f6;        /* للوضع الليلي */
-     --color-border-focus: #3b82f6;
-     --ring: #3b82f6;
-   }
-   ```
-
-3. **تحديث مصفوفة الألوان في TypeScript في `src/lib/theme/colors.ts`:**
-   ```typescript
-   export const colors = {
-     semantic: {
-       dark: {
-         primary: "#3b82f6",
-         primaryHover: "#2563eb",
-       },
-       light: {
-         primary: "#1d4ed8",
-         primaryHover: "#1e40af",
-       },
-     },
-   };
-   ```
-
-4. **تحديث تدرج زر الـ Primary في `src/components/ui/button.tsx`:**
-   ```typescript
-   primary: "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white ...",
-   ```
+1. **لتعديل لون الهوية الأساسي:**
+   - حدّث `src/styles/tokens/palette.css` (تدرجات `--color-primary-*`).
+   - حدّث `src/styles/surfaces/canvas.css` (قيم `--primary` للوضعين).
+   - حدّث `src/lib/theme/colors.ts` لمزامنة Material UI.
+2. **لإضافة متغير دلالي جديد (مثل `--warning`):**
+   - عرّفه في `globals.css` تحت `@theme inline`.
+   - عيّن قيمه بالنهاري والليلي في `canvas.css`.
+3. **لتعديل الخطوط العربية واللاتينية:**
+   - عيّن المتغيرات في `src/styles/tokens/typography.css` (`--font-family-ar`, `--font-family-en`).
+   - تأكد من استيراد ملفات الخط في `src/app/layout.tsx`.
 
 ---
 
-### السيناريو 2: كيف تضيف متغيراً دلالياً جديداً (New Semantic Token)
-لإضافة متغير جديد مثل `--color-warning` (لون التحذير الأصفر):
+## 🚨 5. رصد وتحديد الأخطاء ونقاط الضعف المعمارية (Errors & Design Debt Audit)
 
-1. **في `src/app/globals.css`:**
-   ```css
-   @theme inline {
-     --color-warning: var(--warning);
-     --color-warning-foreground: var(--warning-foreground);
-   }
-   ```
-
-2. **في `src/styles/surfaces/canvas.css`:**
-   ```css
-   html:not(.dark) {
-     --warning: #f59e0b;
-     --warning-foreground: #ffffff;
-   }
-
-   html.dark {
-     --warning: #fbbf24;
-     --warning-foreground: #020617;
-   }
-   ```
-
-3. **الاستخدام المباشر في أي مكون:**
-   ```tsx
-   <div className="bg-warning text-warning-foreground border border-warning/30 p-3 rounded-xl">
-     تنبيه هام للزبائن!
-   </div>
-   ```
+أظهر التحليل المعماري الدقيق وجود **7 أخطاء ونقاط ضعف وتضاربات برمجية** في نظام التصميم الحالي يجب معالجتها:
 
 ---
 
-### السيناريو 3: كيف تنشئ مكوناً جديداً متوافقاً 100% مع نظام التصميم
-عند بناء مكون جديد (مثلاً `StatCard.tsx`):
+### ❌ الخطأ 1: كسر الثيم بالألوان الصلبة المباشرة (Hardcoded Hex Colors in MUI Sx Props)
+* **المشكلة:**
+  في ملفات عديدة مثل:
+  - `HeroSection.tsx` (سطر 53-54): `bgcolor: "#10b981", "&:hover": { bgcolor: "#059669" }`
+  - `CtaBanner.tsx` (سطر 30-31): `bgcolor: "#10b981"`
+  - `AdminHeader.tsx` (سطر 65-66): `bgcolor: "#10b981"`
+  - `PricingCard.tsx` و `RoiCalculator.tsx`
+* **الأثر السلبي:**
+  هذه الألوان الصلبة (`#10b981`) تتجاوز نظام الثيم! فعندما يختار المستخدم **الوضع النهاري (Light Mode)**، يُفترض أن يكون اللون الأخضر النهاري هو `#059669` بدرجة تباين أعلى، لكن الزر يظل مجمداً على اللون الفاتح المخصص للوضع الليلي، مما يقلل وضوح النص الأبيض فوقه ويكسر تناسق الثيم النهاري.
+* **الحل المعماري:**
+  استبدال الـ Hex المباشر بقيم الثيم الدلالية في MUI:
+  ```tsx
+  // ❌ خطأ
+  sx={{ bgcolor: "#10b981", "&:hover": { bgcolor: "#059669" } }}
 
-```tsx
-"use client";
-
-import React from "react";
-import { cn } from "@/lib/utils";
-import { LucideIcon } from "lucide-react";
-
-interface StatCardProps {
-  title: string;
-  value: string | number;
-  subtitle?: string;
-  icon: LucideIcon;
-  badge?: string;
-  className?: string;
-}
-
-export function StatCard({
-  title,
-  value,
-  subtitle,
-  icon: Icon,
-  badge,
-  className,
-}: StatCardProps) {
-  return (
-    <div
-      className={cn(
-        "p-5 rounded-2xl bg-card border border-border shadow-sm hover:border-primary/40 transition-all duration-200",
-        className
-      )}
-    >
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-bold text-muted-foreground font-cairo">
-          {title}
-        </span>
-        <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-          <Icon size={16} />
-        </div>
-      </div>
-
-      <div className="text-2xl sm:text-3xl font-black text-foreground font-mono">
-        {value}
-      </div>
-
-      {(subtitle || badge) && (
-        <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50 text-[11px]">
-          {subtitle && <span className="text-muted-foreground font-medium">{subtitle}</span>}
-          {badge && (
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold font-mono">
-              {badge}
-            </span>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-```
+  // ✅ صحيح
+  sx={{ bgcolor: "primary.main", color: "primary.contrastText" }}
+  ```
 
 ---
 
-### السيناريو 4: كيف تعدل الخطوط والطباعة (Typography)
-تدار أسماء الخطوط في `src/styles/tokens/typography.css`:
-
-```css
-@theme {
-  --font-family-ar: "Cairo", "Tajawal", -apple-system, sans-serif;
-  --font-family-en: "Outfit", -apple-system, sans-serif;
-  --font-family-mono: "Fira Code", monospace;
-}
-```
-- لتغيير الخط العربي من `Cairo` إلى خط آخر (مثل `Alexandria` أو `IBM Plex Sans Arabic`):
-  1. استورد الخط في `src/app/layout.tsx` عبر `next/font/google`.
-  2. عيّن اسم الخط في `typography.css`.
+### ❌ الخطأ 2: تشتت المرجع وازدواجية وثائق التصميم (Stale Design System Master Doc)
+* **المشكلة:**
+  يوجد في المشروع ملف قديم باسم `design-system/sahla/MASTER.md`.
+  هذا الملف يوثق لوحة ألوان مختلفة تماماً (اللون الأساسي الذهبي `#F59E0B` والبنفسجي `#8B5CF6`)، وخطوطاً مغايرة (`EB Garamond` و `Lato`).
+* **الأثر السلبي:**
+  أي مطور جديد يدخل المشروع ويقرأ هذا الملف سيعتقد أن هذه هي القواعد المعتمدة، بينما الكود الحقيقي المطبق بالكامل في `src/styles/` و `src/app/globals.css` يعتمد على الأخضر الزمردي `#10b981` وخط Cairo ونظام Tailwind CSS v4.
+* **الحل المعماري:**
+  أرشفة أو تحديث ملف `MASTER.md` القديم ليعكس المعمارية الحقيقية المطبقة حالياً في المنظومة.
 
 ---
 
-## 🎯 5. القواعد والمعايير الصارمة للتطوير (Golden Rules)
+### ❌ الخطأ 3: تمرير خصائص تخطيط CSS كخصائص HTML عادية (DOM Attributes Warnings)
+* **المشكلة:**
+  سجل خادم التطوير والمتصفح أخطاء واضحة:
+  ```
+  Warning: React does not recognize the `alignItems` prop on a DOM element.
+  Warning: React does not recognize the `flexGrow` prop on a DOM element.
+  Warning: React does not recognize the `justifyContent` prop on a DOM element.
+  Warning: React does not recognize the `borderRadius` prop on a DOM element.
+  ```
+* **الأثر السلبي:**
+  حدوث تحذيرات في React Console وبطء في الـ Rendering لأن مكونات الحاويات (أو مكونات مبنية فوق MUI Box) تقوم بعمل Spread للـ Props وتمرير خواص CSS كـ HTML Attributes على عناصر `<div>`.
+* **الحل المعماري:**
+  استخدام كلاسات Tailwind القياسية (مثل `className="flex items-center justify-between"`) وتجنب تمرير أسماء خواص CSS كـ Attributes مباشرة على عناصر DOM الأصلية.
 
-1. **تجنب الألوان المباشرة (No Hardcoded Colors):**
-   - ❌ تجنب: `bg-[#0f172a]` أو `text-black` أو `bg-white`.
-   - ✅ استخدم: `bg-card`, `bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`.
+---
 
-2. **التوافق التام مع اتجاه اليمين لليسار (RTL-First):**
-   - استخدم `gap-*` أو هوامش متوافقة بدلاً من الاعتماد غير المحسوب على `ml-*` و `mr-*`.
-   - جميع حقول الإدخال والتواريخ تراعي اللغة العربية مع دعم `dir="ltr"` للأرقام البريدية وحقول البريد الإلكتروني.
+### ❌ الخطأ 4: تفاوت وتشتت مقاييس حواف الانحناء (Border-Radius Fragmentation)
+* **المشكلة:**
+  - في `canvas.css` تم تعريف الحافة القياسية: `--radius: 0.75rem` (12px أي `rounded-xl`).
+  - في `MuiThemeProvider.tsx` تم ضبط `shape: { borderRadius: 12 }`.
+  - ولكن عند فحص المكونات نجد تشتتاً كبيراً:
+    - كروت الواجهة: بعضها `rounded-2xl` وبعضها `rounded-3xl` وبعضها `rounded-xl`.
+    - شاشات الـ Dashboard: عناصر `rounded-xl` وأخرى `rounded-2xl` في نفس المستوى البصري.
+    - الأزرار: أزرار بحواف `rounded-xl` وأخرى بحواف `rounded-2xl`.
+* **الأثر السلبي:**
+  غياب التناغم البصري الهندسي (Visual Rhythm)، حيث تظهر بعض الحواف دائرية بشكل مبالغ فيه وأخرى حادة.
+* **الحل المعماري:**
+  اعتماد مقياس حواف موحد وصارم:
+  - عناصر الإدخال والأزرار الصغيرة: `rounded-xl` (12px = `--radius`).
+  - البطاقات والحاويات العادية: `rounded-2xl` (16px).
+  - النوافذ الكبيرة (Modals) والكروت الرئيسية: `rounded-3xl` (24px).
 
-3. **الوقاية من وميض التحميل (Hydration Flash Prevention):**
-   - عند إنشاء مكون يعتمد على حالة الثيم، استخدم الخطاف الموحد `useTheme()` من `@/components/ui/ThemeProvider` وافحص `mounted` لمنع أخطاء الـ SSR.
+---
 
-4. **السرعة والوزن الخفيف (Micro-Styles Performance):**
-   - الاعتماد على CSS Variables الأصلية بدلاً من كود JavaScript الثقيل لتغيير الألوان يحقق زمن استجابة صفري وتجربة فائقة السلاسة على جميع الأجهزة.
+### ❌ الخطأ 5: تشتت تعريف واستدعاء الخطوط (Typography Class Fragmentation)
+* **المشكلة:**
+  - في `layout.tsx`: يتم استيراد الخط المحلي عبر المتغير `--font-cairo`.
+  - في `typography.css`: تم تعريف `--font-family-ar: "Cairo"`.
+  - في المكونات نجد أشكالاً مختلفة لاستدعاء الخط:
+    - `className="font-cairo"`
+    - `className="font-display"` (غير معرف في Tailwind v4 ويقع إلى الخط الافتراضي للنظام)
+    - `sx={{ fontFamily: "var(--font-cairo)" }}`
+    - `className="font-[family-name:var(--font-cairo)]"` في وسم `<body>`.
+* **الأثر السلبي:**
+  في حال فتح صفحة أو مكون بدون كلاس محدد، قد تسقط النصوص إلى خط النظام الافتراضي (Arial أو Tahoma) بدلاً من خط Cairo المعتمد.
+* **الحل المعماري:**
+  تعريف متغير الخط داخل `@theme inline` في `globals.css`:
+  ```css
+  @theme inline {
+    --font-cairo: var(--font-cairo);
+    --font-tajawal: var(--font-tajawal);
+  }
+  ```
+  وتعيين خط Cairo كخط افتراضي أساسي لكل عنصر نصوص في `body` و `canvas.css`.
+
+---
+
+### ❌ الخطأ 6: ضعف تباين بعض الشارات في الوضع النهاري (Light Mode Badge Contrast)
+* **المشكلة:**
+  بعض الشارات وحالات النصوص تستخدم لوناً ثابتاً مثل `text-emerald-400` أو `text-amber-400`.
+* **الأثر السلبي:**
+  في الوضع الليلي (`Dark Mode`)، تكون هذه الألوان ممتازة ومقروءة. أما عند الانتقال إلى الوضع النهاري (`Light Mode`)، تظهر الكتابة باهتة للغاية وتفشل في اختبار معايير سهولة القراءة (WCAG AA Contrast Ratio) حيث يكون التباين أقل من 3:1.
+* **الحل المعماري:**
+  استخدام الألوان التكيفية المزدوجة دائماً:
+  ```tsx
+  // ❌ خطأ (باهت في الوضع النهاري)
+  className="text-emerald-400"
+
+  // ✅ صحيح (مقروء بنسبة 7:1 بالنهاري و 12:1 بالليلي)
+  className="text-emerald-700 dark:text-emerald-400"
+  ```
+
+---
+
+### ❌ الخطأ 7: ازدواجية مصدر الحقيقة للألوان (Dual Source of Truth)
+* **المشكلة:**
+  توجد منظومتان منفصلتان للألوان:
+  1. ملفات الـ CSS: `palette.css` و `canvas.css`.
+  2. ملف الـ TypeScript: `colors.ts`.
+* **الأثر السلبي:**
+  إذا قام المطور مستقبلاً بتعديل درجة لون الأخضر في الـ CSS ونسي تعديل `colors.ts`، فإن مكونات Tailwind ستتغير بينما تظل مكونات Material UI تستخدم اللون القديم!
+* **الحل المعماري:**
+  جعل ملفات الـ CSS هي المصدر الوحيد للحقيقة (Single Source of Truth)، وجعل `MuiThemeProvider` يقرأ ألوانه مباشرة من متغيرات CSS:
+  ```typescript
+  palette: {
+    primary: {
+      main: isDark ? "var(--primary)" : "var(--primary)",
+    },
+    background: {
+      default: "var(--background)",
+      paper: "var(--card)",
+    },
+  }
+  ```
+
+---
+
+## 📋 6. جدول مقارنة وتقييم نظام التصميم (Design System Scorecard)
+
+| المعيار | التقييم الحالي | الحالة | الإجراء المطلوب |
+| :--- | :---: | :---: | :--- |
+| **هندسة الألوان والباليتات** | `9 / 10` | ممتاز 🟢 | استبدال الـ Hex الصلب في مكونات MUI بمتغيرات الثيم. |
+| **دعم ثنائية الثيم (Dark/Light)** | `9.5 / 10` | ممتاز جداً 🟢 | حل تباين الشارات الخفيفة في الوضع النهاري. |
+| **تكامل Material UI + Shadcn** | `8 / 10` | جيد جداً 🟡 | ربط ألوان MUI بـ CSS Variables لمنع ازدواجية المصدر. |
+| **اتساق الخطوط (Typography)** | `7.5 / 10` | يحتاج ضبط 🟡 | توحيد استدعاء `font-cairo` وحذف `font-display` الزائد. |
+| **مقاييس الحواف (Border Radius)** | `7 / 10` | يحتاج توحيد 🟡 | تطبيق مقياس موحد (12px أزرار / 16px كروت / 24px نوافذ). |
+| **التوافق مع RTL والعربية** | `10 / 10` | استثنائي 🟢 | متوافق تماماً مع محرك RTL-First. |
+| **التوثيق ومرجع التصميم** | `6 / 10` | يحتاج تحديث 🔴 | أرشفة `MASTER.md` القديم وتحديثه بالتوثيق الحالي. |
+
+---
+
+## 💡 7. خلاصة وتوصيات التنفيذ الفوري
+نظام التصميم في **سهلة 2.0** يمتلك أساساً هندسياً قوياً للغاية بفضل المعمارية خماسية الطبقات ودعم محرك `next-themes` السريع. ومعالجة الأخطاء السبعة المرصودة أعلاه ستجعله نظام تصميم بمستوى الشركات العالمية الكبرى (Enterprise-Grade Design System) خالياً من أي ديون تقنية (Zero Design Debt).
