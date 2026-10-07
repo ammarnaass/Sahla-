@@ -8,14 +8,14 @@ import { Button as MuiButton } from "@mui/material";
 import { Mail, QrCode, AlertTriangle, Sparkles, Crown, Compass } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { UserNavDropdown } from "@/components/navigation/UserNavDropdown";
 import { LoginForm } from "./LoginForm";
 import { QrLoginScanner } from "./QrLoginScanner";
-import { AuthStateMonitor } from "./AuthStateMonitor";
 import { AuthTrustSidebar } from "./AuthTrustSidebar";
 
 export function LoginClientView() {
   const router = useRouter();
-  const { loginWithEmail } = useAuth();
+  const { loginWithEmail, isLoggedIn } = useAuth();
 
   // Form State
   const [activeTab, setActiveTab] = useState<"email" | "qr">("email");
@@ -91,22 +91,26 @@ export function LoginClientView() {
 
           <ThemeToggle variant="icon" />
 
-          <Link href="/register">
-            <MuiButton
-              variant="outlined"
-              size="small"
-              sx={{
-                borderRadius: "10px",
-                fontWeight: 700,
-                fontSize: "0.8rem",
-                borderColor: "divider",
-                color: "text.primary",
-                "&:hover": { borderColor: "primary.main", bgcolor: "action.hover" },
-              }}
-            >
-              فتح حساب جديد
-            </MuiButton>
-          </Link>
+          {isLoggedIn ? (
+            <UserNavDropdown />
+          ) : (
+            <Link href="/register">
+              <MuiButton
+                variant="outlined"
+                size="small"
+                sx={{
+                  borderRadius: "10px",
+                  fontWeight: 700,
+                  fontSize: "0.8rem",
+                  borderColor: "divider",
+                  color: "text.primary",
+                  "&:hover": { borderColor: "primary.main", bgcolor: "action.hover" },
+                }}
+              >
+                فتح حساب جديد
+              </MuiButton>
+            </Link>
+          )}
         </div>
       </header>
 
@@ -114,9 +118,6 @@ export function LoginClientView() {
       <div className="flex-1 flex flex-col lg:flex-row items-center justify-center p-4 sm:p-8 lg:p-12 z-10">
         {/* Right Column: Auth Card */}
         <div className="w-full max-w-md my-auto">
-          {/* 1. Live Auth State Monitor */}
-          <AuthStateMonitor />
-
           <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border shadow-2xl backdrop-blur-xl relative">
             <div className="text-center mb-6">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold mb-3 border border-emerald-500/20">

@@ -12,8 +12,12 @@ import {
 import { headerNavLinks } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useAuth } from "@/contexts/AuthContext";
+import { UserNavDropdown } from "@/components/navigation/UserNavDropdown";
 
 export function LandingNavbar({ mounted }: { mounted?: boolean }) {
+  const { isLoggedIn } = useAuth();
+
   return (
     <AppBar
       position="sticky"
@@ -68,41 +72,47 @@ export function LandingNavbar({ mounted }: { mounted?: boolean }) {
           <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
             <ThemeToggle variant="icon" />
 
-            <Link href="/login">
-              <MuiButton
-                variant="outlined"
-                sx={{
-                  borderRadius: "10px",
-                  fontWeight: 700,
-                  px: 2.5,
-                  py: 0.8,
-                  fontSize: "0.875rem",
-                  borderColor: "divider",
-                  color: "text.primary",
-                  "&:hover": { borderColor: "primary.main", bgcolor: "action.hover" },
-                }}
-              >
-                دخول المحل
-              </MuiButton>
-            </Link>
+            {isLoggedIn ? (
+              <UserNavDropdown />
+            ) : (
+              <>
+                <Link href="/login">
+                  <MuiButton
+                    variant="outlined"
+                    sx={{
+                      borderRadius: "10px",
+                      fontWeight: 700,
+                      px: 2.5,
+                      py: 0.8,
+                      fontSize: "0.875rem",
+                      borderColor: "divider",
+                      color: "text.primary",
+                      "&:hover": { borderColor: "primary.main", bgcolor: "action.hover" },
+                    }}
+                  >
+                    دخول المحل
+                  </MuiButton>
+                </Link>
 
-            <Link href="/register" className="hidden sm:inline-block">
-              <MuiButton
-                variant="contained"
-                disableElevation
-                sx={{
-                  borderRadius: "10px",
-                  fontWeight: 700,
-                  px: 2.5,
-                  py: 0.8,
-                  fontSize: "0.875rem",
-                  bgcolor: "primary.main",
-                  "&:hover": { bgcolor: "primary.dark" },
-                }}
-              >
-                افتح حساباً مجاناً
-              </MuiButton>
-            </Link>
+                <Link href="/register" className="hidden sm:inline-block">
+                  <MuiButton
+                    variant="contained"
+                    disableElevation
+                    sx={{
+                      borderRadius: "10px",
+                      fontWeight: 700,
+                      px: 2.5,
+                      py: 0.8,
+                      fontSize: "0.875rem",
+                      bgcolor: "primary.main",
+                      "&:hover": { bgcolor: "primary.dark" },
+                    }}
+                  >
+                    افتح حساباً مجاناً
+                  </MuiButton>
+                </Link>
+              </>
+            )}
           </Box>
         </Toolbar>
       </Container>
