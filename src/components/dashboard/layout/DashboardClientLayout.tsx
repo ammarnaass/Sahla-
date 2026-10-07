@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { DashboardTabProvider, useDashboardTab } from "@/contexts/DashboardTabContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import { Sparkles, Crown, UserCheck, ShieldCheck } from "lucide-react";
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
@@ -132,8 +133,10 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
 export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
   return (
-    <DashboardTabProvider>
-      <DashboardLayoutContent>{children}</DashboardLayoutContent>
-    </DashboardTabProvider>
+    <NotificationProvider shopId="shop_1">
+      <DashboardTabProvider>
+        <DashboardLayoutContent>{children}</DashboardLayoutContent>
+      </DashboardTabProvider>
+    </NotificationProvider>
   );
 }

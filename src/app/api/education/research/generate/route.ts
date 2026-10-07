@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { AIProviderRouter } from "@/server/ai/providers/providerRouter";
 import { calculateEducationPricing, ALGERIAN_SUBJECTS } from "@/lib/educationConstants";
 import { trackEvent } from "@/lib/analytics";
+import { dispatchNotification } from "@/server/notifications/dispatcher";
 
 export async function POST(req: NextRequest) {
   try {
@@ -263,6 +264,32 @@ ${promptHeadingList}
       pointsCost,
       shopId,
     });
+
+    // Dispatch real-time live notification for research completion
+    dispatchNotification({
+      shopId,
+      type: "AI_RESEARCH_READY",
+      priority: "NORMAL",
+      title: "تم تجهيز البحث المدرسي بالكامل ⚡",
+      body: `بحث: "${cleanTopic}" (${pageCount} صفحات) أصبح جاهزاً للطباعة الفورية وتصدير Word.`,
+      actionUrl: `/dashboard?tab=services&docId=${docId}`,
+      actionLabel: "معاينة البحث",
+      meta: { docId, topic: cleanTopic, pageCount, pointsCost },
+    }).catch((err) => console.warn("Failed to dispatch research notification:", err));
+
+    // If balance is low, dispatch warning notification
+    if (newBalance < 20) {
+      dispatchNotification({
+        shopId,
+        type: "LOW_BALANCE",
+        priority: "URGENT",
+        title: "تنبيه: رصيد النقاط منخفض 💳",
+        body: `رصيد المحل الحالي أصبح ${newBalance} نقطة فقط. يُرجى شحن الرصيد لتفادي توقف توليد المستندات.`,
+        actionUrl: `/dashboard?tab=overview`,
+        actionLabel: "شحن النقاط",
+        meta: { balance: newBalance },
+      }).catch((err) => console.warn("Failed to dispatch low balance notification:", err));
+    }
 
     return NextResponse.json({
       success: true,

@@ -5,6 +5,7 @@ import { runResearchPlanner } from "@/server/education/skills/researchPlanner";
 import { runTopicIntake } from "@/server/education/skills/topicIntake";
 import { calculateJobPoints } from "@/server/education/config";
 import { trackEvent } from "@/lib/analytics";
+import { dispatchNotification } from "@/server/notifications/dispatcher";
 
 export async function POST(req: NextRequest) {
   try {
@@ -181,6 +182,18 @@ ${unitTitle ? `- المقطع التعليمي: "${unitTitle}"` : ""}
       level,
       pages,
     });
+
+    // Dispatch real-time live notification
+    dispatchNotification({
+      shopId: shop_id || "shop_1",
+      type: "AI_PLAN_READY",
+      priority: "NORMAL",
+      title: "اكتملت خطة البحث بالذكاء الاصطناعي ⚡",
+      body: `تم إعداد خطة وفهرس "${normalizedTopic}" بنجاح ومطابقتها للمنهاج الجزائري.`,
+      actionUrl: "/dashboard?tab=services",
+      actionLabel: "معاينة الخطة",
+      meta: { planId, topic: normalizedTopic, stage, level },
+    }).catch((notifErr) => console.warn("Failed to dispatch plan notification:", notifErr));
 
     return NextResponse.json({
       id: planId,

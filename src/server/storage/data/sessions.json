@@ -56,38 +56,50 @@
     "createdAt": "2026-10-07 12:57:44"
   },
   {
+    "id": "sahla_session_1791380008353_o6eif64",
     "token": "sahla_session_1791380008353_o6eif64",
     "userId": "user_super_admin",
     "shopId": "shop_default",
-    "createdAt": "2026-10-07T13:33:28.353Z",
-    "expiresAt": "2026-11-06T13:33:28.353Z"
+    "expiresAt": "2026-11-06T13:33:28.353Z",
+    "createdAt": "2026-10-07 13:33:28"
   },
   {
+    "id": "sahla_session_1791383853258_sc22z6d",
     "token": "sahla_session_1791383853258_sc22z6d",
     "userId": "user_super_admin",
     "shopId": "shop_default",
-    "createdAt": "2026-10-07T14:37:33.258Z",
-    "expiresAt": "2026-11-06T14:37:33.258Z"
+    "expiresAt": "2026-11-06T14:37:33.258Z",
+    "createdAt": "2026-10-07 14:37:33"
   },
   {
+    "id": "sahla_session_1791383964306_c3mz0qp",
     "token": "sahla_session_1791383964306_c3mz0qp",
     "userId": "user_super_admin",
     "shopId": "shop_default",
-    "createdAt": "2026-10-07T14:39:24.306Z",
-    "expiresAt": "2026-11-06T14:39:24.306Z"
+    "expiresAt": "2026-11-06T14:39:24.306Z",
+    "createdAt": "2026-10-07 14:39:24"
   },
   {
+    "id": "sahla_session_1791397067461_ztj0fha",
     "token": "sahla_session_1791397067461_ztj0fha",
     "userId": "user_super_admin",
     "shopId": "shop_default",
-    "createdAt": "2026-10-07T18:17:47.461Z",
-    "expiresAt": "2026-11-06T18:17:47.461Z"
+    "expiresAt": "2026-11-06T18:17:47.461Z",
+    "createdAt": "2026-10-07 18:17:47"
   },
   {
+    "id": "sahla_session_1791398290138_uj7brs0",
     "token": "sahla_session_1791398290138_uj7brs0",
     "userId": "user_shop_admin",
     "shopId": "shop_1",
-    "createdAt": "2026-10-07T18:38:10.138Z",
-    "expiresAt": "2026-11-06T18:38:10.138Z"
+    "expiresAt": "2026-11-06T18:38:10.138Z",
+    "createdAt": "2026-10-07 18:38:10"
+  },
+  {
+    "token": "sahla_session_1791400064878_gnp1hhk",
+    "userId": "user_shop_admin",
+    "shopId": "shop_1",
+    "createdAt": "2026-10-07T19:07:44.878Z",
+    "expiresAt": "2026-11-06T19:07:44.878Z"
   }
 ]
