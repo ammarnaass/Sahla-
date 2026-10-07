@@ -32,7 +32,6 @@ export type UnifiedAdminTab =
   | "wholesale"
   | "admins"
   | "school-research"
-  | "exams"
   | "services"
   | "overview"
   | "documents"
@@ -127,14 +126,6 @@ export function AdminUnifiedSidebar({
     {
       title: "الخدمات والتعليم",
       items: [
-        {
-          id: "exams",
-          label: "امتحانات وفروض رسمية",
-          icon: BookOpenCheck,
-          badge: "ONEC",
-          badgeVariant: "outline",
-          shortcut: "⌘E",
-        },
         {
           id: "services",
           label: "دليل الخدمات واستوديو A4",

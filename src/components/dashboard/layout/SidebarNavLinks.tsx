@@ -54,14 +54,7 @@ export function SidebarNavLinks({
         </svg>
       ),
     },
-    {
-      id: "exams",
-      label: "امتحانات وفروض",
-      category: "core",
-      shortcut: "⌘E",
-      badge: "ONEC",
-      icon: <SchoolCapIcon size={16} className="text-blue-600 dark:text-blue-400" />,
-    },
+
     {
       id: "services",
       label: "دليل الخدمات واستوديو v2.0",

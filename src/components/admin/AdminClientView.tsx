@@ -24,7 +24,6 @@ import { WalletTab, type LedgerItem } from "@/components/dashboard/wallet/Wallet
 import { SettingsTab } from "@/components/dashboard/settings/SettingsTab";
 import { StudioModal } from "@/components/dashboard/studio/StudioModal";
 import { SchoolResearchTab } from "@/components/dashboard/education/SchoolResearchTab";
-import { ExamsHubTab } from "@/components/dashboard/education/ExamsHubTab";
 import { SERVICES_CATALOG, type ServiceDefinition } from "@/lib/constants";
 import type { GeneratedDocPayload } from "@/hooks/dashboard/useStudioState";
 import { trackEvent } from "@/lib/analytics";
@@ -156,7 +155,6 @@ export default function AdminClientView() {
       "overview",
       "services",
       "school-research",
-      "exams",
       "documents",
       "wallet",
       "settings",
@@ -166,7 +164,7 @@ export default function AdminClientView() {
     }
   }, []);
 
-  // Global shortcuts for educational modules: ⌘R for research, ⌘E for exams
+  // Global shortcut for school research: ⌘R
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       const activeEl = document.activeElement as HTMLElement | null;
@@ -181,9 +179,6 @@ export default function AdminClientView() {
       if ((e.metaKey || e.altKey) && (e.key === "r" || e.key === "R")) {
         e.preventDefault();
         handleSelectTab("school-research");
-      } else if ((e.metaKey || e.ctrlKey || e.altKey) && (e.key === "e" || e.key === "E")) {
-        e.preventDefault();
-        handleSelectTab("exams");
       }
     };
 
@@ -593,13 +588,6 @@ export default function AdminClientView() {
 
               {activeTab === "school-research" && (
                 <SchoolResearchTab
-                  points={points}
-                  onDocumentGenerated={handleDocumentGenerated}
-                />
-              )}
-
-              {activeTab === "exams" && (
-                <ExamsHubTab
                   points={points}
                   onDocumentGenerated={handleDocumentGenerated}
                 />

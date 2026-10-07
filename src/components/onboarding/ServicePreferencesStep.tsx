@@ -25,12 +25,6 @@ export function ServicePreferencesStep({
       icon: "🎓",
       desc: "قوالب تعليمية للابتدائي، المتوسط والجامعي متوافقة مع المنهاج الجزائري",
     },
-    {
-      code: "EXAMS",
-      title: "امتحانات وفروض ونماذج رسمية",
-      icon: "📝",
-      desc: "مواضيع امتحانات واختبارات مع سلالم التنقيط وحلول نموذجية",
-    },
   ];
 
   const toggleService = (code: string) => {

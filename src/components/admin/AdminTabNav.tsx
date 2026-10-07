@@ -67,12 +67,7 @@ export function AdminTabNav({
       label: "فريق الإشراف",
       icon: Shield,
     },
-    {
-      id: "exams" as UnifiedAdminTab,
-      label: "امتحانات وفروض",
-      icon: BookOpenCheck,
-      badge: "ONEC",
-    },
+
     {
       id: "services" as UnifiedAdminTab,
       label: "استوديو الخدمات A4",

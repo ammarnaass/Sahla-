@@ -6,7 +6,6 @@ export type TabType =
   | "overview"
   | "services"
   | "school-research"
-  | "exams"
   | "documents"
   | "wallet"
   | "account"
@@ -26,12 +25,16 @@ export function DashboardTabProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash.replace("#", "");
+      if (hash === "exams") {
+        setActiveTabState("services");
+        window.location.hash = "services";
+        return;
+      }
       if (
         [
           "overview",
           "services",
           "school-research",
-          "exams",
           "documents",
           "wallet",
           "account",

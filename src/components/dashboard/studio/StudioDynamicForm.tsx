@@ -20,8 +20,7 @@ import {
   BoltIcon,
   WirelessPrintIcon,
 } from "@/components/ui/Icons";
-import { ExamsLibraryView } from "./ExamsLibraryView";
-import { PracticeExamGeneratorView } from "./PracticeExamGeneratorView";
+
 import { SpecCard } from "./SpecCard";
 import { ALGERIAN_WILAYAS_DIRECTORATES, getCurriculumUnits } from "@/server/education/curriculumCatalog";
 
@@ -187,7 +186,7 @@ export function StudioDynamicForm({
   onApproveSpec,
 }: StudioDynamicFormProps) {
 
-  const isSchoolService = service.code === "SCHOOL_RESEARCH" || service.code === "EXAMS";
+  const isSchoolService = service.code === "SCHOOL_RESEARCH";
 
 
   // Grades filtered by selected level
@@ -255,98 +254,10 @@ export function StudioDynamicForm({
       </div>
 
       {/* ======================================================== */}
-      {/* 🎓 SCHOOL RESEARCH & EXAMS FULL CONFIGURATION SECTION    */}
+      {/* 🎓 SCHOOL RESEARCH CONFIGURATION SECTION                 */}
       {/* ======================================================== */}
       {isSchoolService && (
         <div className="space-y-4 pt-1 bg-slate-100/70 dark:bg-slate-950/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/90 shadow-sm transition-colors">
-          {/* PRD v2.0: 3 SubTabs: Research Builder, Practice Exam Generator, and Exams Library */}
-          <div className="grid grid-cols-3 gap-1 bg-slate-200/80 dark:bg-slate-900 p-1 rounded-xl border border-slate-300/70 dark:border-slate-800 text-center transition-colors">
-            <button
-              type="button"
-              onClick={() => setEduSubTab && setEduSubTab("BUILDER")}
-              className={`py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                eduSubTab === "BUILDER"
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-              }`}
-            >
-              منشئ البحوث المدرسية
-            </button>
-            <button
-              type="button"
-              onClick={() => setEduSubTab && setEduSubTab("PRACTICE_EXAM")}
-              className={`py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
-                eduSubTab === "PRACTICE_EXAM"
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-              }`}
-            >
-              <SparklesIcon className="w-3 h-3 text-blue-300" />
-              <span>مولّد الاختبارات</span>
-              <span className="text-[9px] px-1 py-0.2 bg-blue-500/30 text-blue-200 rounded">v2.0</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setEduSubTab && setEduSubTab("LIBRARY")}
-              className={`py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
-                eduSubTab === "LIBRARY"
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-              }`}
-            >
-              <SchoolCapIcon size={13} />
-              <span>مكتبة الامتحانات</span>
-            </button>
-          </div>
-
-          {eduSubTab === "PRACTICE_EXAM" ? (
-            <PracticeExamGeneratorView
-              points={points}
-              onPrintExam={onPrintExam || (() => {})}
-              onGenerated={onPracticeExamGenerated}
-            />
-          ) : eduSubTab === "LIBRARY" ? (
-            <ExamsLibraryView
-              points={points}
-              onPrintExam={onPrintExam || (() => {})}
-              onBundlePrint={onBundlePrint || (() => {})}
-              onReportError={onReportError || (() => {})}
-            />
-          ) : (
-            <>
-              {/* 1. Document Mode: Research vs Exam */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  نوع المستند التعليمي المطلوب:
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEduMode && setEduMode("RESEARCH")}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold border flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      eduMode === "RESEARCH"
-                        ? "bg-emerald-600 border-emerald-500 text-white shadow-md shadow-emerald-950/30"
-                        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                    }`}
-                  >
-                    <DocCvIcon size={16} />
-                    <span>بحث مدرسي / جامعي</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setEduMode && setEduMode("EXAM")}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold border flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      eduMode === "EXAM"
-                        ? "bg-emerald-600 border-emerald-500 text-white shadow-md shadow-emerald-950/30"
-                        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                    }`}
-                  >
-                    <SchoolCapIcon size={16} />
-                    <span>امتحان أو فرض فصلي</span>
-                  </button>
-                </div>
-              </div>
 
           {/* Quick Presets Dropdown */}
           {availablePresets.length > 0 && (
@@ -861,10 +772,8 @@ export function StudioDynamicForm({
               <span>حماية بيانات القاصرين: تُحذف الأسماء وبيانات التلاميذ آلياً بعد 72 ساعة امتثالاً للقانون 18-07.</span>
             </div>
           </div>
-        </>
+        </div>
       )}
-    </div>
-  )}
 
       {/* Service-Specific Field: CV */}
       {service.code === "CV_GEN" && (

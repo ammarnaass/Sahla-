@@ -62,7 +62,7 @@ export function DashboardOverviewTab({
               مرحباً بك في كاونتر سهلة الرقمي 👋
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-xl leading-relaxed">
-              أنجز بحوث التلاميذ، مواضيع الامتحانات، والفروض المدرسية في ثوانٍ مع الطباعة المباشرة والتصدير.
+              أنجز بحوث التلاميذ والمذكرات المدرسية المعتمدة في ثوانٍ مع الطباعة المباشرة والتصدير.
             </p>
           </div>
 

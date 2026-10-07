@@ -42,15 +42,6 @@ const SERVICE_META_MAP: Record<string, ServiceMetadata> = {
     gradientFrom: "from-amber-500/25",
     gradientTo: "to-orange-500/25",
   },
-  EXAMS: {
-    description: "بنك الامتحانات الرسمية ومولّد الفروض والاختبارات لجميع الأطوار مع التصحيح النموذجي المعتمد وسلالم التنقيط.",
-    outputFormat: "📝 موضوع امتحان رسمي A4 + حل نموذجي",
-    turnaroundTime: "⚡ فوري",
-    isPopular: true,
-    highlightTag: "امتحانات وفروض 🇩🇿",
-    gradientFrom: "from-blue-500/25",
-    gradientTo: "to-indigo-500/25",
-  },
 };
 
 export function ServicesFullGrid({
@@ -83,7 +74,7 @@ export function ServicesFullGrid({
 
   const groups = [
     { id: "all", name: "جميع الخدمات التعليمية", icon: "✨" },
-    { id: "school", name: "التعليم والبحوث والامتحانات", icon: "🎓" },
+    { id: "school", name: "التعليم والبحوث المدرسية", icon: "🎓" },
   ] as const;
 
   // Safe access to tab context if rendered inside dashboard tab provider
@@ -107,15 +98,6 @@ export function ServicesFullGrid({
         tabContext.setActiveTab("school-research");
       } else {
         window.location.hash = "school-research";
-      }
-      return;
-    }
-
-    if (svc.code === "EXAMS") {
-      if (tabContext) {
-        tabContext.setActiveTab("exams");
-      } else {
-        window.location.hash = "exams";
       }
       return;
     }
@@ -302,7 +284,7 @@ export function ServicesFullGrid({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث في دليل الخدمات (بحوث مدرسية، امتحانات، فروض، مذكرات تخرج...)"
+              placeholder="ابحث في دليل الخدمات (بحوث مدرسية، مذكرات تخرج...)"
               className="w-full pr-10 pl-20 py-2.5 bg-muted/40 border border-border rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 font-medium transition-all"
             />
             <div className="absolute inset-y-0 left-3 flex items-center gap-1.5">
@@ -493,11 +475,6 @@ export function ServicesFullGrid({
                         ⌘R
                       </span>
                     )}
-                    {svc.code === "EXAMS" && (
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-muted border border-border text-foreground">
-                        ⌘E
-                      </span>
-                    )}
                     {meta?.outputFormat && (
                       <span className="text-[10px] font-medium text-muted-foreground truncate bg-muted px-2 py-0.5 rounded-md">
                         {meta.outputFormat}
@@ -525,8 +502,6 @@ export function ServicesFullGrid({
                         <span>
                           {svc.code === "SCHOOL_RESEARCH"
                             ? "استوديو البحوث"
-                            : svc.code === "EXAMS"
-                            ? "بنك الامتحانات"
                             : "فتح الاستوديو"}
                         </span>
                         <span>←</span>

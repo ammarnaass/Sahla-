@@ -101,16 +101,6 @@ export const SERVICES_CATALOG: ServiceDefinition[] = [
     isActive: true,
     isFree: false,
   },
-  {
-    code: "EXAMS",
-    nameAr: "امتحانات وفروض",
-    nameFr: "Examens & Épreuves",
-    icon: "📝",
-    pointsCost: 10,
-    category: "school",
-    isActive: true,
-    isFree: false,
-  },
 ];
 
 export function getServiceByCode(code: string): ServiceDefinition | undefined {
