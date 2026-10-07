@@ -103,6 +103,7 @@ export function StudioLivePreviewA4({
 }: StudioLivePreviewA4Props) {
   const isSchoolService = service.code === "SCHOOL_RESEARCH";
 
+  const [zoomLevel, setZoomLevel] = useState<"fit" | "75" | "100">("fit");
   const [localPage, setLocalPage] = useState<number>(eduCurrentPagePreview || 1);
   const activePage = setEduCurrentPagePreview ? eduCurrentPagePreview : localPage;
   const updatePage = (p: number) => {
@@ -122,31 +123,74 @@ export function StudioLivePreviewA4({
   const isRTL = language === "ar";
 
   return (
-    <div className="bg-slate-100 dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-xl transition-colors">
+    <div className="bg-slate-100/90 dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-xl transition-colors">
       <div>
-        <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 font-bold">
+        {/* Header with Title and Zoom Selector */}
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 font-bold">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>معاينة فورية مطابقة للطباعة (A4 300DPI)</span>
           </div>
-          <span className="text-emerald-600 dark:text-emerald-400 font-mono">🇩🇿 المعيار الوطني</span>
+
+          <div className="flex items-center gap-2">
+            {/* Zoom Controls */}
+            <div className="flex items-center bg-white dark:bg-slate-950 p-0.5 rounded-lg border border-slate-200 dark:border-slate-800 text-[10px]">
+              <button
+                type="button"
+                onClick={() => setZoomLevel("fit")}
+                className={`px-2 py-0.5 rounded font-medium cursor-pointer transition-colors ${
+                  zoomLevel === "fit"
+                    ? "bg-emerald-600 text-white font-bold"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                احتواء
+              </button>
+              <button
+                type="button"
+                onClick={() => setZoomLevel("75")}
+                className={`px-2 py-0.5 rounded font-medium cursor-pointer transition-colors ${
+                  zoomLevel === "75"
+                    ? "bg-emerald-600 text-white font-bold"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                75%
+              </button>
+              <button
+                type="button"
+                onClick={() => setZoomLevel("100")}
+                className={`px-2 py-0.5 rounded font-medium cursor-pointer transition-colors ${
+                  zoomLevel === "100"
+                    ? "bg-emerald-600 text-white font-bold"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                100%
+              </button>
+            </div>
+
+            <span className="text-emerald-600 dark:text-emerald-400 font-mono text-[11px] hidden sm:inline">
+              🇩🇿 المعيار الوطني
+            </span>
+          </div>
         </div>
 
         {/* Pager & Action Toolbar for School Research & Exams (PRD v1.0) */}
         {isSchoolService && (
           <div className="mb-3 space-y-2">
-            <div className="flex items-center justify-between bg-white dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs shadow-sm">
+            <div className="flex items-center justify-between bg-white dark:bg-slate-950 p-1.5 sm:p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs shadow-xs">
               <button
                 type="button"
                 disabled={activePage <= 1}
                 onClick={() => updatePage(Math.max(1, activePage - 1))}
-                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer transition-colors min-h-[38px]"
               >
                 <ArrowRightIcon size={12} />
                 <span>الصفحة السابقة</span>
               </button>
 
-              <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+              <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono text-xs sm:text-sm">
                 الصفحة {activePage} من {eduPageCount}
               </span>
 
@@ -154,7 +198,7 @@ export function StudioLivePreviewA4({
                 type="button"
                 disabled={activePage >= eduPageCount}
                 onClick={() => updatePage(Math.min(eduPageCount, activePage + 1))}
-                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer transition-colors min-h-[38px]"
               >
                 <span>الصفحة التالية</span>
                 <ArrowLeftIcon size={12} />
@@ -162,13 +206,13 @@ export function StudioLivePreviewA4({
             </div>
 
             {/* Quick Export & Actions Toolbar */}
-            <div className="flex items-center justify-between text-[11px] px-1">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] px-1">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 {onExportWord && (
                   <button
                     type="button"
                     onClick={onExportWord}
-                    className="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/80 dark:hover:bg-sky-900 border border-sky-200 dark:border-sky-800/60 text-sky-700 dark:text-sky-300 flex items-center gap-1.5 transition-all font-medium cursor-pointer"
+                    className="px-2.5 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/80 dark:hover:bg-sky-900 border border-sky-200 dark:border-sky-800/60 text-sky-700 dark:text-sky-300 flex items-center gap-1.5 transition-all font-medium cursor-pointer min-h-[34px]"
                     title="تحميل نسخة قابلة للتعديل ببرنامج Microsoft Word"
                   >
                     <span>📄</span>
@@ -179,7 +223,7 @@ export function StudioLivePreviewA4({
                   <button
                     type="button"
                     onClick={onReportError}
-                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1 transition-all cursor-pointer"
+                    className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1 transition-all cursor-pointer min-h-[34px]"
                     title="الإبلاغ عن خطأ علمي أو لغوي"
                   >
                     <ShieldCheckIcon className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
@@ -190,7 +234,7 @@ export function StudioLivePreviewA4({
                   <button
                     type="button"
                     onClick={onViewConformance}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/80 dark:hover:bg-emerald-900 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 flex items-center gap-1 transition-all font-bold cursor-pointer"
+                    className="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/80 dark:hover:bg-emerald-900 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 flex items-center gap-1 transition-all font-bold cursor-pointer min-h-[34px]"
                     title="عرض تقرير المطابقة والمدققات الوطنية"
                   >
                     <ShieldCheckIcon className="w-3.5 h-3.5 text-emerald-500" />
@@ -199,19 +243,23 @@ export function StudioLivePreviewA4({
                 )}
               </div>
 
-
               <span className="text-[10px] text-slate-500 font-mono">
                 A4 · 300 DPI جاهز للطباعة
               </span>
             </div>
-
           </div>
         )}
 
-        {/* Simulated White Paper Document (A4 Aspect Ratio) */}
+        {/* Simulated White Paper Document (A4 Aspect Ratio with Dynamic Zoom) */}
         <div
           dir={isRTL ? "rtl" : "ltr"}
-          className="bg-white text-slate-900 p-6 rounded-xl shadow-2xl min-h-[360px] text-right font-sans text-xs transition-all select-none border border-slate-300"
+          className={`bg-white text-slate-900 p-4 sm:p-6 rounded-xl shadow-2xl min-h-[380px] text-right font-sans text-xs transition-all select-none border border-slate-300 ${
+            zoomLevel === "75"
+              ? "max-w-[85%] mx-auto"
+              : zoomLevel === "100"
+              ? "w-full min-w-[320px] max-w-[560px] mx-auto shadow-2xl"
+              : "w-full"
+          }`}
         >
           {/* ======================================================== */}
           {/* 🎓 SCHOOL RESEARCH: A4 COVER PAGE (Page 1)               */}

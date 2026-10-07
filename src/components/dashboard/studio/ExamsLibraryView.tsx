@@ -152,7 +152,7 @@ export function ExamsLibraryView({
         </form>
 
         {/* Filters grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 pt-1 text-xs">
           {/* الطور */}
           <select
             value={selectedLevel}
@@ -161,7 +161,7 @@ export function ExamsLibraryView({
               setSelectedGrade("");
               setSelectedStream("");
             }}
-            className="px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 text-[11px] transition-colors"
+            className="px-2.5 py-2.5 min-h-[42px] bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 text-xs transition-colors"
           >
             <option value="">جميع الأطوار</option>
             <option value="MIDDLE">التعليم المتوسط (BEM)</option>
@@ -174,7 +174,7 @@ export function ExamsLibraryView({
             value={selectedStream}
             onChange={(e) => setSelectedStream(e.target.value)}
             disabled={selectedLevel === "MIDDLE" || selectedLevel === "PRIMARY"}
-            className="px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 text-[11px] disabled:opacity-40 transition-colors"
+            className="px-2.5 py-2.5 min-h-[42px] bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 text-xs disabled:opacity-40 transition-colors"
           >
             <option value="">جميع الشعب</option>
             <option value="SCIENTIFIC">علوم تجريبية</option>
@@ -189,7 +189,7 @@ export function ExamsLibraryView({
           <select
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
-            className="px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 text-[11px] transition-colors"
+            className="px-2.5 py-2.5 min-h-[42px] bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 text-xs transition-colors"
           >
             <option value="">جميع المواد</option>
             <option value="MATHS">الرياضيات</option>
@@ -204,7 +204,7 @@ export function ExamsLibraryView({
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
-            className="px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 text-[11px] transition-colors"
+            className="px-2.5 py-2.5 min-h-[42px] bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 text-xs transition-colors"
           >
             <option value="">جميع السنوات</option>
             <option value="2024">دورة 2024</option>
@@ -225,7 +225,7 @@ export function ExamsLibraryView({
               setSelectedYear("");
               setSearchQuery("");
             }}
-            className="px-2 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-[11px] font-medium text-center transition-colors cursor-pointer"
+            className="col-span-2 sm:col-span-1 px-3 py-2.5 min-h-[42px] bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-medium text-center transition-colors cursor-pointer"
           >
             إعادة تعيين المرشحات
           </button>
@@ -392,20 +392,20 @@ export function ExamsLibraryView({
 
       {/* 4. Exam & Solution Full Inspection Modal */}
       {viewingExam && (
-        <div className="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl text-xs text-slate-800 dark:text-slate-200 transition-colors">
+        <div className="fixed inset-0 z-[60] bg-black/75 backdrop-blur-sm flex items-center justify-center p-0 sm:p-4">
+          <div className="bg-white dark:bg-slate-900 border-0 sm:border border-slate-200 dark:border-slate-800 rounded-none sm:rounded-3xl w-full max-w-3xl h-[100dvh] sm:h-auto max-h-[100dvh] sm:max-h-[88dvh] flex flex-col shadow-2xl text-xs text-slate-800 dark:text-slate-200 transition-colors overflow-hidden">
             {/* Modal Header */}
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-slate-900 dark:text-white text-sm">{viewingExam.title}</h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+            <div className="p-3.5 sm:p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+              <div className="min-w-0 flex-1 pr-2">
+                <h3 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm truncate">{viewingExam.title}</h3>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                   الجمهورية الجزائرية الديمقراطية الشعبية · وزارة التربية الوطنية · دورة {viewingExam.year}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setViewingExam(null)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
               >
                 ✕
               </button>

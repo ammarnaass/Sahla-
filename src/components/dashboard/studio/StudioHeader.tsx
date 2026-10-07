@@ -15,24 +15,26 @@ export function StudioHeader({ service, points, pointsCost, isInsufficient }: St
   const effectiveCost = pointsCost !== undefined ? pointsCost : service.pointsCost;
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 flex items-center justify-center shrink-0 shadow-xs">
-            {getServiceIcon(service.code, 20)}
+    <div className="space-y-2">
+      <div className="flex items-center justify-between p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 flex items-center justify-center shrink-0 shadow-xs">
+            {getServiceIcon(service.code, 18)}
           </div>
-          <div>
-            <div className="text-sm font-bold text-slate-900 dark:text-white">{service.nameAr}</div>
-            <div className="text-[11px] text-slate-600 dark:text-slate-400">
+          <div className="min-w-0">
+            <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
+              {service.nameAr}
+            </div>
+            <div className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 truncate">
               {service.isFree ? "خدمة مجانية بالكامل" : `تكلفة التوليد: ${effectiveCost} نقطة`}
             </div>
           </div>
         </div>
 
-        <div className="text-left font-mono">
-          <div className="text-[10px] text-slate-500 dark:text-slate-400 font-sans">رصيدك الحالي</div>
+        <div className="text-left font-mono shrink-0 pr-2">
+          <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-sans">رصيدك الحالي</div>
           <div
-            className={`text-base font-extrabold ${
+            className={`text-sm sm:text-base font-extrabold ${
               isInsufficient ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"
             }`}
           >
