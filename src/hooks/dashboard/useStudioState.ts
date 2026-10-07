@@ -84,6 +84,11 @@ export function useStudioState() {
     examId?: string;
   }>({ isOpen: false, title: "" });
 
+  // 🎯 Guidance System v1.0 State
+  const [currentSpec, setCurrentSpec] = useState<any | null>(null);
+  const [conformanceReport, setConformanceReport] = useState<any | null>(null);
+  const [isConformanceModalOpen, setIsConformanceModalOpen] = useState(false);
+
   const [eduCustomPlan, setEduCustomPlan] = useState<string[]>([
     "مقدمة: دوافع انطلاق الثورة التحريرية وبيان أول نوفمبر 1954",
     "المبحث الأول: المراحل الكبرى للثورة ومؤتمر الصومام 1956",
@@ -92,10 +97,60 @@ export function useStudioState() {
     "قائمة المراجع: تاريخ الثورة الجزائرية - ديوان المطبوعات المدرسية",
   ]);
 
+  // تجميع المواصفة الدقيقة وعقد المخرجات (PRD Section 4 & Spec Card)
+  const fetchSpecForCurrentState = async () => {
+    try {
+      const res = await fetch("/api/v1/briefs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind: eduMode === "RESEARCH" ? "research" : "exam",
+          context: {
+            stage: eduLevel.toLowerCase(),
+            level: parseInt(eduGradeId) || 3,
+            grade_code: eduGradeId,
+            subject: eduSubjectId,
+          },
+          topic: {
+            topic_text: eduTopic || "موضوع البحث المدرسي",
+            unit_id: eduUnitId,
+            unit_title: eduUnitTitle,
+          },
+          specs: eduMode === "RESEARCH" ? {
+            pages: eduPageCount,
+            language,
+            style: eduStyleLevel.toLowerCase(),
+          } : {
+            exam_type: "exam",
+            difficulty: "official",
+            with_solution: eduIncludeAnswerKey,
+            variants_count: 2,
+          },
+          teacher_requirements: eduTeacherRequirements,
+        }),
+      });
+      const data = await res.json();
+      if (data.spec) {
+        setCurrentSpec(data.spec);
+      }
+    } catch {
+      // Non-blocking fallback
+    }
+  };
+
   // Step 1: توليد خطة البحث أولاً ومراجعتها مجاناً (PRD Section 5.1 & v2.0 Teacher Requirements)
   const generatePlanAsync = async () => {
     setIsGeneratingPlan(true);
+    const effectiveTopic =
+      (eduTopic || "").trim() ||
+      (ALGERIAN_SUBJECTS[eduSubjectId]?.nameAr
+        ? `بحث مدرسي في مادة ${ALGERIAN_SUBJECTS[eduSubjectId].nameAr}`
+        : "الثورة التحريرية الجزائرية المباركة (1954 - 1962)");
+
     try {
+      // Non-blocking compile of the spec contract in background
+      fetchSpecForCurrentState().catch(() => {});
+
       const res = await fetch("/api/v1/research/plans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -103,7 +158,7 @@ export function useStudioState() {
           stage: eduLevel.toLowerCase(),
           level: eduGradeId,
           subject: eduSubjectId,
-          topic: eduTopic,
+          topic: effectiveTopic,
           pages: eduPageCount,
           style: eduStyleLevel.toLowerCase(),
           options: {
@@ -114,13 +169,68 @@ export function useStudioState() {
           },
         }),
       });
-      const data = await res.json();
-      if (Array.isArray(data.outline)) {
-        setEduCustomPlan(data.outline.map((o: any) => o.title));
-        setIsPlanReviewed(true);
+
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.outline) && data.outline.length > 0) {
+          const titles = data.outline.map((o: any) =>
+            typeof o === "string" ? o : o.title || "محور بحث"
+          );
+          setEduCustomPlan(titles);
+          setIsPlanReviewed(true);
+          return;
+        }
       }
+      throw new Error("Could not parse outline from API response");
     } catch {
-      // Keep existing plan on error
+      // Guaranteed Algerian curriculum fallback synthesis
+      const stage = eduLevel.toLowerCase();
+      const teacherParts = eduTeacherRequirements
+        ? eduTeacherRequirements
+            .split(/[\n,;،•\-\*]/)
+            .map((s) => s.trim())
+            .filter((s) => s.length > 2)
+        : [];
+
+      let fallbackOutline: string[] = [];
+      if (stage === "primary") {
+        fallbackOutline = [
+          `مقدمة مبسطة وشيقة حول ${effectiveTopic}`,
+          `المحور الأول: ما هو ${effectiveTopic}؟ (المفاهيم الأساسية)`,
+          `المحور الثاني: كيف نطبقه في حياتنا اليومية ومدرستنا الجزائرية؟`,
+          `الخاتمة: ماذا تعلمنا ونصائح مفيدة للتفوق والتعاون`,
+          `قائمة المراجع: الكتاب المدرسي المقرر (الديوان الوطني للمطبوعات المدرسية)`,
+        ];
+      } else if (stage === "secondary") {
+        fallbackOutline = [
+          `المقدمة: الإطار المنهجي وطرح الإشكالية الجوهرية لـ ${effectiveTopic}`,
+          `المبحث الأول: التأسيس النظري والأبعاد المفاهيمية والعلمية`,
+          ...(teacherParts.length > 0
+            ? teacherParts.map((req, i) => `المبحث ${i + 2}: ${req} (مطلوب من الأستاذ المشرف)`)
+            : [
+                `المبحث الثاني: التحليل الميداني والإحصائي والتطبيقات في الجزائر`,
+                `المبحث الثالث: الرؤية الاستشرافية والحلول في ضوء السياسات العامة`,
+              ]),
+          `الخاتمة: التركيب النهائي، حوصلة النتائج وآفاق البحث المنهجي`,
+          `قائمة المصادر والمراجع الرسمية المعتمدة (ONPS / OPU)`,
+        ];
+      } else {
+        // Middle school (التعليم المتوسط)
+        fallbackOutline = [
+          `المقدمة: الإطار العام والأهمية لموضوع ${effectiveTopic}`,
+          `المبحث الأول: المفاهيم والنشأة التاريخية / العلمية`,
+          ...(teacherParts.length > 0
+            ? teacherParts.map((req, i) => `المبحث ${i + 2}: ${req} (مطلوب من الأستاذ المشرف)`)
+            : [
+                `المبحث الثاني: دراسة تفصيلية وتحليل واقعي للظاهرة في الجزائر`,
+                `المبحث الثالث: التحديات والحلول وتوجيهات وزارة التربية الوطنية`,
+              ]),
+          `الخاتمة: الاستنتاجات العامة والتوصيات التربوية`,
+          `قائمة المراجع والمصادر الرسمية المعتمدة (ديوان المطبوعات المدرسية ONPS)`,
+        ];
+      }
+      setEduCustomPlan(fallbackOutline);
+      setIsPlanReviewed(true);
     } finally {
       setIsGeneratingPlan(false);
     }
@@ -147,6 +257,7 @@ export function useStudioState() {
     if (subjectInfo) {
       setLanguage(subjectInfo.defaultLang);
     }
+
   };
 
   const calculateInvoiceTotal = () => {
@@ -305,5 +416,14 @@ export function useStudioState() {
     getDynamicPricing,
     generateDocument,
     resetFields,
+    // Guidance System Props
+    currentSpec,
+    setCurrentSpec,
+    conformanceReport,
+    setConformanceReport,
+    isConformanceModalOpen,
+    setIsConformanceModalOpen,
+    fetchSpecForCurrentState,
+
   };
 }

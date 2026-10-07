@@ -27,6 +27,7 @@ const tajawal = localFont({
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { MuiThemeProvider } from "@/components/ui/MuiThemeProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -72,6 +73,11 @@ export default function RootLayout({
     >
       <head>
         <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme")||"dark";var r=document.documentElement;if(t==="light"){r.classList.add("light");r.classList.remove("dark");r.setAttribute("data-theme","light");r.style.colorScheme="light";}else{r.classList.add("dark");r.classList.remove("light");r.setAttribute("data-theme","dark");r.style.colorScheme="dark";}}catch(e){}})()`,
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
@@ -97,7 +103,11 @@ export default function RootLayout({
       <body className="font-[family-name:var(--font-cairo)]">
         <ThemeProvider>
           <LanguageProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              <MuiThemeProvider>
+                {children}
+              </MuiThemeProvider>
+            </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>

@@ -11,8 +11,8 @@
 }
 
 html:not(.dark) .glass-sidebar,
-.light .glass-sidebar,
-[data-theme="light"] .glass-sidebar {
+html[data-theme="light"] .glass-sidebar,
+html.light .glass-sidebar {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
   border-left: 1px solid rgba(0, 0, 0, 0.08);
 }
@@ -34,17 +34,18 @@ html:not(.dark) .glass-sidebar,
 }
 
 html:not(.dark) .glass-card-subtle,
-.light .glass-card-subtle,
-[data-theme="light"] .glass-card-subtle {
+html[data-theme="light"] .glass-card-subtle,
+html.light .glass-card-subtle {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.04);
 }
 
 html:not(.dark) .glass-card-subtle:hover,
-.light .glass-card-subtle:hover,
-[data-theme="light"] .glass-card-subtle:hover {
+html[data-theme="light"] .glass-card-subtle:hover,
+html.light .glass-card-subtle:hover {
   background: #ffffff;
   border-color: rgba(5, 150, 105, 0.4);
   box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.12);
 }
+

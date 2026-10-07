@@ -11,10 +11,23 @@
   --radius-lg: 20px;
   --radius-xl: 28px;
   --radius-pill: 9999px;
+}
 
-  /* ── Shadows & Glows ── */
+/* ── Dynamic Shadows & Glows (Dark defaults) ── */
+:root {
   --shadow-glow: 0 0 25px rgba(5, 150, 105, 0.25);
   --shadow-glow-subtle: 0 0 15px rgba(16, 185, 129, 0.15);
   --shadow-glass: 0 10px 30px -10px rgba(0, 0, 0, 0.35);
   --shadow-bezel: 0 20px 45px -12px rgba(0, 0, 0, 0.5);
 }
+
+/* ── Light Mode Adaptive Shadows (softer, less aggressive) ── */
+html:not(.dark),
+html[data-theme="light"],
+html.light {
+  --shadow-glow: 0 0 20px rgba(5, 150, 105, 0.15);
+  --shadow-glow-subtle: 0 0 12px rgba(16, 185, 129, 0.10);
+  --shadow-glass: 0 8px 24px -8px rgba(0, 0, 0, 0.12);
+  --shadow-bezel: 0 16px 40px -10px rgba(0, 0, 0, 0.15);
+}
+

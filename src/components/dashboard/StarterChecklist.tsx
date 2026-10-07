@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Rocket, Check } from "lucide-react";
 
 interface ChecklistItem {
   id: string;
@@ -55,55 +58,58 @@ export function StarterChecklist() {
   const progressPercent = Math.round((completedCount / tasks.length) * 100);
 
   return (
-    <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-emerald-500/25 dark:border-emerald-500/30 shadow-sm text-right space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <span>🚀</span>
+    <Card className="text-right shadow-sm border-emerald-500/25 dark:border-emerald-500/30">
+      <CardHeader className="pb-3 border-b border-border space-y-1">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-bold flex items-center gap-2">
+            <Rocket className="w-4 h-4 text-primary" />
             <span>قائمة مهام الانطلاقة في محلك</span>
-          </h3>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-            أكمل هذه الخطوات السريعة لتحقيق الاستفادة القصوى
-          </p>
+          </CardTitle>
+          <Badge variant="primary" className="font-mono text-xs">
+            {completedCount} / {tasks.length}
+          </Badge>
         </div>
-        <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 font-mono">
-          {completedCount} / {tasks.length}
-        </span>
-      </div>
+        <p className="text-[11px] text-muted-foreground">
+          أكمل هذه الخطوات السريعة لتحقيق الاستفادة القصوى
+        </p>
+      </CardHeader>
 
-      {/* Progress Bar */}
-      <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-300"
-          style={{ width: `${progressPercent}%` }}
-        />
-      </div>
-
-      {/* Tasks list */}
-      <div className="space-y-2 pt-1">
-        {tasks.map((task) => (
+      <CardContent className="pt-4 space-y-3">
+        {/* Progress Bar */}
+        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
           <div
-            key={task.id}
-            onClick={() => toggleTask(task.id)}
-            className={`p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-colors ${
-              task.done
-                ? "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 text-slate-400 dark:text-slate-500 line-through"
-                : "bg-slate-50/70 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700"
-            }`}
-          >
-            <span className="text-xs font-medium">{task.label}</span>
+            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-300"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+
+        {/* Tasks list */}
+        <div className="space-y-2 pt-1">
+          {tasks.map((task) => (
             <div
-              className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+              key={task.id}
+              onClick={() => toggleTask(task.id)}
+              className={`p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
                 task.done
-                  ? "bg-emerald-600 border-emerald-500 text-white"
-                  : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                  ? "bg-muted/40 border-border text-muted-foreground line-through opacity-75"
+                  : "bg-muted/60 hover:bg-muted border-border text-foreground hover:border-primary/40"
               }`}
             >
-              {task.done && <span className="text-[10px] font-bold">✓</span>}
+              <span className="text-xs font-medium">{task.label}</span>
+              <div
+                className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                  task.done
+                    ? "bg-primary border-primary text-primary-foreground"
+                    : "border-border bg-card"
+                }`}
+              >
+                {task.done && <Check className="w-3 h-3 stroke-[3]" />}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-    </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
+

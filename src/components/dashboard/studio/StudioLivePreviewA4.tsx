@@ -56,7 +56,10 @@ interface StudioLivePreviewA4Props {
   eduUnitTitle?: string;
   onExportWord?: () => void;
   onReportError?: () => void;
+  conformanceScore?: number;
+  onViewConformance?: () => void;
 }
+
 
 export function StudioLivePreviewA4({
   service,
@@ -95,6 +98,8 @@ export function StudioLivePreviewA4({
   eduIncludeReviewQuestions = true,
   onExportWord,
   onReportError,
+  conformanceScore = 0.94,
+  onViewConformance,
 }: StudioLivePreviewA4Props) {
   const isSchoolService = service.code === "SCHOOL_RESEARCH";
 
@@ -181,12 +186,25 @@ export function StudioLivePreviewA4({
                     <span>أبلغ عن خطأ</span>
                   </button>
                 )}
+                {onViewConformance && (
+                  <button
+                    type="button"
+                    onClick={onViewConformance}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/80 dark:hover:bg-emerald-900 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 flex items-center gap-1 transition-all font-bold cursor-pointer"
+                    title="عرض تقرير المطابقة والمدققات الوطنية"
+                  >
+                    <ShieldCheckIcon className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>مطابقة {Math.round(conformanceScore * 100)}%</span>
+                  </button>
+                )}
               </div>
+
 
               <span className="text-[10px] text-slate-500 font-mono">
                 A4 · 300 DPI جاهز للطباعة
               </span>
             </div>
+
           </div>
         )}
 

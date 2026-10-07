@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 
 interface TryNowStepProps {
   onSuccess: (docData: { title: string; type: string; customerName: string; salePrice: number }) => void;

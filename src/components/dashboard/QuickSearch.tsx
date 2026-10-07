@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { SERVICES_CATALOG, ServiceDefinition } from "@/lib/constants";
-import { Badge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/badge";
 
 interface QuickSearchProps {
   onSelectService: (service: ServiceDefinition) => void;

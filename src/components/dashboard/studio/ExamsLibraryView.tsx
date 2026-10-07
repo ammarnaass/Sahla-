@@ -9,7 +9,7 @@ import {
   ShieldCheckIcon,
   BoltIcon,
 } from "@/components/ui/Icons";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 
 export interface ExamItem {
   id: string;

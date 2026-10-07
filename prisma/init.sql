@@ -237,17 +237,85 @@ CREATE TABLE IF NOT EXISTS exam_favorites (
   FOREIGN KEY (exam_id) REFERENCES exams(id) ON DELETE CASCADE
 );
 
--- Indices for rapid B2B lookup
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
-CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
-CREATE INDEX IF NOT EXISTS idx_invoices_shop ON invoices(shop_id);
-CREATE INDEX IF NOT EXISTS idx_cards_serial ON cards(serial_number);
-CREATE INDEX IF NOT EXISTS idx_cards_pin ON cards(pin);
-CREATE INDEX IF NOT EXISTS idx_research_shop ON research_docs(shop_id);
-CREATE INDEX IF NOT EXISTS idx_exams_filter ON exams(level, grade, subject, year);
-CREATE INDEX IF NOT EXISTS idx_research_jobs_status ON research_jobs(status, shop_id);
-CREATE INDEX IF NOT EXISTS idx_research_jobs_idempotency ON research_jobs(idempotency_key);
-CREATE INDEX IF NOT EXISTS idx_skill_runs_job ON skill_runs(job_id);
+-- 15. جداول نظام التوجيه (Guidance System PRD v1.0)
+CREATE TABLE IF NOT EXISTS briefs (
+  id TEXT PRIMARY KEY,
+  shop_id TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'research',
+  context_json TEXT NOT NULL,
+  topic_json TEXT NOT NULL,
+  specs_json TEXT NOT NULL,
+  teacher_requirements TEXT,
+  cover_json TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (shop_id) REFERENCES shops(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS specs (
+  id TEXT PRIMARY KEY,
+  brief_id TEXT,
+  pack_id TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'research',
+  summary_ar TEXT NOT NULL,
+  constraints_json TEXT NOT NULL,
+  structure_json TEXT NOT NULL,
+  estimate_points INTEGER NOT NULL DEFAULT 15,
+  warnings_json TEXT,
+  status TEXT NOT NULL DEFAULT 'ready',
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS standards_packs (
+  pack_id TEXT PRIMARY KEY,
+  stage TEXT NOT NULL,
+  level INTEGER NOT NULL,
+  subject TEXT NOT NULL,
+  language TEXT NOT NULL DEFAULT 'ar',
+  version TEXT NOT NULL DEFAULT '2026.1',
+  data_json TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'APPROVED',
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS prompt_templates (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  version TEXT NOT NULL,
+  role TEXT NOT NULL,
+  layers_json TEXT NOT NULL,
+  is_active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS conformance_reports (
+  id TEXT PRIMARY KEY,
+  generation_id TEXT NOT NULL,
+  score REAL NOT NULL,
+  pass INTEGER NOT NULL DEFAULT 1,
+  weights_json TEXT NOT NULL,
+  checks_json TEXT NOT NULL,
+  attempts INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS golden_eval_runs (
+  id TEXT PRIMARY KEY,
+  pack_version TEXT NOT NULL,
+  prompt_version TEXT NOT NULL,
+  total_cases INTEGER NOT NULL,
+  passed_cases INTEGER NOT NULL,
+  score_avg REAL NOT NULL,
+  cost_ratio REAL NOT NULL,
+  results_json TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_briefs_shop ON briefs(shop_id);
+CREATE INDEX IF NOT EXISTS idx_specs_pack ON specs(pack_id);
+CREATE INDEX IF NOT EXISTS idx_standards_packs_lookup ON standards_packs(stage, level, subject);
+CREATE INDEX IF NOT EXISTS idx_conformance_gen ON conformance_reports(generation_id);
+
 
 

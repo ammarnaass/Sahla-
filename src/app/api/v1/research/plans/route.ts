@@ -20,16 +20,24 @@ export async function POST(req: NextRequest) {
       shop_id = "shop_1",
     } = body;
 
-    if (!topic || typeof topic !== "string" || topic.trim().length === 0) {
-      return NextResponse.json(
-        { error: { code: "invalid_input", message: "يرجى تحديد عنوان وموضوع البحث" } },
-        { status: 400 }
-      );
-    }
+    const effectiveTopic =
+      topic && typeof topic === "string" && topic.trim().length > 0
+        ? topic.trim()
+        : "بحث مدرسي شامل في مادة " + subject;
+
+    const numericLevel =
+      typeof level === "number" ? level : parseInt(String(level)) || 3;
 
     // 1. Skill: topic-intake
-    const intake = runTopicIntake({ stage, level, subject, topic, language });
-    if (!intake.ok || intake.scope === "sensitive") {
+    const intake = runTopicIntake({
+      stage,
+      level: numericLevel,
+      subject,
+      topic: effectiveTopic,
+      language,
+    });
+
+    if (intake.scope === "sensitive") {
       return NextResponse.json(
         {
           error: {
@@ -42,15 +50,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const normalizedTopic = intake.normalized_topic || effectiveTopic;
+
     // 2. Skill: research-planner (v2.0 with teacher requirements and unit grounding)
     const teacherRequirements = options?.teacher_requirements || body.teacher_requirements;
     const unitId = options?.unit_id || body.unit_id;
     const unitTitle = options?.unit_title || body.unit_title;
 
     const planResult = runResearchPlanner({
-      topic: intake.normalized_topic,
+      topic: normalizedTopic,
       stage,
-      level,
+      level: numericLevel,
       pages,
       style,
       language,
@@ -81,26 +91,30 @@ export async function POST(req: NextRequest) {
     };
 
     // Save in research_plans table
-    db.prepare(`
-      INSERT INTO research_plans (
-        id, shop_id, stage, level, subject, topic, language, pages, style,
-        options_json, outline_json, cost_points, estimate_points, status, created_at
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 'ready', datetime('now'))
-    `).run(
-      planId,
-      shop_id,
-      stage,
-      level,
-      subject,
-      intake.normalized_topic,
-      language,
-      pages,
-      style,
-      JSON.stringify(finalOptions),
-      JSON.stringify(planResult.outline),
-      estimatedPoints
-    );
+    try {
+      db.prepare(`
+        INSERT INTO research_plans (
+          id, shop_id, stage, level, subject, topic, language, pages, style,
+          options_json, outline_json, cost_points, estimate_points, status, created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 'ready', datetime('now'))
+      `).run(
+        planId,
+        shop_id || "shop_1",
+        stage,
+        numericLevel,
+        subject,
+        normalizedTopic,
+        language,
+        pages,
+        style,
+        JSON.stringify(finalOptions),
+        JSON.stringify(planResult.outline),
+        estimatedPoints
+      );
+    } catch (dbErr) {
+      console.error("Non-fatal: could not persist research plan to db", dbErr);
+    }
 
     trackEvent("research_plan_created", {
       planId,

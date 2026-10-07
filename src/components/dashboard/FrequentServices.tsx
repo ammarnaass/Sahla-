@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ServiceDefinition } from "@/lib/constants";
-import { Badge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/badge";
 import { BoltIcon, getServiceIcon } from "@/components/ui/Icons";
 
 interface FrequentServicesProps {

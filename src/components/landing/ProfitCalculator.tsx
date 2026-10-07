@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { TrendUpIcon, SparklesIcon, BoltIcon } from "@/components/ui/Icons";
@@ -16,6 +18,8 @@ export function ProfitCalculator() {
   const monthlyGrossRevenue = docsPerDay * salePrice * workDaysPerMonth;
   const monthlyCost = docsPerDay * estimatedCostPerDoc * workDaysPerMonth;
   const monthlyNetProfit = Math.max(0, monthlyGrossRevenue - monthlyCost);
+
+  const formatDZD = (num: number) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   return (
     <section id="calculator" className="py-20 sm:py-28 border-b border-slate-200 dark:border-slate-800/60 relative">
@@ -101,21 +105,21 @@ export function ProfitCalculator() {
                 {t("landing.calcNetProfit")}
               </div>
 
-              <div className="text-4xl sm:text-5xl font-black tracking-tight my-4 font-mono text-emerald-700 dark:text-emerald-400 drop-shadow-2xs">
-                {monthlyNetProfit.toLocaleString()} <span className="text-xl sm:text-2xl font-bold">دج</span>
+              <div className="text-4xl sm:text-5xl font-black tracking-tight my-4 font-mono text-emerald-700 dark:text-emerald-400 drop-shadow-2xs" suppressHydrationWarning>
+                {formatDZD(monthlyNetProfit)} <span className="text-xl sm:text-2xl font-bold">دج</span>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
                 <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/40">
                   <div className="text-slate-500 dark:text-slate-400 mb-1 font-medium">مداخيل المحل</div>
-                  <div className="text-sm font-black text-slate-900 dark:text-slate-200 font-mono">
-                    {monthlyGrossRevenue.toLocaleString()} دج
+                  <div className="text-sm font-black text-slate-900 dark:text-slate-200 font-mono" suppressHydrationWarning>
+                    {formatDZD(monthlyGrossRevenue)} دج
                   </div>
                 </div>
                 <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/40">
                   <div className="text-slate-500 dark:text-slate-400 mb-1 font-medium">تكلفة النقاط</div>
-                  <div className="text-sm font-black text-slate-900 dark:text-slate-300 font-mono">
-                    {monthlyCost.toLocaleString()} دج
+                  <div className="text-sm font-black text-slate-900 dark:text-slate-300 font-mono" suppressHydrationWarning>
+                    {formatDZD(monthlyCost)} دج
                   </div>
                 </div>
               </div>

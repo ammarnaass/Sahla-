@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/ui/ThemeProvider";
 import { SidebarShopProfile } from "./SidebarShopProfile";
 import { SidebarNavLinks } from "./SidebarNavLinks";
 import { SidebarWalletWidget } from "./SidebarWalletWidget";
@@ -20,8 +20,15 @@ export function DesktopSidebar({
   walletPoints,
 }: DesktopSidebarProps) {
   const { session, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState<boolean>(false);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentTheme = mounted ? (resolvedTheme || theme || "dark") : "dark";
 
   const isSuperAdmin = session?.user?.role === "SUPER_ADMIN";
   const isEmployee = session?.user?.role === "EMPLOYEE" || session?.user?.role === "STAFF";
@@ -98,22 +105,22 @@ export function DesktopSidebar({
         <div className={`flex ${isCollapsed ? "flex-col items-center" : "flex-row"} gap-1.5`}>
           <button
             type="button"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
             title="تبديل المظهر (ليلي / نهاري)"
             className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-slate-900/80 transition-all cursor-pointer ${
               isCollapsed ? "w-10 h-10 justify-center p-0" : "flex-1"
             }`}
           >
             {isCollapsed ? (
-              <span>{theme === "dark" ? "🌙" : "☀️"}</span>
+              <span>{currentTheme === "dark" ? "🌙" : "☀️"}</span>
             ) : (
               <>
                 <span className="flex items-center gap-1.5">
-                  <span>{theme === "dark" ? "🌙" : "☀️"}</span>
+                  <span>{currentTheme === "dark" ? "🌙" : "☀️"}</span>
                   <span className="text-[11px]">المظهر</span>
                 </span>
                 <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold">
-                  {theme === "dark" ? "ليلي" : "نهاري"}
+                  {currentTheme === "dark" ? "ليلي" : "نهاري"}
                 </span>
               </>
             )}

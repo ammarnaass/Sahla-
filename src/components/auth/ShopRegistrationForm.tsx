@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { ALGERIAN_WILAYAS, ACTIVITY_TYPES } from "@/lib/constants";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { LegalConsentCheckbox } from "./LegalConsentCheckbox";
 
 interface ShopRegistrationFormProps {

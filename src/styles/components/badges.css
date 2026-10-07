@@ -16,8 +16,8 @@
 }
 
 html:not(.dark) .eyebrow-pill,
-.light .eyebrow-pill,
-[data-theme="light"] .eyebrow-pill {
+html[data-theme="light"] .eyebrow-pill,
+html.light .eyebrow-pill {
   background: rgba(5, 150, 105, 0.08);
   border-color: rgba(5, 150, 105, 0.3);
   color: var(--color-primary-700);

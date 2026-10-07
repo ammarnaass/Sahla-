@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 
 interface StickyMobileCTAProps {
   onStartFree: () => void;

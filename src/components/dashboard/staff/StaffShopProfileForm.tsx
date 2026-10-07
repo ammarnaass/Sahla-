@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { ALGERIAN_WILAYAS, ACTIVITY_TYPES } from "@/lib/constants";
 
 interface StaffShopProfileFormProps {

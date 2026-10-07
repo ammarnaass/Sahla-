@@ -2,101 +2,114 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/ui/ThemeProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Sun, Moon, Globe, ChevronDown, ArrowLeft } from "lucide-react";
 
 interface LandingNavbarProps {
   onOpenAuth: (mode?: "login" | "register") => void;
 }
 
 export function LandingNavbar({ onOpenAuth }: LandingNavbarProps) {
-  const { theme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const { locale, setLocale, t } = useLanguage();
-  const { isLoggedIn, session, logout } = useAuth();
+  const { isLoggedIn, session } = useAuth();
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentTheme = mounted ? (resolvedTheme || theme || "dark") : "dark";
 
   return (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-white/85 dark:bg-slate-950/85 border-b border-slate-200 dark:border-slate-800/80 transition-all">
+    <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-background/85 border-b border-border transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-emerald-600/25 group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-emerald-950/20 group-hover:scale-105 transition-transform">
             سـ
           </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
+          <div className="flex flex-col text-right">
+            <span className="text-xl font-extrabold text-foreground tracking-tight flex items-center gap-1.5 font-display">
               <span>سهلة</span>
-              <span className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-semibold border border-emerald-500/30">
+              <Badge variant="primary" className="text-[10px] font-bold px-1.5 py-0">
                 Sahla
-              </span>
+              </Badge>
             </span>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+            <span className="text-[10px] text-muted-foreground font-medium">
               المنصة الرقمية للكيوسكات والمكتبات 🇩🇿
             </span>
           </div>
         </Link>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-300">
-          <Link href="/pricing" className="text-emerald-700 dark:text-emerald-400 font-bold hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors">
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
+          <Link
+            href="/pricing"
+            className="text-primary font-bold hover:text-primary/80 transition-colors"
+          >
             باقات الاشتراك SaaS
           </Link>
-          <a href="#how-it-works" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+          <a href="#how-it-works" className="hover:text-foreground transition-colors">
             {t("landing.howItWorksTitle")}
           </a>
-          <a href="#services" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+          <a href="#services" className="hover:text-foreground transition-colors">
             {t("nav.services")}
           </a>
-          <a href="#calculator" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+          <a href="#calculator" className="hover:text-foreground transition-colors">
             {t("landing.calcTitle")}
           </a>
-          <a href="#faq" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+          <a href="#faq" className="hover:text-foreground transition-colors">
             {t("landing.faqTitle")}
           </a>
         </nav>
 
         {/* Right Actions: Lang Switcher, Theme Toggle, Auth CTA */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           {/* Language Switcher */}
           <div className="relative">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setLangMenuOpen(!langMenuOpen)}
-              className="h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="h-9 px-2.5 text-xs font-bold gap-1 cursor-pointer"
               aria-label="تبديل اللغة"
             >
+              <Globe className="w-3.5 h-3.5 text-muted-foreground" />
               <span>{locale === "ar" ? "عربي" : locale === "fr" ? "FR" : "EN"}</span>
-              <svg className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+              <ChevronDown className="w-3 h-3 text-muted-foreground opacity-70" />
+            </Button>
 
             {langMenuOpen && (
               <div
-                className="absolute top-12 left-0 sm:right-0 sm:left-auto w-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
+                className="absolute top-11 left-0 sm:right-0 sm:left-auto w-32 bg-popover text-popover-foreground border border-border rounded-xl shadow-xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
                 onClick={() => setLangMenuOpen(false)}
               >
                 <button
                   onClick={() => setLocale("ar")}
-                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer ${
-                    locale === "ar" ? "text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/10" : "text-slate-700 dark:text-slate-300"
+                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-muted transition-colors cursor-pointer ${
+                    locale === "ar" ? "text-primary font-bold bg-primary/10" : ""
                   }`}
                 >
                   العربية (RTL)
                 </button>
                 <button
                   onClick={() => setLocale("fr")}
-                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer ${
-                    locale === "fr" ? "text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/10" : "text-slate-700 dark:text-slate-300"
+                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-muted transition-colors cursor-pointer ${
+                    locale === "fr" ? "text-primary font-bold bg-primary/10" : ""
                   }`}
                 >
                   Français (FR)
                 </button>
                 <button
                   onClick={() => setLocale("en")}
-                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer ${
-                    locale === "en" ? "text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/10" : "text-slate-700 dark:text-slate-300"
+                  className={`w-full text-right px-3.5 py-1.5 text-xs font-semibold hover:bg-muted transition-colors cursor-pointer ${
+                    locale === "en" ? "text-primary font-bold bg-primary/10" : ""
                   }`}
                 >
                   English (EN)
@@ -106,47 +119,44 @@ export function LandingNavbar({ onOpenAuth }: LandingNavbarProps) {
           </div>
 
           {/* Theme Toggle */}
-          <button
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-            className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
+            className="w-9 h-9 rounded-xl cursor-pointer"
             aria-label="تبديل الوضع الليلي والنهاري"
           >
-            {theme === "light" ? (
-              <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
+            {currentTheme === "light" ? (
+              <Sun className="w-4 h-4 text-amber-500" />
             ) : (
-              <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-              </svg>
+              <Moon className="w-4 h-4 text-muted-foreground" />
             )}
-          </button>
+          </Button>
 
           {/* User Auth Buttons or Go to Dashboard */}
           {isLoggedIn ? (
             <Link href="/dashboard">
-              <Button size="sm" variant="primary">
+              <Button size="sm" variant="primary" className="gap-1.5">
                 <span>{session?.shop?.name || t("nav.home")}</span>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                </svg>
+                <ArrowLeft className="w-4 h-4" />
               </Button>
             </Link>
           ) : (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onOpenAuth("login")}
-                className="hidden sm:inline-flex text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-              >
-                {t("common.login")}
-              </Button>
+            <div className="flex items-center gap-1.5">
+              <Link href="/login">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hidden sm:inline-flex text-xs font-bold text-muted-foreground hover:text-foreground"
+                >
+                  {t("common.login")}
+                </Button>
+              </Link>
               <Button
                 variant="primary"
                 size="sm"
                 onClick={() => onOpenAuth("register")}
-                className="shadow-sm"
+                className="shadow-sm text-xs font-bold"
               >
                 {t("common.startFree")}
               </Button>
@@ -157,3 +167,4 @@ export function LandingNavbar({ onOpenAuth }: LandingNavbarProps) {
     </header>
   );
 }
+

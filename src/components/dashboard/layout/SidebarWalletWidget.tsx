@@ -14,14 +14,15 @@ export function SidebarWalletWidget({
   isCollapsed = false,
   onOpenWallet,
 }: SidebarWalletWidgetProps) {
-  const dzdValue = (points * 2).toLocaleString("fr-DZ");
+  const formatDZD = (num: number) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const dzdValue = formatDZD(points * 2);
 
   if (isCollapsed) {
     return (
       <button
         type="button"
         onClick={onOpenWallet}
-        title={`رصيد المحفظة: ${points.toLocaleString()} نقطة (~${dzdValue} دج)`}
+        title={`رصيد المحفظة: ${formatDZD(points)} نقطة (~${dzdValue} دج)`}
         className="w-10 h-10 mx-auto rounded-xl bg-amber-500/10 dark:bg-gradient-to-br dark:from-amber-500/15 dark:via-emerald-500/10 dark:to-slate-900 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 hover:scale-105 transition-all cursor-pointer shadow-xs group"
       >
         <BoltIcon size={18} className="text-amber-600 dark:text-amber-400 group-hover:animate-pulse" />
@@ -48,11 +49,11 @@ export function SidebarWalletWidget({
 
         <div className="flex items-baseline justify-between">
           <div>
-            <div className="text-lg font-black text-slate-900 dark:text-white tracking-tight flex items-baseline gap-1">
-              <span>{points.toLocaleString()}</span>
+            <div className="text-lg font-black text-slate-900 dark:text-white tracking-tight flex items-baseline gap-1" suppressHydrationWarning>
+              <span>{formatDZD(points)}</span>
               <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">نقطة</span>
             </div>
-            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium" suppressHydrationWarning>
               يعادل: <span className="text-slate-800 dark:text-slate-300 font-bold">{dzdValue} دج</span>
             </div>
           </div>

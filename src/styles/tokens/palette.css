@@ -26,7 +26,12 @@
   --color-gold-500: #f59e0b;
   --color-gold-600: #d97706;
 
-  /* ── Default Semantic Surfaces (Dark by default in @theme) ── */
+  /* المتغيرات الديناميكية نُقلت إلى canvas.css */
+  /* يجب تعريفها كـ initial values فقط للسماح بالتبديل */
+}
+
+/* ── Default Semantic Surfaces (Dark as base fallback) ── */
+:root {
   --color-surface-app: #080c14;
   --color-surface-card: #0f172a;
   --color-surface-card-hover: #162036;

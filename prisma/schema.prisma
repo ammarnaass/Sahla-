@@ -170,3 +170,59 @@ model ErrorReport {
   status         String       @default("PENDING") // PENDING, REVIEWED, RESOLVED
   createdAt      DateTime     @default(now())
 }
+
+// 10. جدول ملخصات الطلب الموجّه (Briefs)
+model Brief {
+  id                  String   @id @default(cuid())
+  shopId              String
+  kind                String   @default("research") // research, exam
+  contextJson         String
+  topicJson           String
+  specsJson           String
+  teacherRequirements String?
+  coverJson           String?
+  createdAt           DateTime @default(now())
+}
+
+// 11. جدول مواصفات التوليد وعقد المخرجات (Specs)
+model Spec {
+  id              String   @id @default(cuid())
+  briefId         String?
+  packId          String
+  kind            String   @default("research") // research, exam
+  summaryAr       String
+  constraintsJson String
+  structureJson   String
+  estimatePoints  Int      @default(15)
+  warningsJson    String?
+  status          String   @default("ready")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// 12. حزم المعايير الجزائرية الرسمية (Standards Packs)
+model StandardsPack {
+  packId    String   @id
+  stage     String
+  level     Int
+  subject   String
+  language  String   @default("ar")
+  version   String   @default("2026.1")
+  dataJson  String
+  status    String   @default("APPROVED")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 13. تقرير المطابقة والتحقق (Conformance Reports)
+model ConformanceReport {
+  id           String   @id @default(cuid())
+  generationId String
+  score        Float
+  pass         Boolean  @default(true)
+  weightsJson  String
+  checksJson   String
+  attempts     Int      @default(1)
+  createdAt    DateTime @default(now())
+}
+

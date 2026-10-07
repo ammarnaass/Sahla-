@@ -1,12 +1,13 @@
 /* ═══════════════════════════════════════════════════════════
    Sahla Micro-Surfaces · Canvas & Dynamic Dual-Theme Variables
    Light Mode & Dark Mode Contrast (WCAG 2.1 AAA / AA Compliant)
+   Selectors unified with next-themes (attribute="class" → .dark on <html>)
    ═══════════════════════════════════════════════════════════ */
 
 /* ── Light Mode Surface & Token Definitions ── */
-:root:not(.dark),
-.light,
-[data-theme="light"] {
+html:not(.dark),
+html[data-theme="light"],
+html.light {
   --color-surface-app: #f8fafc;
   --color-surface-card: #ffffff;
   --color-surface-card-hover: #f1f5f9;
@@ -22,11 +23,33 @@
   --color-text-dim: #64748b;
 
   --shadow-card-elevated: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+
+  /* shadcn/ui semantic tokens (Light Mode) */
+  --radius: 0.75rem;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #059669;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #ecfdf5;
+  --accent-foreground: #065f46;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #059669;
 }
 
 /* ── Dark Mode Surface & Token Definitions ── */
-.dark,
-[data-theme="dark"] {
+html.dark,
+html[data-theme="dark"] {
   --color-surface-app: #080c14;
   --color-surface-card: #0f172a;
   --color-surface-card-hover: #162036;
@@ -42,4 +65,27 @@
   --color-text-dim: #64748b;
 
   --shadow-card-elevated: 0 4px 20px -2px rgba(0, 0, 0, 0.4), 0 2px 6px -1px rgba(0, 0, 0, 0.3);
+
+  /* shadcn/ui semantic tokens (Dark Mode) */
+  --radius: 0.75rem;
+  --background: #080c14;
+  --foreground: #f8fafc;
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
+  --popover: #0f172a;
+  --popover-foreground: #f8fafc;
+  --primary: #10b981;
+  --primary-foreground: #022c22;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #132e27;
+  --accent-foreground: #34d399;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #10b981;
 }
+

@@ -22,7 +22,9 @@ import {
 } from "@/components/ui/Icons";
 import { ExamsLibraryView } from "./ExamsLibraryView";
 import { PracticeExamGeneratorView } from "./PracticeExamGeneratorView";
+import { SpecCard } from "./SpecCard";
 import { ALGERIAN_WILAYAS_DIRECTORATES, getCurriculumUnits } from "@/server/education/curriculumCatalog";
+
 
 interface StudioDynamicFormProps {
   service: ServiceDefinition;
@@ -100,7 +102,10 @@ interface StudioDynamicFormProps {
   onPrintExam?: (exam: any, withSolution: boolean) => void;
   onBundlePrint?: (exams: any[], watermark: boolean) => void;
   onReportError?: (id: string, title: string) => void;
+  currentSpec?: any;
+  onApproveSpec?: () => void;
 }
+
 
 export function StudioDynamicForm({
   service,
@@ -174,11 +179,16 @@ export function StudioDynamicForm({
   eduCustomPlan = [],
   setEduCustomPlan,
   points = 50,
+
   onPrintExam,
   onBundlePrint,
   onReportError,
+  currentSpec,
+  onApproveSpec,
 }: StudioDynamicFormProps) {
+
   const isSchoolService = service.code === "SCHOOL_RESEARCH";
+
 
   // Grades filtered by selected level
   const filteredGrades = ALGERIAN_GRADES.filter((g) => g.level === eduLevel);
@@ -605,9 +615,24 @@ export function StudioDynamicForm({
             </div>
           )}
 
+          {/* PRD v1.0 Guidance System: Spec Card (بطاقة المواصفة وعقد المخرجات) */}
+          {currentSpec && (
+            <div className="pt-1">
+              <SpecCard
+                spec={currentSpec}
+                pointsBalance={points}
+                onModifyField={(f, v) => {
+                  if (f === "topic" && setEduTopic) setEduTopic(v);
+                }}
+                onApproveAndGenerate={onApproveSpec}
+              />
+            </div>
+          )}
+
           {/* 8. Step 1: Interactive Outline Editor (PRD Section 5.1) */}
           {eduMode === "RESEARCH" && (
             <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-2.5">
+
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                   <SparklesIcon className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
@@ -617,43 +642,80 @@ export function StudioDynamicForm({
                   type="button"
                   onClick={() => generatePlanAsync && generatePlanAsync()}
                   disabled={isGeneratingPlan}
-                  className="text-[10.5px] px-2.5 py-1 bg-emerald-600/90 hover:bg-emerald-600 text-white rounded-lg font-bold transition-all flex items-center gap-1 cursor-pointer"
+                  className="text-[10.5px] px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 text-white rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                 >
-                  {isGeneratingPlan ? "جاري التوليد..." : "إعادة توليد بالذكاء الاصطناعي"}
+                  {isGeneratingPlan ? (
+                    <>
+                      <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>جاري التوليد بالذكاء الاصطناعي...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>✨</span>
+                      <span>توليد الخطة بالذكاء الاصطناعي</span>
+                    </>
+                  )}
                 </button>
               </div>
 
-              <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-                {eduCustomPlan.map((heading, idx) => (
-                  <div key={idx} className="flex items-center gap-2 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] transition-colors">
-                    <span className="text-emerald-600 dark:text-emerald-400 font-bold shrink-0">{idx + 1}.</span>
-                    <input
-                      type="text"
-                      value={heading}
-                      onChange={(e) => {
-                        if (setEduCustomPlan) {
-                          const updated = [...eduCustomPlan];
-                          updated[idx] = e.target.value;
-                          setEduCustomPlan(updated);
-                        }
-                      }}
-                      className="flex-1 bg-transparent text-slate-800 dark:text-slate-200 outline-none focus:text-slate-950 dark:focus:text-white text-[11px]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (setEduCustomPlan && eduCustomPlan.length > 2) {
-                          setEduCustomPlan(eduCustomPlan.filter((_, i) => i !== idx));
-                        }
-                      }}
-                      className="text-slate-400 hover:text-rose-500 shrink-0 text-xs px-1 cursor-pointer"
-                      title="حذف هذا العنوان"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-              </div>
+              {eduCustomPlan.length === 0 ? (
+                <div className="p-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-center text-xs text-slate-500 dark:text-slate-400">
+                  <p>لا توجد خطة محددة حالياً لهذا البحث.</p>
+                  <button
+                    type="button"
+                    onClick={() => generatePlanAsync && generatePlanAsync()}
+                    className="mt-1.5 text-emerald-600 dark:text-emerald-400 font-bold hover:underline cursor-pointer"
+                  >
+                    اضغط هنا لتوليد خطة فورية متوافقة مع المنهاج الجزائري
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+                  {eduCustomPlan.map((heading, idx) => (
+                    <div key={idx} className="flex items-center gap-2 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] transition-colors shadow-2xs">
+                      <span className="text-emerald-600 dark:text-emerald-400 font-bold shrink-0">{idx + 1}.</span>
+                      <input
+                        type="text"
+                        value={heading}
+                        onChange={(e) => {
+                          if (setEduCustomPlan) {
+                            const updated = [...eduCustomPlan];
+                            updated[idx] = e.target.value;
+                            setEduCustomPlan(updated);
+                          }
+                        }}
+                        className="flex-1 bg-transparent text-slate-800 dark:text-slate-200 outline-none focus:text-slate-950 dark:focus:text-white text-[11px] font-medium"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (setEduCustomPlan && eduCustomPlan.length > 1) {
+                            setEduCustomPlan(eduCustomPlan.filter((_, i) => i !== idx));
+                          }
+                        }}
+                        className="text-slate-400 hover:text-rose-500 shrink-0 text-xs px-1 cursor-pointer transition-colors"
+                        title="حذف هذا المحور"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (setEduCustomPlan) {
+                        setEduCustomPlan([
+                          ...eduCustomPlan,
+                          `المبحث ${eduCustomPlan.length}: محور إضافي مخصص`,
+                        ]);
+                      }
+                    }}
+                    className="w-full py-1 text-[10.5px] border border-dashed border-emerald-500/40 text-emerald-700 dark:text-emerald-400 rounded-lg font-bold hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all cursor-pointer"
+                  >
+                    + إضافة محور جديد للخطة
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

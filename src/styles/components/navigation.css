@@ -13,8 +13,8 @@
 
 /* ── Light Mode Active State ── */
 html:not(.dark) .sidebar-nav-active,
-.light .sidebar-nav-active,
-[data-theme="light"] .sidebar-nav-active {
+html[data-theme="light"] .sidebar-nav-active,
+html.light .sidebar-nav-active {
   background: linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0.03) 100%);
   color: #065f46;
   border-right: 3px solid #059669;
@@ -27,8 +27,9 @@ html:not(.dark) .sidebar-nav-active,
 }
 
 html:not(.dark) [dir="ltr"] .sidebar-nav-active,
-.light [dir="ltr"] .sidebar-nav-active,
-[data-theme="light"] [dir="ltr"] .sidebar-nav-active {
+html[data-theme="light"] [dir="ltr"] .sidebar-nav-active,
+html.light [dir="ltr"] .sidebar-nav-active {
   border-right: none;
   border-left: 3px solid #059669;
 }
+
