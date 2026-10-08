@@ -45,10 +45,10 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <h2 className="text-xs sm:text-base font-black text-foreground truncate font-cairo">
-                  {session?.shop?.name || "كشك النجاح للخدمات الرقمية"}
+                  {session?.shop?.name || "مكتبة دانتي الرقمية"}
                 </h2>
                 <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-muted border border-border text-[10px] text-muted-foreground font-medium shrink-0">
-                  {session?.shop?.wilaya || "ولاية الجزائر (16)"}
+                  {session?.shop?.wilaya || "16 - الجزائر"}
                 </span>
               </div>
               <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5 truncate">
@@ -87,7 +87,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             >
               <span>💎</span>
               <span className="font-mono" suppressHydrationWarning>
-                {(session?.shop?.points || 1250).toLocaleString()}
+                {(session?.shop?.points ?? 50).toLocaleString()}
               </span>
               <span className="hidden xs:inline text-[10px] text-muted-foreground font-normal">ن</span>
             </button>

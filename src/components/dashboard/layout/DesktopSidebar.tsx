@@ -36,7 +36,7 @@ export function DesktopSidebar({
   const isSuperAdmin = session?.user?.role === "SUPER_ADMIN";
   const isEmployee = session?.user?.role === "EMPLOYEE" || session?.user?.role === "STAFF";
 
-  const effectivePoints = walletPoints !== undefined ? walletPoints : (session?.shop?.points ?? 0);
+  const effectivePoints = walletPoints !== undefined ? walletPoints : (session?.shop?.points ?? 50);
 
   return (
     <aside
@@ -47,9 +47,9 @@ export function DesktopSidebar({
       {/* Top Section */}
       <div className="space-y-4">
         <SidebarShopProfile
-          shopName={session?.shop?.name}
-          userName={session?.user?.name}
-          wilayaName={session?.shop?.wilaya || "الجزائر"}
+          shopName={session?.shop?.name || "مكتبة دانتي الرقمية"}
+          userName={session?.user?.name || "عمار"}
+          wilayaName={session?.shop?.wilaya || "16 - الجزائر"}
           wilayaCode={session?.shop?.wilayaCode || "16"}
           isSuperAdmin={isSuperAdmin}
           isEmployee={isEmployee}

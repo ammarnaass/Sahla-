@@ -19,12 +19,18 @@ export interface LedgerItem {
 
 export interface WalletTabProps {
   points: number;
-  onRecharge: (pointsToAdd: number, desc?: string) => void;
+  onRecharge: (pointsToAdd: number, desc?: string, newBalance?: number) => void;
   ledger: LedgerItem[];
+  shopId?: string;
 }
 
-export function WalletTab({ points, onRecharge, ledger }: WalletTabProps) {
-  const wallet = useWalletState();
+export function WalletTab({
+  points,
+  onRecharge,
+  ledger,
+  shopId = "shop_1791222058320",
+}: WalletTabProps) {
+  const wallet = useWalletState(shopId);
 
   return (
     <div className="space-y-8 text-right animate-in fade-in duration-200">
@@ -67,6 +73,8 @@ export function WalletTab({ points, onRecharge, ledger }: WalletTabProps) {
         onClose={() => wallet.setShowEpayModal(false)}
         selectedPackage={wallet.selectedPackage}
         paymentSuccess={wallet.paymentSuccess}
+        isProcessing={wallet.isProcessingEpay}
+        error={wallet.epayError}
         onConfirmEpay={() => wallet.confirmEpay(onRecharge)}
       />
     </div>

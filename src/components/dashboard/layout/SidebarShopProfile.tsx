@@ -39,7 +39,7 @@ export function SidebarShopProfile({
 
         {/* Mini Shop Beacon Avatar */}
         <div
-          title={`${shopName || "مكتبة الأمل"} (${wilayaName})`}
+          title={`${shopName || "مكتبة دانتي الرقمية"} (${wilayaName})`}
           className="relative w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 shadow-xs"
         >
           <StoreIcon size={16} className="text-emerald-500 dark:text-emerald-400" />
@@ -139,10 +139,10 @@ export function SidebarShopProfile({
 
         <div>
           <div className="text-xs font-extrabold text-slate-900 dark:text-white truncate">
-            {shopName || "كشك النجاح للخدمات الرقمية"}
+            {shopName || "مكتبة دانتي الرقمية"}
           </div>
           <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-            المشغل: <span className="text-slate-800 dark:text-slate-300 font-medium">{userName || "المسؤول"}</span>
+            المشغل: <span className="text-slate-800 dark:text-slate-300 font-medium">{userName || "عمار"}</span>
           </div>
         </div>
       </div>

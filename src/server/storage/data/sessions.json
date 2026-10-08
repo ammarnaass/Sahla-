@@ -1,9 +1,10 @@
 [
   {
-    "token": "sahla_session_1791457587173_4n8pxlz",
-    "userId": "user_super_admin",
-    "shopId": "shop_default",
-    "createdAt": "2026-10-08T11:06:27.173Z",
-    "expiresAt": "2026-11-07T11:06:27.173Z"
+    "id": "sahla_session_1791492058731_wzrsdzm",
+    "token": "sahla_session_1791492058731_wzrsdzm",
+    "userId": "user_1791222058365",
+    "shopId": "shop_1791222058320",
+    "expiresAt": "2026-11-07T20:40:58.732Z",
+    "createdAt": "2026-10-08 20:40:58"
   }
 ]

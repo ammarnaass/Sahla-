@@ -5,7 +5,7 @@ import { WalletGuard } from "@/server/education/walletGuard";
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const shopId = searchParams.get("shop_id") || "shop_1";
+    const shopId = searchParams.get("shop_id") || "shop_1791222058320";
 
     const currentPoints = WalletGuard.getShopPoints(shopId);
 

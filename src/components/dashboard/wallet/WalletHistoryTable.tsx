@@ -66,10 +66,25 @@ export function WalletHistoryTable({ ledger }: WalletHistoryTableProps) {
                     {item.balanceAfter} نقطة
                   </td>
                   <td className="py-3 px-3 text-slate-500 dark:text-slate-400 font-mono text-[11px]">
-                    {new Date(item.createdAt).toLocaleTimeString("ar-DZ", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {(() => {
+                      try {
+                        const parsed = new Date(
+                          item.createdAt && item.createdAt.includes(" ") && !item.createdAt.includes("T")
+                            ? item.createdAt.replace(" ", "T")
+                            : item.createdAt
+                        );
+                        return isNaN(parsed.getTime())
+                          ? item.createdAt
+                          : parsed.toLocaleDateString("ar-DZ", {
+                              month: "numeric",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            });
+                      } catch {
+                        return item.createdAt;
+                      }
+                    })()}
                   </td>
                 </tr>
               ))

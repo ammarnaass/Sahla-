@@ -9,6 +9,8 @@ interface WalletEpayModalProps {
   onClose: () => void;
   selectedPackage: { points: number; dzd: number } | null;
   paymentSuccess: boolean;
+  isProcessing?: boolean;
+  error?: string;
   onConfirmEpay: () => void;
 }
 
@@ -17,6 +19,8 @@ export function WalletEpayModal({
   onClose,
   selectedPackage,
   paymentSuccess,
+  isProcessing = false,
+  error = "",
   onConfirmEpay,
 }: WalletEpayModalProps) {
   if (!selectedPackage) return null;
@@ -73,16 +77,37 @@ export function WalletEpayModal({
               </div>
             </div>
 
+            {error && (
+              <div className="text-xs text-red-600 dark:text-red-400 font-bold p-2.5 rounded-xl bg-red-500/10 border border-red-500/30">
+                {error}
+              </div>
+            )}
+
             <div className="text-[11px] text-slate-500 text-center leading-relaxed">
               🔒 المعاملات مؤمنة عبر منصة النقد الآلي وتمرير المعاملات SATIM ومتوافقة مع القانون 18-05
             </div>
 
             <div className="flex gap-3 pt-2">
-              <Button variant="outline" onClick={onClose} className="flex-1 cursor-pointer">
+              <Button variant="outline" onClick={onClose} disabled={isProcessing} className="flex-1 cursor-pointer">
                 إلغاء
               </Button>
-              <Button variant="primary" onClick={onConfirmEpay} className="flex-1 cursor-pointer font-bold">
-                تأكيد الدفع ({selectedPackage.dzd} دج) ⚡
+              <Button
+                variant="primary"
+                onClick={onConfirmEpay}
+                disabled={isProcessing}
+                className="flex-1 cursor-pointer font-bold flex items-center justify-center gap-2"
+              >
+                {isProcessing ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    <span>جاري التأكيد...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>تأكيد الدفع ({selectedPackage.dzd.toLocaleString()} دج)</span>
+                    <span>⚡</span>
+                  </>
+                )}
               </Button>
             </div>
           </>

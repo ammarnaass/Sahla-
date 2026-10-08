@@ -36,9 +36,10 @@ export function DashboardClientView() {
     estimatedProfitDZD: 0,
   });
 
+  const shopId = session?.shop?.id || session?.user?.shopId || "shop_1791222058320";
+
   // Load real shop data from database API
   useEffect(() => {
-    const shopId = session?.shop?.id || session?.user?.shopId || "shop_1";
     let isMounted = true;
 
     async function loadDashboardRealData() {
@@ -116,21 +117,37 @@ export function DashboardClientView() {
     setFrequentServices(SERVICES_CATALOG.slice(0, 4));
   }, []);
 
-  const handleRecharge = (pointsToAdd: number, desc = "شحن رصيد المحل") => {
-    setPoints((prev) => {
-      const next = prev + pointsToAdd;
-      const newLedgerItem: LedgerItem = {
-        id: `tx_${Date.now()}`,
-        description: desc,
-        pointsDelta: pointsToAdd,
-        balanceAfter: next,
-        type: "CREDIT",
-        createdAt: new Date().toISOString(),
-      };
-      setLedger((prevL) => [newLedgerItem, ...prevL]);
-      trackEvent("points_recharged", { added: pointsToAdd, total: next });
-      return next;
-    });
+  const handleRecharge = async (pointsToAdd: number, desc = "شحن رصيد المحل", newBalance?: number) => {
+    if (typeof newBalance === "number") {
+      setPoints(newBalance);
+    } else {
+      setPoints((prev) => prev + pointsToAdd);
+    }
+
+    try {
+      const res = await fetch(`/api/dashboard?shop_id=${encodeURIComponent(shopId)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          if (typeof data.balancePoints === "number") setPoints(data.balancePoints);
+          if (Array.isArray(data.ledger)) setLedger(data.ledger);
+          if (data.dailySummary) setDailyStats(data.dailySummary);
+        }
+      }
+    } catch {
+      setLedger((prevL) => [
+        {
+          id: `tx_${Date.now()}`,
+          description: desc,
+          pointsDelta: pointsToAdd,
+          balanceAfter: newBalance ?? (points + pointsToAdd),
+          type: "CREDIT",
+          createdAt: new Date().toISOString(),
+        },
+        ...prevL,
+      ]);
+    }
+    trackEvent("points_recharged", { added: pointsToAdd, total: newBalance ?? (points + pointsToAdd) });
   };
 
   const handleDocumentGenerated = (doc: GeneratedDocPayload) => {
@@ -237,7 +254,12 @@ export function DashboardClientView() {
       )}
 
       {activeTab === "wallet" && (
-        <WalletTab points={points} onRecharge={handleRecharge} ledger={ledger} />
+        <WalletTab
+          points={points}
+          onRecharge={handleRecharge}
+          ledger={ledger}
+          shopId={shopId}
+        />
       )}
 
       {activeTab === "account" && <StaffAccountTab />}

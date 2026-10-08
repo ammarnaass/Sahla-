@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const { shopId = "shop_1", points, dzdAmount } = await req.json();
+    const { shopId = "shop_1791222058320", points, dzdAmount } = await req.json();
     const result = walletService.requestEPayGateway(shopId, Number(points), Number(dzdAmount));
     return NextResponse.json(result);
   } catch (err: any) {

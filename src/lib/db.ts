@@ -17,9 +17,12 @@ export function getDatabase(): DatabaseSync {
   if (!globalThis.sahlaSqliteGlobal) {
     globalThis.sahlaSqliteGlobal = new DatabaseSync(DB_PATH);
     try {
-      globalThis.sahlaSqliteGlobal.exec("PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000; PRAGMA foreign_keys = ON;");
+      globalThis.sahlaSqliteGlobal.exec("PRAGMA journal_mode = WAL;");
+      globalThis.sahlaSqliteGlobal.exec("PRAGMA busy_timeout = 5000;");
+      globalThis.sahlaSqliteGlobal.exec("PRAGMA foreign_keys = ON;");
+      globalThis.sahlaSqliteGlobal.exec("PRAGMA synchronous = NORMAL;");
     } catch {
-      // WAL pragma optional if already set
+      // Optional pragmas
     }
   }
   return globalThis.sahlaSqliteGlobal;

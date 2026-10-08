@@ -9,7 +9,7 @@
     "role": "SHOP_ADMIN",
     "shopId": "shop_1791222058320",
     "createdAt": "2026-10-05T17:40:58.365Z",
-    "updatedAt": "2026-10-05 17:40:58"
+    "updatedAt": "2026-10-08 11:04:19"
   },
   {
     "id": "user_super_admin",
@@ -21,7 +21,7 @@
     "role": "SUPER_ADMIN",
     "shopId": null,
     "createdAt": "2026-10-05 14:57:08",
-    "updatedAt": "2026-10-07 21:15:20",
+    "updatedAt": "2026-10-08 20:39:21",
     "adminRole": "SUPER_ADMIN",
     "isRoot": true,
     "status": "ACTIVE"
@@ -36,7 +36,7 @@
     "role": "SUPER_ADMIN",
     "shopId": null,
     "createdAt": "2026-02-01T10:00:00.000Z",
-    "updatedAt": "2026-10-07 21:15:21",
+    "updatedAt": "2026-10-08 20:39:21",
     "adminRole": "SUPER_ADMIN",
     "isRoot": false,
     "status": "ACTIVE"
@@ -51,7 +51,7 @@
     "role": "SUPER_ADMIN",
     "shopId": null,
     "createdAt": "2026-02-10T14:30:00.000Z",
-    "updatedAt": "2026-10-07 21:15:21",
+    "updatedAt": "2026-10-08 20:39:21",
     "adminRole": "SUPER_ADMIN",
     "isRoot": false,
     "status": "ACTIVE"
@@ -66,7 +66,7 @@
     "role": "SUPER_ADMIN",
     "shopId": null,
     "createdAt": "2026-02-20T09:15:00.000Z",
-    "updatedAt": "2026-10-07 21:15:21",
+    "updatedAt": "2026-10-08 20:39:21",
     "adminRole": "SUPER_ADMIN",
     "isRoot": false,
     "status": "ACTIVE"
@@ -81,7 +81,7 @@
     "role": "SUPER_ADMIN",
     "shopId": null,
     "createdAt": "2026-03-01T11:45:00.000Z",
-    "updatedAt": "2026-10-07 21:15:21",
+    "updatedAt": "2026-10-08 20:39:21",
     "adminRole": "SUPER_ADMIN",
     "isRoot": false,
     "status": "ACTIVE"
@@ -96,7 +96,7 @@
     "role": "SHOP_ADMIN",
     "shopId": "shop_1",
     "createdAt": "2026-10-05 14:57:08",
-    "updatedAt": "2026-10-07 21:15:21",
+    "updatedAt": "2026-10-08 20:39:21",
     "isRoot": false,
     "status": "ACTIVE"
   }
