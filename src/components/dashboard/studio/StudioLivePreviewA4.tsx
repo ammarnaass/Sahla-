@@ -48,6 +48,10 @@ interface StudioLivePreviewA4Props {
   setEduCurrentPagePreview?: (p: number) => void;
   eduCustomPlan?: string[];
   // PRD additions
+  eduDocKind?: "RESEARCH" | "THESIS" | "SUMMARY" | "PEDAGOGIC";
+  eduUniversity?: string;
+  eduFaculty?: string;
+  eduSpecialty?: string;
   eduCoverTemplate?: "OFFICIAL" | "CLASSIC" | "MODERN";
   eduStyleLevel?: "SIMPLE" | "MODERATE" | "ADVANCED";
   eduIncludeReviewQuestions?: boolean;
@@ -76,14 +80,18 @@ export function StudioLivePreviewA4({
   details,
   // Educational props
   eduMode = "RESEARCH",
+  eduDocKind = "RESEARCH",
+  eduUniversity = "",
+  eduFaculty = "",
+  eduSpecialty = "",
   eduLevel = "MIDDLE",
   eduGradeId = "4AM",
   eduSubjectId = "HISTORY_GEO",
-  eduTopic = "الثورة التحريرية الجزائرية المباركة (1954 - 1962)",
+  eduTopic = "",
   eduPageCount = 3,
-  eduSchoolName = "متوسطة الشهيد زبانة",
-  eduTeacherName = "الأستاذ المشرف",
-  eduDirectorate = "مديرية التربية لولاية الجزائر (16)",
+  eduSchoolName = "",
+  eduTeacherName = "",
+  eduDirectorate = "",
   eduTeacherRequirements = "",
   eduUnitTitle = "",
   eduTrimester = 2,
@@ -264,7 +272,7 @@ export function StudioLivePreviewA4({
           }`}
         >
           {/* ======================================================== */}
-          {/* 🎓 SCHOOL RESEARCH: A4 COVER PAGE (Page 1)               */}
+          {/* 🎓 SCHOOL RESEARCH & THESIS: A4 COVER PAGE (Page 1)       */}
           {/* ======================================================== */}
           {isSchoolService && eduMode === "RESEARCH" && activePage === 1 && eduIncludeCover && (
             <div
@@ -282,13 +290,20 @@ export function StudioLivePreviewA4({
                   الجمهورية الجزائرية الديمقراطية الشعبية
                 </div>
                 <div className="text-[10px] text-slate-700 font-bold">
-                  {eduLevel === "UNIVERSITY"
+                  {eduDocKind === "THESIS"
                     ? "وزارة التعليم العالي والبحث العلمي"
                     : "وزارة التربية الوطنية"}
                 </div>
                 <div className="text-[10px] text-slate-600 font-medium">
-                  {eduDirectorate || "مديرية التربية لولاية الجزائر (16)"} · {eduSchoolName || "المؤسسة التعليمية"}
+                  {eduDocKind === "THESIS"
+                    ? `${eduUniversity || "الجامعة الجزائرية"}${eduFaculty ? ` · ${eduFaculty}` : ""}`
+                    : `${eduDirectorate || "مديرية التربية لولاية الجزائر (16)"} · ${eduSchoolName || "المؤسسة التعليمية"}`}
                 </div>
+                {eduDocKind === "THESIS" && eduSpecialty && (
+                  <div className="text-[9.5px] text-slate-500 font-medium">
+                    قسم / تخصص: {eduSpecialty}
+                  </div>
+                )}
               </div>
 
               {/* Title & Topic Box */}
@@ -302,22 +317,30 @@ export function StudioLivePreviewA4({
                 }`}
               >
                 <span className="text-[9px] font-black uppercase tracking-wider text-emerald-800 block mb-1">
-                  بحث مـدرسي في مادة: {subjectInfo.nameAr}
+                  {eduDocKind === "THESIS"
+                    ? "مذكرة تخرج لنيل شهادة التخرج الجامعية (ليسانس / ماستر / تقني سامي)"
+                    : eduDocKind === "SUMMARY"
+                    ? "ملخص تعليمي شامل"
+                    : eduDocKind === "PEDAGOGIC"
+                    ? "مذكرة بيداغوجية لتحضير الدروس"
+                    : `بحث مدرسي في مادة: ${subjectInfo.nameAr}`}
                 </span>
                 <h2 className="text-base sm:text-lg font-black text-slate-950 leading-snug">
-                  {eduTopic || "عنوان البحث المدرسي"}
+                  {eduTopic || (eduDocKind === "THESIS" ? "عنوان مذكرة التخرج الجامعية" : "عنوان البحث المدرسي")}
                 </h2>
                 <div className="text-[10px] text-slate-600 font-bold mt-1">
-                  المستوى: {gradeInfo?.nameAr || "السنة الدراسية"} · أسلوب: {eduStyleLevel === "SIMPLE" ? "مبسط" : eduStyleLevel === "MODERATE" ? "متوسط" : "متقدم"}
+                  {eduDocKind === "THESIS"
+                    ? `الميدان والفرع: ${subjectInfo.nameAr}`
+                    : `المستوى: ${gradeInfo?.nameAr || "السنة الدراسية"} · أسلوب: ${eduStyleLevel === "SIMPLE" ? "مبسط" : eduStyleLevel === "MODERATE" ? "متوسط" : "متقدم"}`}
                 </div>
-                {eduUnitTitle && (
+                {eduUnitTitle && eduDocKind !== "THESIS" && (
                   <div className="mt-2 inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-bold border border-emerald-300">
                     ✓ يوافق المنهاج الوطني الجزائري · مقطع: {eduUnitTitle}
                   </div>
                 )}
                 {eduTeacherRequirements && (
                   <div className="mt-2 text-[9px] text-slate-600 bg-white/70 p-1.5 rounded border border-slate-200 text-right">
-                    <strong>العناصر المطلوبة من الأستاذ:</strong> {eduTeacherRequirements}
+                    <strong>توجيهات المشرف:</strong> {eduTeacherRequirements}
                   </div>
                 )}
               </div>
@@ -325,31 +348,43 @@ export function StudioLivePreviewA4({
               {/* Prepared by & Supervised by */}
               <div className="grid grid-cols-2 gap-2 text-right pt-2 border-t border-slate-300 text-[10px]">
                 <div>
-                  <span className="font-bold text-slate-900 block">إعداد التلميذ(ة):</span>
-                  <span className="text-emerald-900 font-extrabold">{customerName || "تلميذ المؤسسة"}</span>
+                  <span className="font-bold text-slate-900 block">
+                    {eduDocKind === "THESIS" ? "إعداد الطالب(ة) الباحث:" : "إعداد التلميذ(ة):"}
+                  </span>
+                  <span className="text-emerald-900 font-extrabold">
+                    {customerName || (eduDocKind === "THESIS" ? "اسم الطالب(ة)" : "تلميذ المؤسسة")}
+                  </span>
                 </div>
                 <div className="text-left">
-                  <span className="font-bold text-slate-900 block">تحت إشراف:</span>
-                  <span className="text-slate-800 font-bold">{eduTeacherName || "الأستاذ المشرف"}</span>
+                  <span className="font-bold text-slate-900 block">
+                    {eduDocKind === "THESIS" ? "تحت إشراف الأستاذ المؤطر:" : "تحت إشراف:"}
+                  </span>
+                  <span className="text-slate-800 font-bold">
+                    {eduTeacherName || (eduDocKind === "THESIS" ? "أ.د المشرف والمؤطر" : "الأستاذ المشرف")}
+                  </span>
                 </div>
               </div>
 
               {/* Academic Year */}
               <div className="text-center text-[9px] text-slate-500 font-mono pt-1">
-                الموسم الدراسي: 2026 / 2027 م
+                {eduDocKind === "THESIS" ? "السنة الجامعية: 2025 / 2026 م" : "الموسم الدراسي: 2025 / 2026 م"}
               </div>
             </div>
           )}
 
           {/* ======================================================== */}
-          {/* 🎓 SCHOOL RESEARCH: CONTENT / OUTLINE (Page 2+)          */}
+          {/* 🎓 SCHOOL RESEARCH & THESIS: CONTENT (Page 2+)           */}
           {/* ======================================================== */}
           {isSchoolService && eduMode === "RESEARCH" && (activePage > 1 || !eduIncludeCover) && (
             <div className="space-y-3.5 text-right">
               {/* Document Header Line */}
               <div className="flex justify-between items-center border-b pb-1.5 text-[9px] text-slate-500 font-bold">
-                <span>{eduSchoolName}</span>
-                <span className="truncate max-w-[200px]">{eduTopic}</span>
+                <span>
+                  {eduDocKind === "THESIS"
+                    ? eduUniversity || "الجامعة الجزائرية"
+                    : eduSchoolName || "المؤسسة التعليمية"}
+                </span>
+                <span className="truncate max-w-[200px]">{eduTopic || "مستند تعليمي"}</span>
                 <span className="font-mono">ص {activePage}</span>
               </div>
 
@@ -358,16 +393,26 @@ export function StudioLivePreviewA4({
                 <div className="bg-slate-50 p-3 rounded border border-slate-200 space-y-2">
                   <h4 className="font-black text-slate-900 text-xs border-b pb-1 flex items-center gap-1">
                     <span>📌</span>
-                    <span>خطة البحث والفهرس المعتمد:</span>
+                    <span>
+                      {eduDocKind === "THESIS"
+                        ? "خطة وفهرس مذكرة التخرج المعتمدة:"
+                        : "خطة البحث والفهرس المعتمد:"}
+                    </span>
                   </h4>
-                  <ul className="space-y-1.5 text-[10px] text-slate-800 pr-2">
-                    {eduCustomPlan.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-1.5 leading-snug">
-                        <span className="text-emerald-700 font-bold shrink-0">▪</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  {eduCustomPlan && eduCustomPlan.length > 0 ? (
+                    <ul className="space-y-1.5 text-[10px] text-slate-800 pr-2">
+                      {eduCustomPlan.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-1.5 leading-snug">
+                          <span className="text-emerald-700 font-bold shrink-0">▪</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-[10px] text-slate-500 italic">
+                      اضغط على «الخطوة 1: توليد خطة وفهرس البحث» لإنشاء خطة منهجية متوافقة.
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -385,45 +430,70 @@ export function StudioLivePreviewA4({
                     ? "الخاتمة والاستنتاجات النهائية:"
                     : `المبحث ${Math.max(1, sectionIdx + 1)}: العرض والتحليل المفصل`);
 
-                const content =
-                  genSection?.content ||
-                  (isLastPage
-                    ? "وفي ختام هذا البحث المتكامل، نستنتج أن دراسة هذا الموضوع تبرز مدى الأهمية البالغة التي توليها المنظومة التربوية والوطنية لهذه القضية، مع التأكيد على ضرورة ترسيخ هذه المعارف ونقلها للأجيال الصاعدة وتطبيقها في الحياة العملية."
-                    : `يعتبر هذا الموضوع من أهم المحاور المقررة في المنهاج الدراسي، حيث يتناول الأسس النظرية والمفاهيم الجوهرية لعنصر "${heading}" التي تمكن المتعلم من استيعاب الظواهر المعنية بدقة، مع ربطها بالأمثلة التطبيقية والشواهد الواقعية المستمدة من البيئة الجزائرية الأصيلة.`);
+                const hasContent = Boolean(genSection?.content);
 
                 return (
                   <div className="space-y-2.5 text-[11px] text-slate-800 leading-relaxed">
-                    <div className="font-bold text-slate-900 text-xs text-emerald-800 flex items-center justify-between">
+                    <div className="font-bold text-slate-900 text-xs text-emerald-800 flex items-center justify-between border-b pb-1">
                       <span>{heading}</span>
-                      {eduGeneratedSections && eduGeneratedSections.length > 0 && (
-                        <span className="text-[8.5px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono">
+                      {hasContent && (
+                        <span className="text-[8.5px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono font-bold">
                           AI ⚡ موثق
                         </span>
                       )}
                     </div>
-                    <div className="text-justify text-[10px] text-slate-700 leading-relaxed whitespace-pre-line">
-                      {content}
-                    </div>
+
+                    {hasContent ? (
+                      <div className="text-justify text-[10.5px] text-slate-800 leading-relaxed whitespace-pre-line space-y-2">
+                        {genSection!.content}
+                      </div>
+                    ) : (
+                      <div className="my-4 p-4 rounded-xl border border-dashed border-emerald-300 dark:border-emerald-700 bg-emerald-50/40 dark:bg-emerald-950/20 text-center space-y-2">
+                        <div className="text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5">
+                          <span>📋</span>
+                          <span>{heading}</span>
+                        </div>
+                        <p className="text-slate-600 dark:text-slate-400 text-[10px] max-w-sm mx-auto leading-relaxed">
+                          {eduTopic
+                            ? "هذا القسم معتمد وجاهز للتوليد الأكاديمي. انقر على «توليد وحفظ البحث» لإنشاء محتوى أكاديمي متكامل وموثق."
+                            : "يرجى تحديد عنوان وموضوع البحث في النموذج لبدء التوليد الفعلي."}
+                        </p>
+                      </div>
+                    )}
 
                     {/* Educational Review Questions (PRD Section 8: النزاهة الأكاديمية) */}
-                    {isLastPage && eduIncludeReviewQuestions && (
+                    {isLastPage && eduIncludeReviewQuestions && eduDocKind !== "THESIS" && (
                       <div className="mt-2.5 p-2.5 bg-blue-50/80 rounded border border-blue-200 text-[9.5px] text-blue-900 space-y-1">
                         <span className="font-bold text-blue-950 block">💡 أسئلة مراجعة ومفردات الدرس (لتحفيز الفهم وتجنب الغش):</span>
                         <ul className="list-disc list-inside space-y-0.5 text-blue-800 pr-1">
-                          <li>ما هي الفكرة الأساسية التي يعالجها موضوع "{eduTopic}" بأسلوبك الخاص؟</li>
+                          <li>ما هي الفكرة الأساسية التي يعالجها موضوع "{eduTopic || "هذا البحث"}" بأسلوبك الخاص؟</li>
                           <li>استخرج مثالين واقعيين وردا في البحث يربطان المفاهيم بالمنهاج الدراسي.</li>
                           <li>لخص أهم ما توصلت إليه الخاتمة في جملتين لدعم مشاركتك في القسم.</li>
                         </ul>
                       </div>
                     )}
 
-                    {/* Verified ONPS References (PRD Section 5.4) */}
+                    {/* Verified Official References */}
                     {isLastPage && eduIncludeSources && (
                       <div className="mt-2.5 p-2 bg-slate-50 rounded border border-slate-200 text-[9px] text-slate-600 space-y-1">
-                        <span className="font-bold text-slate-900 block">قائمة المراجع والمصادر الرسمية المعتمدة:</span>
-                        <div>1. الكتاب المدرسي المقرر لوزارة التربية الوطنية لمادة {subjectInfo.nameAr} - ديوان المطبوعات المدرسية (ONPS).</div>
-                        <div>2. المنهاج والوثيقة المرافقة لمادة {subjectInfo.nameAr}، المعهد الوطني للبحث في التربية (INRE).</div>
-                        <div>3. الموسوعة الجزائرية للتاريخ والجغرافيا والعلوم، منشورات ديوان المطبوعات الجامعية (OPU).</div>
+                        <span className="font-bold text-slate-900 block">
+                          {eduDocKind === "THESIS"
+                            ? "قائمة المراجع والمصادر الأكاديمية المعتمدة:"
+                            : "قائمة المراجع والمصادر الرسمية المعتمدة:"}
+                        </span>
+                        {eduDocKind === "THESIS" ? (
+                          <>
+                            <div>1. منشورات ديوان المطبوعات الجامعية (OPU) - بن عكنون، الجزائر.</div>
+                            <div>2. البوابة الوطنية للمجلات العلمية الجزائرية (ASJP)، وزارة التعليم العالي والبحث العلمي.</div>
+                            <div>3. المنشورات الأكاديمية والمراجع العلمية المتخصصة في الميدان.</div>
+                          </>
+                        ) : (
+                          <>
+                            <div>1. الكتاب المدرسي المقرر لوزارة التربية الوطنية لمادة {subjectInfo.nameAr} - ديوان المطبوعات المدرسية (ONPS).</div>
+                            <div>2. المنهاج والوثيقة المرافقة لمادة {subjectInfo.nameAr}، المعهد الوطني للبحث في التربية (INRE).</div>
+                            <div>3. الموسوعة الجزائرية للتاريخ والجغرافيا والعلوم، منشورات ديوان المطبوعات الجامعية (OPU).</div>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
@@ -432,7 +502,9 @@ export function StudioLivePreviewA4({
 
               {/* Page Footer */}
               <div className="pt-3 border-t text-center text-[9px] text-slate-400 font-mono">
-                منصة سهلة · معتمد للطباعة والتسليم المدرسي
+                {eduDocKind === "THESIS"
+                  ? "منصة سهلة · معتمد لمذكرات التخرج والأطروحات الجامعية"
+                  : "منصة سهلة · معتمد للطباعة والتسليم المدرسي"}
               </div>
             </div>
           )}

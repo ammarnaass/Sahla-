@@ -9,6 +9,10 @@ export interface ExportWordOptions {
   level: string;
   grade: string;
   subject: string;
+  docKind?: "RESEARCH" | "THESIS" | "SUMMARY" | "PEDAGOGIC";
+  university?: string;
+  faculty?: string;
+  specialty?: string;
   studentName?: string;
   schoolName?: string;
   teacherName?: string;
@@ -25,6 +29,10 @@ export function exportResearchToWord(options: ExportWordOptions) {
     topic,
     grade,
     subject,
+    docKind = "RESEARCH",
+    university = "",
+    faculty = "",
+    specialty = "",
     studentName = "التلميذ",
     schoolName = "المؤسسة التعليمية",
     teacherName = "الأستاذ المشرف",
@@ -34,6 +42,8 @@ export function exportResearchToWord(options: ExportWordOptions) {
     reviewQuestions = [],
     watermark,
   } = options;
+
+  const isThesis = docKind === "THESIS";
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -143,29 +153,50 @@ export function exportResearchToWord(options: ExportWordOptions) {
         <!-- صفحة الغلاف الرسمية -->
         <div class="cover-page">
           <div class="republic">الجمهورية الجزائرية الديمقراطية الشعبية</div>
-          <div class="ministry-header">وزارة التربية الوطنية</div>
-          <div style="font-size: 11pt; color: #64748b;">مديرية التربية والتعليم · ${schoolName}</div>
+          <div class="ministry-header">
+            ${isThesis ? "وزارة التعليم العالي والبحث العلمي" : "وزارة التربية الوطنية"}
+          </div>
+          <div style="font-size: 11pt; color: #475569; margin-bottom: 4px;">
+            ${
+              isThesis
+                ? `${university || "الجامعة الجزائرية"}${faculty ? ` · ${faculty}` : ""}`
+                : `مديرية التربية والتعليم · ${schoolName || "المؤسسة التعليمية"}`
+            }
+          </div>
+          ${
+            isThesis && specialty
+              ? `<div style="font-size: 10.5pt; color: #64748b; margin-bottom: 8px;">القسم / التخصص: ${specialty}</div>`
+              : ""
+          }
 
           <div class="title-box">
-            <div style="font-size: 13pt; color: #059669; font-weight: bold; margin-bottom: 8px;">بحث مدرسي في مادة: ${subject}</div>
+            <div style="font-size: 12pt; color: #059669; font-weight: bold; margin-bottom: 8px;">
+              ${
+                isThesis
+                  ? "مذكرة تخرج لنيل شهادة التخرج الجامعية (ليسانس / ماستر / تقني سامي)"
+                  : `بحث مدرسي في مادة: ${subject}`
+              }
+            </div>
             <div class="main-title">${topic}</div>
-            <div style="font-size: 11pt; color: #475569; margin-top: 8px;">المستوى: ${grade}</div>
+            <div style="font-size: 11pt; color: #475569; margin-top: 8px;">
+              ${isThesis ? `الميدان والفرع: ${subject}` : `المستوى: ${grade}`}
+            </div>
           </div>
 
           <table class="meta-table">
             <tr>
               <td style="text-align: right; width: 50%;">
-                <span class="meta-label">إعداد التلميذ(ة):</span><br/>
-                <span style="font-size: 13pt;">${studentName}</span>
+                <span class="meta-label">${isThesis ? "إعداد الطالب(ة) الباحث:" : "إعداد التلميذ(ة):"}</span><br/>
+                <span style="font-size: 13pt; font-weight: bold;">${studentName}</span>
               </td>
               <td style="text-align: left; width: 50%;">
-                <span class="meta-label">تحت إشراف الأستاذ(ة):</span><br/>
-                <span style="font-size: 13pt;">${teacherName}</span>
+                <span class="meta-label">${isThesis ? "تحت إشراف الأستاذ(ة) المؤطر(ة):" : "تحت إشراف الأستاذ(ة):"}</span><br/>
+                <span style="font-size: 13pt; font-weight: bold;">${teacherName}</span>
               </td>
             </tr>
             <tr>
               <td colspan="2" style="text-align: center; padding-top: 40px; color: #64748b;">
-                الموسم الدراسي: 2025 / 2026
+                ${isThesis ? "السنة الجامعية: 2025 / 2026 م" : "الموسم الدراسي: 2025 / 2026 م"}
               </td>
             </tr>
           </table>

@@ -6,6 +6,9 @@ import type { InvoiceItem } from "@/hooks/dashboard/useStudioState";
 import {
   EducationLevel,
   DocumentMode,
+  EducationDocKind,
+  EDUCATION_DOC_KINDS,
+  ALGERIAN_UNIVERSITIES,
   EDUCATION_LEVELS,
   ALGERIAN_GRADES,
   ALGERIAN_SUBJECTS,
@@ -77,6 +80,14 @@ interface StudioDynamicFormProps {
   // PRD v2.0 additions
   eduSubTab?: "BUILDER" | "LIBRARY" | "PRACTICE_EXAM";
   setEduSubTab?: (t: "BUILDER" | "LIBRARY" | "PRACTICE_EXAM") => void;
+  eduDocKind?: "RESEARCH" | "THESIS" | "SUMMARY" | "PEDAGOGIC";
+  setEduDocKind?: (k: "RESEARCH" | "THESIS" | "SUMMARY" | "PEDAGOGIC") => void;
+  eduUniversity?: string;
+  setEduUniversity?: (u: string) => void;
+  eduFaculty?: string;
+  setEduFaculty?: (f: string) => void;
+  eduSpecialty?: string;
+  setEduSpecialty?: (s: string) => void;
   eduStyleLevel?: "SIMPLE" | "MODERATE" | "ADVANCED";
   setEduStyleLevel?: (l: "SIMPLE" | "MODERATE" | "ADVANCED") => void;
   eduCoverTemplate?: "OFFICIAL" | "CLASSIC" | "MODERN";
@@ -131,6 +142,14 @@ export function StudioDynamicForm({
   details,
   setDetails,
   // Educational props
+  eduDocKind = "RESEARCH",
+  setEduDocKind,
+  eduUniversity = "",
+  setEduUniversity,
+  eduFaculty = "",
+  setEduFaculty,
+  eduSpecialty = "",
+  setEduSpecialty,
   eduMode = "RESEARCH",
   setEduMode,
   eduLevel = "MIDDLE",
@@ -139,13 +158,13 @@ export function StudioDynamicForm({
   setEduGradeId,
   eduSubjectId = "HISTORY_GEO",
   setEduSubjectId,
-  eduTopic = "الثورة التحريرية الجزائرية المباركة (1954 - 1962)",
+  eduTopic = "",
   setEduTopic,
   eduPageCount = 3,
   setEduPageCount,
-  eduSchoolName = "متوسطة الشهيد زبانة",
+  eduSchoolName = "",
   setEduSchoolName,
-  eduTeacherName = "الأستاذ المشرف",
+  eduTeacherName = "",
   setEduTeacherName,
   eduTrimester = 2,
   setEduTrimester,
@@ -167,7 +186,7 @@ export function StudioDynamicForm({
   setEduCoverTemplate,
   eduIncludeReviewQuestions = true,
   setEduIncludeReviewQuestions,
-  eduDirectorate = "مديرية التربية لولاية الجزائر (16)",
+  eduDirectorate = "",
   setEduDirectorate,
   eduTeacherRequirements = "",
   setEduTeacherRequirements,
@@ -234,14 +253,24 @@ export function StudioDynamicForm({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-            {isSchoolService ? "اسم التلميذ / الطالب *" : "اسم الزبون الكامل *"}
+            {isSchoolService
+              ? eduDocKind === "THESIS"
+                ? "اسم الطالب(ة) / الباحث *"
+                : "اسم التلميذ / الطالب *"
+              : "اسم الزبون الكامل *"}
           </label>
           <input
             type="text"
             required
             value={customerName}
             onChange={(e) => setCustomerName(e.target.value)}
-            placeholder={isSchoolService ? "مثال: أمين بن مهيدي" : "مثال: محمد بن عبد الرحمن"}
+            placeholder={
+              isSchoolService
+                ? eduDocKind === "THESIS"
+                  ? "مثال: سفيان بلقاسم / مجموعة الطلبة"
+                  : "مثال: أمين بن مهيدي"
+                : "مثال: محمد بن عبد الرحمن"
+            }
             className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
           />
         </div>
@@ -262,10 +291,65 @@ export function StudioDynamicForm({
       </div>
 
       {/* ======================================================== */}
-      {/* 🎓 SCHOOL RESEARCH CONFIGURATION SECTION                 */}
+      {/* 🎓 SCHOOL RESEARCH & THESIS CONFIGURATION SECTION        */}
       {/* ======================================================== */}
       {isSchoolService && (
         <div className="space-y-4 pt-1 bg-slate-100/70 dark:bg-slate-950/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/90 shadow-sm transition-colors">
+
+          {/* 1. Document Kind Selector */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+              <span>نوع الوثيقة الأكاديمية:</span>
+              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+                {eduDocKind === "THESIS"
+                  ? "مذكرة تخرج جامعية"
+                  : eduDocKind === "PEDAGOGIC"
+                  ? "مذكرة بيداغوجية للأستاذ"
+                  : eduDocKind === "SUMMARY"
+                  ? "ملخص ومراجعة درس"
+                  : "بحث مدرسي رسمي"}
+              </span>
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+              {EDUCATION_DOC_KINDS.map((k) => (
+                <button
+                  key={k.id}
+                  type="button"
+                  onClick={() => {
+                    if (setEduDocKind) setEduDocKind(k.id);
+                    if (k.id === "THESIS") {
+                      if (setEduLevel) setEduLevel("UNIVERSITY");
+                      if (setEduGradeId) setEduGradeId("UNIV_M");
+                      if (setEduCoverTemplate) setEduCoverTemplate("OFFICIAL");
+                      if (!eduUniversity && setEduUniversity) {
+                        setEduUniversity("جامعة هواري بومدين للعلوم والتكنولوجيا (USTHB) - باب الزوار");
+                      }
+                    } else if (eduLevel === "UNIVERSITY") {
+                      if (setEduLevel) setEduLevel("MIDDLE");
+                      if (setEduGradeId) setEduGradeId("4AM");
+                    }
+                  }}
+                  className={`p-2 rounded-xl text-right transition-all border cursor-pointer ${
+                    eduDocKind === k.id
+                      ? "bg-emerald-600 border-emerald-500 text-white shadow-md shadow-emerald-950/20"
+                      : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-emerald-500/40"
+                  }`}
+                >
+                  <div className="text-xs font-bold flex items-center gap-1.5">
+                    <span>{k.icon}</span>
+                    <span className="truncate">{k.nameAr}</span>
+                  </div>
+                  <div
+                    className={`text-[9px] mt-0.5 truncate ${
+                      eduDocKind === k.id ? "text-emerald-100" : "text-slate-500 dark:text-slate-400"
+                    }`}
+                  >
+                    {k.badge}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Quick Presets Dropdown */}
           {availablePresets.length > 0 && (
@@ -459,63 +543,142 @@ export function StudioDynamicForm({
           {/* 6. Title / Topic Input */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-              {eduMode === "RESEARCH" ? "عنوان وموضوع البحث *" : "عنوان الاختبار أو الفرض *"}
+              {eduDocKind === "THESIS"
+                ? "عنوان مذكرة التخرج أو الأطروحة الجامعية *"
+                : eduDocKind === "SUMMARY"
+                ? "عنوان ملخص الدرس أو الوحدة التعليمية *"
+                : eduDocKind === "PEDAGOGIC"
+                ? "عنوان المذكرة البيداغوجية / درس الأستاذ *"
+                : eduMode === "RESEARCH"
+                ? "عنوان وموضوع البحث المدرسي *"
+                : "عنوان الاختبار أو الفرض *"}
             </label>
             <input
               type="text"
               required
               value={eduTopic}
               onChange={(e) => setEduTopic && setEduTopic(e.target.value)}
-              placeholder="مثال: الثورة التحريرية الجزائرية / فرض الفصل الثاني في مادة الرياضيات"
+              placeholder={
+                eduDocKind === "THESIS"
+                  ? "مثال: أثر الرقمنة والشمول المالي على أداء المؤسسات المصرفية في الجزائر"
+                  : eduDocKind === "SUMMARY"
+                  ? "مثال: ملخص شامل لقواعد اللغة والتحليل الأدبي للثلاثي الأول"
+                  : eduDocKind === "PEDAGOGIC"
+                  ? "مثال: مذكرة نموذجية لتحضير درس الطاقة الحركية وتطبيقاتها"
+                  : eduMode === "RESEARCH"
+                  ? "مثال: المقاومة الشعبية الجزائرية ومحطات الثورة التحريرية 1954-1962"
+                  : "مثال: فرض الفصل الثاني في مادة الرياضيات"
+              }
               className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs focus:outline-none focus:border-emerald-500 font-bold transition-colors"
             />
           </div>
 
-          {/* 7. Directorate, School and Teacher info */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <div>
-              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                مديرية التربية لولاية:
-              </label>
-              <select
-                value={eduDirectorate}
-                onChange={(e) => setEduDirectorate && setEduDirectorate(e.target.value)}
-                className="w-full px-2 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
-              >
-                {ALGERIAN_WILAYAS_DIRECTORATES.slice(0, 30).map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* 7. Institution & Supervisor Info (University / School) */}
+          {eduDocKind === "THESIS" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  الجامعة / المركز الجامعي:
+                </label>
+                <select
+                  value={eduUniversity}
+                  onChange={(e) => setEduUniversity && setEduUniversity(e.target.value)}
+                  className="w-full px-2 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                >
+                  <option value="">-- اختر الجامعة --</option>
+                  {ALGERIAN_UNIVERSITIES.map((uni) => (
+                    <option key={uni} value={uni}>
+                      {uni}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div>
-              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                اسم المؤسسة التعليمية:
-              </label>
-              <input
-                type="text"
-                value={eduSchoolName}
-                onChange={(e) => setEduSchoolName && setEduSchoolName(e.target.value)}
-                placeholder="ثانوية العقيد لطفي / متوسطة زبانة"
-                className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs transition-colors"
-              />
-            </div>
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  الكلية / المعهد:
+                </label>
+                <input
+                  type="text"
+                  value={eduFaculty}
+                  onChange={(e) => setEduFaculty && setEduFaculty(e.target.value)}
+                  placeholder="مثال: كلية العلوم الاقتصادية والتجارية"
+                  className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs transition-colors"
+                />
+              </div>
 
-            <div>
-              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                اسم الأستاذ المشرف:
-              </label>
-              <input
-                type="text"
-                value={eduTeacherName}
-                onChange={(e) => setEduTeacherName && setEduTeacherName(e.target.value)}
-                placeholder="الأستاذ المشرف"
-                className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs transition-colors"
-              />
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  القسم / التخصص:
+                </label>
+                <input
+                  type="text"
+                  value={eduSpecialty}
+                  onChange={(e) => setEduSpecialty && setEduSpecialty(e.target.value)}
+                  placeholder="مثال: مالية وبنوك / إعلام آلي"
+                  className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  الأستاذ المؤطر / المشرف:
+                </label>
+                <input
+                  type="text"
+                  value={eduTeacherName}
+                  onChange={(e) => setEduTeacherName && setEduTeacherName(e.target.value)}
+                  placeholder="مثال: أ.د. محمد بن يحيى"
+                  className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs transition-colors"
+                />
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  مديرية التربية لولاية:
+                </label>
+                <select
+                  value={eduDirectorate}
+                  onChange={(e) => setEduDirectorate && setEduDirectorate(e.target.value)}
+                  className="w-full px-2 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                >
+                  {ALGERIAN_WILAYAS_DIRECTORATES.slice(0, 30).map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  اسم المؤسسة التعليمية:
+                </label>
+                <input
+                  type="text"
+                  value={eduSchoolName}
+                  onChange={(e) => setEduSchoolName && setEduSchoolName(e.target.value)}
+                  placeholder="ثانوية حسيبة بن بوعلي / متوسطة الأمير عبد القادر"
+                  className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  اسم الأستاذ المشرف:
+                </label>
+                <input
+                  type="text"
+                  value={eduTeacherName}
+                  onChange={(e) => setEduTeacherName && setEduTeacherName(e.target.value)}
+                  placeholder="الأستاذ المشرف"
+                  className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs transition-colors"
+                />
+              </div>
+            </div>
+          )}
 
           {/* PRD v2.0 F4: عناصر وتوجيهات مطلوبة من الأستاذ */}
           {eduMode === "RESEARCH" && (

@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
       .prepare(`
         SELECT id, shop_id, title, type, level, grade, subject, topic, language,
                page_count, style_level, cover_template, student_name, school_name,
+               teacher_name, outline_json, content_json, references_json, review_questions_json,
                points_cost, sale_price_dzd, status, expires_at, created_at
         FROM research_docs
         WHERE shop_id = ?
@@ -34,6 +35,11 @@ export async function GET(req: NextRequest) {
         pages: r.page_count,
         style: r.style_level,
         cover_template: r.cover_template,
+        teacher_name: r.teacher_name,
+        outline_json: r.outline_json,
+        content_json: r.content_json,
+        references_json: r.references_json,
+        review_questions_json: r.review_questions_json,
         // Privacy enforcement: mask student name if expired
         student_name: isExpired ? "بيانات مشفرة ومحذوفة (قانون 18-07)" : r.student_name,
         school_name: isExpired ? "المؤسسة التعليمية" : r.school_name,

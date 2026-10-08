@@ -1152,6 +1152,11 @@ export class AIProviderRouter {
 
       let key = "";
       if (row.key_encrypted) key = decryptKey(row.key_encrypted);
+      if (!key) {
+        if (row.kind === "gemini") key = process.env.GEMINI_API_KEY || "";
+        else if (row.kind === "openai" || row.kind === "openai_compatible") key = process.env.OPENAI_API_KEY || "";
+        else if (row.kind === "anthropic") key = process.env.ANTHROPIC_API_KEY || "";
+      }
       const isLocal =
         row.preset_id === "ollama" ||
         row.preset_id === "vllm" ||

@@ -217,7 +217,14 @@ export function StudioModal({
                 eduGradeId={studio.eduGradeId}
                 setEduGradeId={studio.setEduGradeId}
                 eduSubjectId={studio.eduSubjectId}
-                setEduSubjectId={studio.setEduSubjectId}
+                eduDocKind={studio.eduDocKind}
+                setEduDocKind={studio.setEduDocKind}
+                eduUniversity={studio.eduUniversity}
+                setEduUniversity={studio.setEduUniversity}
+                eduFaculty={studio.eduFaculty}
+                setEduFaculty={studio.setEduFaculty}
+                eduSpecialty={studio.eduSpecialty}
+                setEduSpecialty={studio.setEduSpecialty}
                 eduTopic={studio.eduTopic}
                 setEduTopic={studio.setEduTopic}
                 eduPageCount={studio.eduPageCount}
@@ -291,6 +298,10 @@ export function StudioModal({
                 details={studio.details}
                 // School Research & Exams
                 eduMode={studio.eduMode}
+                eduDocKind={studio.eduDocKind}
+                eduUniversity={studio.eduUniversity}
+                eduFaculty={studio.eduFaculty}
+                eduSpecialty={studio.eduSpecialty}
                 eduLevel={studio.eduLevel}
                 eduGradeId={studio.eduGradeId}
                 eduSubjectId={studio.eduSubjectId}
@@ -309,6 +320,7 @@ export function StudioModal({
                 eduCurrentPagePreview={studio.eduCurrentPagePreview}
                 setEduCurrentPagePreview={studio.setEduCurrentPagePreview}
                 eduCustomPlan={studio.eduCustomPlan}
+                eduGeneratedSections={studio.eduGeneratedSections}
                 eduCoverTemplate={studio.eduCoverTemplate}
                 eduStyleLevel={studio.eduStyleLevel}
                 eduIncludeReviewQuestions={studio.eduIncludeReviewQuestions}
