@@ -267,9 +267,9 @@ export function StudioDynamicForm({
             placeholder={
               isSchoolService
                 ? eduDocKind === "THESIS"
-                  ? "مثال: سفيان بلقاسم / مجموعة الطلبة"
-                  : "مثال: أمين بن مهيدي"
-                : "مثال: محمد بن عبد الرحمن"
+                  ? "مثال: اسم الطالب الباحث / فريق البحث"
+                  : "مثال: اسم التلميذ(ة)"
+                : "مثال: اسم الزبون"
             }
             className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
           />

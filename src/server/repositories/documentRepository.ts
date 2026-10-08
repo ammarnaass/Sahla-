@@ -16,28 +16,7 @@ export interface DocumentRecord {
   createdAt: string;
 }
 
-const DEFAULT_DOCUMENTS: DocumentRecord[] = [
-  {
-    id: "doc_1",
-    shopId: "shop_1",
-    title: "سيرة ذاتية — نموذج احترافي",
-    customer: "سفيان بلقاسم",
-    serviceCode: "CV_GEN",
-    price: 250,
-    time: "اليوم",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "doc_2",
-    shopId: "shop_1",
-    title: "فاتورة تجارية رقم 2026/04",
-    customer: "مؤسسة الأمل للتجارة",
-    serviceCode: "INVOICE_PDF",
-    price: 300,
-    time: "أمس",
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-];
+const DEFAULT_DOCUMENTS: DocumentRecord[] = [];
 
 class DocumentRepository {
   private store: JsonStore<DocumentRecord>;

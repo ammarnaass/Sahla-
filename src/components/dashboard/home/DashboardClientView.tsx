@@ -21,56 +21,56 @@ import { SchoolResearchTab } from "@/components/dashboard/education/SchoolResear
 import { NotificationsTab } from "@/components/dashboard/notifications/NotificationsTab";
 import type { GeneratedDocPayload } from "@/hooks/dashboard/useStudioState";
 
-const INITIAL_DOCS: DocumentRecord[] = [
-  {
-    id: "doc_1",
-    title: "سيرة ذاتية — نموذج احترافي",
-    type: "CV",
-    customerName: "سفيان بلقاسم",
-    salePrice: 250,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "doc_2",
-    title: "صور هوية بيومترية (35×45 مم)",
-    type: "ID_PHOTO",
-    customerName: "فاطمة الزهراء عمار",
-    salePrice: 200,
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-  },
-];
-
-const INITIAL_LEDGER: LedgerItem[] = [
-  {
-    id: "tx_0",
-    description: "رصيد تجريبي ترحيبي عند فتح الحساب",
-    pointsDelta: 50,
-    balanceAfter: 50,
-    type: "CREDIT",
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-  {
-    id: "tx_1",
-    description: "توليد سيرة ذاتية احترافية (سفيان بلقاسم)",
-    pointsDelta: -15,
-    balanceAfter: 35,
-    type: "DEBIT",
-    createdAt: new Date().toISOString(),
-  },
-];
-
 export function DashboardClientView() {
   const { session } = useAuth();
   const { activeTab, setActiveTab } = useDashboardTab();
 
-  const [points, setPoints] = useState(session?.user?.role === "SUPER_ADMIN" ? 9999 : 50);
-  const [documents, setDocuments] = useState<DocumentRecord[]>(INITIAL_DOCS);
-  const [ledger, setLedger] = useState<LedgerItem[]>(INITIAL_LEDGER);
+  const [points, setPoints] = useState(
+    session?.shop?.points ?? (session?.user?.role === "SUPER_ADMIN" ? 9999 : 50)
+  );
+  const [documents, setDocuments] = useState<DocumentRecord[]>([]);
+  const [ledger, setLedger] = useState<LedgerItem[]>([]);
   const [dailyStats, setDailyStats] = useState({
-    docsCount: 2,
-    pointsUsed: 15,
-    estimatedProfitDZD: 450,
+    docsCount: 0,
+    pointsUsed: 0,
+    estimatedProfitDZD: 0,
   });
+
+  // Load real shop data from database API
+  useEffect(() => {
+    const shopId = session?.shop?.id || session?.user?.shopId || "shop_1";
+    let isMounted = true;
+
+    async function loadDashboardRealData() {
+      try {
+        const res = await fetch(`/api/dashboard?shop_id=${encodeURIComponent(shopId)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && data.success) {
+            if (typeof data.balancePoints === "number") {
+              setPoints(data.balancePoints);
+            }
+            if (Array.isArray(data.recentDocuments)) {
+              setDocuments(data.recentDocuments);
+            }
+            if (Array.isArray(data.ledger)) {
+              setLedger(data.ledger);
+            }
+            if (data.dailySummary) {
+              setDailyStats(data.dailySummary);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load real dashboard data:", err);
+      }
+    }
+
+    loadDashboardRealData();
+    return () => {
+      isMounted = false;
+    };
+  }, [session?.shop?.id, session?.user?.shopId]);
 
   // Direct keyboard shortcuts: ⌘R for research, ⌘E for exams
   useEffect(() => {

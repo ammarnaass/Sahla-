@@ -36,7 +36,7 @@ export function DesktopSidebar({
   const isSuperAdmin = session?.user?.role === "SUPER_ADMIN";
   const isEmployee = session?.user?.role === "EMPLOYEE" || session?.user?.role === "STAFF";
 
-  const effectivePoints = walletPoints !== undefined ? walletPoints : session?.shop?.points || 1450;
+  const effectivePoints = walletPoints !== undefined ? walletPoints : (session?.shop?.points ?? 0);
 
   return (
     <aside

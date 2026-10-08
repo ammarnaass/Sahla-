@@ -69,36 +69,6 @@ interface AnalyticsReport {
   activityBreakdown: Record<string, number>;
 }
 
-const INITIAL_DOCS: DocumentRecord[] = [
-  {
-    id: "doc_1",
-    title: "سيرة ذاتية — نموذج احترافي",
-    type: "CV",
-    customerName: "سفيان بلقاسم",
-    salePrice: 250,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "doc_2",
-    title: "صور هوية بيومترية (35×45 مم)",
-    type: "ID_PHOTO",
-    customerName: "فاطمة الزهراء عمار",
-    salePrice: 200,
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-  },
-];
-
-const INITIAL_LEDGER: LedgerItem[] = [
-  {
-    id: "tx_0",
-    description: "رصيد تجريبي سيادي لمدير النظام",
-    pointsDelta: 9999,
-    balanceAfter: 9999,
-    type: "CREDIT",
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-];
-
 export default function AdminClientView() {
   const [activeTab, setActiveTab] = useState<UnifiedAdminTab>("analytics");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -114,12 +84,12 @@ export default function AdminClientView() {
 
   // Counter & Studio State
   const [points, setPoints] = useState(9999);
-  const [documents, setDocuments] = useState<DocumentRecord[]>(INITIAL_DOCS);
-  const [ledger, setLedger] = useState<LedgerItem[]>(INITIAL_LEDGER);
+  const [documents, setDocuments] = useState<DocumentRecord[]>([]);
+  const [ledger, setLedger] = useState<LedgerItem[]>([]);
   const [dailyStats, setDailyStats] = useState({
-    docsCount: 2,
-    pointsUsed: 15,
-    estimatedProfitDZD: 450,
+    docsCount: 0,
+    pointsUsed: 0,
+    estimatedProfitDZD: 0,
   });
   const [selectedService, setSelectedService] = useState<ServiceDefinition | null>(null);
   const [frequentServices, setFrequentServices] = useState<ServiceDefinition[]>([]);

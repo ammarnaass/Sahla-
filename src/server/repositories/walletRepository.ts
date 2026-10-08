@@ -26,11 +26,7 @@ export interface CardRecord {
   createdAt?: string;
 }
 
-const DEFAULT_LEDGER: LedgerRecord[] = [
-  { id: "tx_1", shopId: "shop_1", desc: "رصيد ترحيبي معتمد", pts: "+50", after: 50, date: "2026-03-01" },
-  { id: "tx_2", shopId: "shop_1", desc: "شحن رصيد رسمي معتمد (+100 نقطة)", pts: "+100", after: 150, date: "2026-03-05" },
-  { id: "tx_3", shopId: "shop_1", desc: "إنشاء سيرة ذاتية (سفيان بلقاسم)", pts: "-10", after: 140, date: "2026-03-10" },
-];
+const DEFAULT_LEDGER: LedgerRecord[] = [];
 
 const DEFAULT_CARDS: CardRecord[] = [
   { pin: "9845-2134-8765-1029", serialNumber: "DZ-2026-0001", points: 100, priceDZD: 1000, status: "UNREDEEMED" },
