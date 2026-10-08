@@ -1,0 +1,653 @@
+import type { AIModelDefinition, Capabilities, AIProviderKind, AdvancedProviderConfig } from "./types";
+
+export interface AIProviderPreset {
+  id: string;
+  name: string;
+  name_ar: string;
+  category: "cloud_fast" | "cloud_aggregator" | "cloud_frontier" | "local_onprem" | "custom";
+  category_ar: string;
+  kind: AIProviderKind;
+  description_ar: string;
+  badge_ar: string;
+  badge_color: "emerald" | "blue" | "amber" | "purple" | "cyan" | "orange";
+  icon: string;
+  default_base_url: string;
+  default_model: string;
+  available_models: AIModelDefinition[];
+  default_headers?: Record<string, string>;
+  key_required: boolean;
+  key_placeholder_ar: string;
+  key_docs_url?: string;
+  key_docs_label_ar?: string;
+  default_capabilities: Partial<Capabilities>;
+  recommended_config?: AdvancedProviderConfig;
+}
+
+export const AI_PROVIDER_PRESETS: AIProviderPreset[] = [
+  // ── 1. Groq Cloud (Ultra Fast LPU) ──
+  {
+    id: "groq",
+    name: "Groq Cloud",
+    name_ar: "جروك كلاود (Groq LPU)",
+    category: "cloud_fast",
+    category_ar: "سحابي فائق السرعة",
+    kind: "openai_compatible",
+    description_ar: "معالجة فائقة السرعة بزمن استجابة أقل من 250ms بفضل رقاقات LPU المتطورة لنماذج Llama و DeepSeek.",
+    badge_ar: "الأسرع عالمياً (<200ms)",
+    badge_color: "orange",
+    icon: "⚡",
+    default_base_url: "https://api.groq.com/openai/v1",
+    default_model: "llama-3.3-70b-versatile",
+    available_models: [
+      {
+        id: "llama-3.3-70b-versatile",
+        name: "Llama 3.3 70B Versatile",
+        description_ar: "النموذج الأقوى من Meta بسرعة خيالية ودعم عربي متقدم",
+        badge: "موصى به",
+        contextWindow: "128k",
+      },
+      {
+        id: "deepseek-r1-distill-llama-70b",
+        name: "DeepSeek R1 Distill Llama 70B",
+        description_ar: "استدلال وتفكير رياضي عميق وسرعة استثنائية",
+        badge: "تفكير واستدلال",
+        contextWindow: "128k",
+      },
+      {
+        id: "mixtral-8x7b-32768",
+        name: "Mixtral 8x7B (MoE)",
+        description_ar: "نموذج موجه للمهام السريعة والاقتصادية",
+        contextWindow: "32k",
+      },
+      {
+        id: "gemma2-9b-it",
+        name: "Gemma 2 9B IT",
+        description_ar: "نموذج خفيف وفوري من Google",
+        contextWindow: "8k",
+      },
+    ],
+    key_required: true,
+    key_placeholder_ar: "gsk_...",
+    key_docs_url: "https://console.groq.com/keys",
+    key_docs_label_ar: "الحصول على مفتاح Groq مجاناً",
+    default_capabilities: {
+      tool_use: true,
+      json_mode: true,
+      structured_output: "json_object",
+      streaming: true,
+      max_context: 128000,
+      vision: false,
+      languages_verified: ["ar", "fr", "en"],
+      web_search: false,
+      prompt_caching: false,
+    },
+    recommended_config: {
+      timeout_seconds: 30,
+      temperature: 0.2,
+    },
+  },
+
+  // ── 2. OpenRouter (Unified Multi-Model Gateway) ──
+  {
+    id: "openrouter",
+    name: "OpenRouter",
+    name_ar: "أوبن راوتر (OpenRouter Gateway)",
+    category: "cloud_aggregator",
+    category_ar: "بوابات مجمعة",
+    kind: "openai_compatible",
+    description_ar: "بوابة ذكاء اصطناعي موحدة تضم أكثر من 200 نموذج (DeepSeek R1, Claude 3.5, Llama, Gemini) بمفتاح واحد.",
+    badge_ar: "أكثر من 200 نموذج",
+    badge_color: "purple",
+    icon: "🌐",
+    default_base_url: "https://openrouter.ai/api/v1",
+    default_model: "deepseek/deepseek-r1",
+    available_models: [
+      {
+        id: "deepseek/deepseek-r1",
+        name: "DeepSeek R1 (Full Reasoning)",
+        description_ar: "أعلى أداء استدلالي وتفكيري منافس لـ o1",
+        badge: "استدلال متقدم",
+        contextWindow: "64k",
+      },
+      {
+        id: "anthropic/claude-3.5-sonnet",
+        name: "Claude 3.5 Sonnet",
+        description_ar: "أفضل صياغة لغوية وتحليل دقيق للمستندات",
+        badge: "دقة لغوية",
+        contextWindow: "200k",
+      },
+      {
+        id: "meta-llama/llama-3.3-70b-instruct",
+        name: "Meta Llama 3.3 70B",
+        description_ar: "أداء موثوق ومستقر لمختلف المهام الإدارية",
+        contextWindow: "128k",
+      },
+      {
+        id: "google/gemini-2.0-flash-exp:free",
+        name: "Gemini 2.0 Flash (مجاني)",
+        description_ar: "نسخة مجانية عبر OpenRouter للمهام الخفيفة",
+        badge: "مجاني",
+        contextWindow: "1000k",
+      },
+      {
+        id: "mistralai/mistral-large-2411",
+        name: "Mistral Large 2411",
+        description_ar: "النموذج الأوروبي الرائد متعدد اللغات",
+        contextWindow: "128k",
+      },
+    ],
+    default_headers: {
+      "HTTP-Referer": "https://sahla.app",
+      "X-Title": "Sahla Kiosk Platform",
+    },
+    key_required: true,
+    key_placeholder_ar: "sk-or-v1-...",
+    key_docs_url: "https://openrouter.ai/keys",
+    key_docs_label_ar: "إنشاء مفتاح OpenRouter",
+    default_capabilities: {
+      tool_use: true,
+      json_mode: true,
+      structured_output: "json_object",
+      streaming: true,
+      max_context: 128000,
+      vision: true,
+      languages_verified: ["ar", "fr", "en"],
+      web_search: false,
+      prompt_caching: true,
+    },
+    recommended_config: {
+      timeout_seconds: 60,
+    },
+  },
+
+  // ── 3. Google Gemini (Official / Custom) ──
+  {
+    id: "gemini",
+    name: "Google Gemini",
+    name_ar: "جوجل جيميني (Google Gemini)",
+    category: "cloud_frontier",
+    category_ar: "محركات رائدة",
+    kind: "gemini",
+    description_ar: "المحرك الرسمي المدمج مع ميزات البحث الحي (Google Search Grounding) وميزانية التفكير العميق (Thinking Budget).",
+    badge_ar: "بحث حي وتفكير عميق",
+    badge_color: "blue",
+    icon: "💎",
+    default_base_url: "https://generativelanguage.googleapis.com",
+    default_model: "gemini-2.5-flash",
+    available_models: [
+      {
+        id: "gemini-2.5-flash",
+        name: "Gemini 2.5 Flash",
+        description_ar: "فائق السرعة واقتصادي مع قدرات التفكير (افتراضي)",
+        badge: "افتراضي وموصى به",
+        contextWindow: "1000k",
+      },
+      {
+        id: "gemini-2.5-pro",
+        name: "Gemini 2.5 Pro",
+        description_ar: "أعلى قدرة على الاستدلال المنطقي وحل المسائل المعقدة",
+        badge: "استدلال فائق",
+        contextWindow: "2000k",
+      },
+      {
+        id: "gemini-2.0-flash",
+        name: "Gemini 2.0 Flash",
+        description_ar: "معالجة سريعة ومتوازنة متعددة الوسائط",
+        contextWindow: "1000k",
+      },
+      {
+        id: "gemini-1.5-pro",
+        name: "Gemini 1.5 Pro",
+        description_ar: "نافذة سياق ضخمة جداً لتحليل الكتب والمستندات",
+        contextWindow: "2000k",
+      },
+    ],
+    key_required: true,
+    key_placeholder_ar: "AIzaSy...",
+    key_docs_url: "https://aistudio.google.com/app/apikey",
+    key_docs_label_ar: "الحصول على مفتاح Google AI Studio",
+    default_capabilities: {
+      tool_use: true,
+      json_mode: true,
+      structured_output: "json_object",
+      streaming: true,
+      max_context: 1000000,
+      vision: true,
+      languages_verified: ["ar", "fr", "en"],
+      web_search: true,
+      prompt_caching: true,
+    },
+    recommended_config: {
+      thinking_budget: 2048,
+      enable_search_grounding: true,
+      safety_level: "BLOCK_MEDIUM_AND_ABOVE",
+      timeout_seconds: 45,
+    },
+  },
+
+  // ── 4. Anthropic Claude ──
+  {
+    id: "anthropic",
+    name: "Anthropic Claude",
+    name_ar: "أنثروبيك كلود (Anthropic Claude)",
+    category: "cloud_frontier",
+    category_ar: "محركات رائدة",
+    kind: "anthropic",
+    description_ar: "المحرك الرائد في الصياغة اللغوية الدقيقة، حل المعادلات، والتفكير الهجين (Hybrid Reasoning).",
+    badge_ar: "الأعلى دقة لغوياً",
+    badge_color: "amber",
+    icon: "🧠",
+    default_base_url: "https://api.anthropic.com/v1",
+    default_model: "claude-3-7-sonnet-20250219",
+    available_models: [
+      {
+        id: "claude-3-7-sonnet-20250219",
+        name: "Claude 3.7 Sonnet (Hybrid)",
+        description_ar: "الجيل الجديد مع التفكير الهجين وحل المسائل العلمية المعقدة",
+        badge: "الأحدث والأقوى",
+        contextWindow: "200k",
+      },
+      {
+        id: "claude-3-5-sonnet-20241022",
+        name: "Claude 3.5 Sonnet",
+        description_ar: "أداء عربي مذهل، كتابة التقارير، والتحليل المالي",
+        badge: "موصى به",
+        contextWindow: "200k",
+      },
+      {
+        id: "claude-3-5-haiku-20241022",
+        name: "Claude 3.5 Haiku",
+        description_ar: "نموذج فائق الخفة واقتصادي جداً للمهام السريعة",
+        contextWindow: "200k",
+      },
+    ],
+    key_required: true,
+    key_placeholder_ar: "sk-ant-api03-...",
+    key_docs_url: "https://console.anthropic.com/settings/keys",
+    key_docs_label_ar: "لوحة مفاتيح Anthropic Console",
+    default_capabilities: {
+      tool_use: true,
+      json_mode: true,
+      structured_output: "tool",
+      streaming: true,
+      max_context: 200000,
+      vision: true,
+      languages_verified: ["ar", "fr", "en"],
+      web_search: false,
+      prompt_caching: true,
+    },
+    recommended_config: {
+      timeout_seconds: 60,
+    },
+  },
+
+  // ── 5. DeepSeek Direct API ──
+  {
+    id: "deepseek",
+    name: "DeepSeek API",
+    name_ar: "ديب سيك المباشر (DeepSeek API)",
+    category: "cloud_frontier",
+    category_ar: "محركات رائدة",
+    kind: "openai_compatible",
+    description_ar: "الوصول المباشر إلى خوادم DeepSeek بنموذجي V3 و R1 بتكلفة اقتصادية استثنائية وأداء استدلالي بارع.",
+    badge_ar: "أعلى كفاءة تكلفة",
+    badge_color: "cyan",
+    icon: "💻",
+    default_base_url: "https://api.deepseek.com/v1",
+    default_model: "deepseek-chat",
+    available_models: [
+      {
+        id: "deepseek-chat",
+        name: "DeepSeek V3 (Chat)",
+        description_ar: "نموذج عام متفوق للمحادثة، الصياغة، والاستعلامات السريعة",
+        badge: "عام وسريع",
+        contextWindow: "64k",
+      },
+      {
+        id: "deepseek-reasoner",
+        name: "DeepSeek R1 (Reasoner)",
+        description_ar: "سلسلة التفكير المنطقي والرياضي المتقدم مع مسودة التفكير",
+        badge: "تفكير منطقي عميق",
+        contextWindow: "64k",
+      },
+    ],
+    key_required: true,
+    key_placeholder_ar: "sk-...",
+    key_docs_url: "https://platform.deepseek.com/api_keys",
+    key_docs_label_ar: "الحصول على مفتاح DeepSeek",
+    default_capabilities: {
+      tool_use: true,
+      json_mode: true,
+      structured_output: "json_object",
+      streaming: true,
+      max_context: 64000,
+      vision: false,
+      languages_verified: ["ar", "fr", "en"],
+      web_search: false,
+      prompt_caching: true,
+    },
+    recommended_config: {
+      timeout_seconds: 60,
+    },
+  },
+
+  // ── 6. Mistral AI ──
+  {
+    id: "mistral",
+    name: "Mistral AI",
+    name_ar: "ميسترال (Mistral AI)",
+    category: "cloud_frontier",
+    category_ar: "محركات رائدة",
+    kind: "openai_compatible",
+    description_ar: "منصة الذكاء الاصطناعي الفرنسية الرائدة بنماذج متقدمة تدعم التفكير المالي، البرمجة، واللغات المتعددة.",
+    badge_ar: "أوروبي متعدد اللغات",
+    badge_color: "emerald",
+    icon: "🌊",
+    default_base_url: "https://api.mistral.ai/v1",
+    default_model: "mistral-large-latest",
+    available_models: [
+      {
+        id: "mistral-large-latest",
+        name: "Mistral Large 2",
+        description_ar: "النموذج الأقوى مع استدلال متعدد اللغات ممتاز",
+        badge: "الرائد",
+        contextWindow: "128k",
+      },
+      {
+        id: "pixtral-large-latest",
+        name: "Pixtral Large (Vision)",
+        description_ar: "نموذج رؤية متعدد الوسائط لتحليل الصور والوثائق",
+        badge: "رؤية بصرية",
+        contextWindow: "128k",
+      },
+      {
+        id: "codestral-latest",
+        name: "Codestral",
+        description_ar: "متخصص في البرمجة، الصيغ الرياضية، والقواعد المنطقية",
+        contextWindow: "32k",
+      },
+      {
+        id: "mistral-small-latest",
+        name: "Mistral Small",
+        description_ar: "خفيف، سريع، واقتصادي جداً",
+        contextWindow: "32k",
+      },
+    ],
+    key_required: true,
+    key_placeholder_ar: "...",
+    key_docs_url: "https://console.mistral.ai/api-keys/",
+    key_docs_label_ar: "الحصول على مفتاح Mistral",
+    default_capabilities: {
+      tool_use: true,
+      json_mode: true,
+      structured_output: "json_object",
+      streaming: true,
+      max_context: 128000,
+      vision: true,
+      languages_verified: ["ar", "fr", "en"],
+      web_search: false,
+      prompt_caching: false,
+    },
+  },
+
+  // ── 7. OpenAI Platform ──
+  {
+    id: "openai",
+    name: "OpenAI Platform",
+    name_ar: "أوبن إيه آي (OpenAI GPT & o3)",
+    category: "cloud_frontier",
+    category_ar: "محركات رائدة",
+    kind: "openai_compatible",
+    description_ar: "منصة OpenAI الرسمية لنماذج GPT-4o و o3-mini المعروفة بالاستقرار والتوافق القياسي.",
+    badge_ar: "المعيار العالمي",
+    badge_color: "emerald",
+    icon: "🟢",
+    default_base_url: "https://api.openai.com/v1",
+    default_model: "gpt-4o-mini",
+    available_models: [
+      {
+        id: "gpt-4o-mini",
+        name: "GPT-4o Mini",
+        description_ar: "سريع واقتصادي وممتاز بالعربية (الافتراضي)",
+        badge: "افتراضي",
+        contextWindow: "128k",
+      },
+      {
+        id: "gpt-4o",
+        name: "GPT-4o",
+        description_ar: "النموذج الرائد متعدد الوسائط",
+        badge: "شامل",
+        contextWindow: "128k",
+      },
+      {
+        id: "o3-mini",
+        name: "o3-mini (Reasoning)",
+        description_ar: "نموذج استدلال منطقي وعلمي متقدم للرياضيات والبرمجة",
+        badge: "استدلال",
+        contextWindow: "200k",
+      },
+      {
+        id: "gpt-4-turbo",
+        name: "GPT-4 Turbo",
+        description_ar: "إصدار توربو الموجه للمهام المؤسسية الكبيرة",
+        contextWindow: "128k",
+      },
+    ],
+    key_required: true,
+    key_placeholder_ar: "sk-proj-...",
+    key_docs_url: "https://platform.openai.com/api-keys",
+    key_docs_label_ar: "لوحة مفاتيح OpenAI",
+    default_capabilities: {
+      tool_use: true,
+      json_mode: true,
+      structured_output: "json_object",
+      streaming: true,
+      max_context: 128000,
+      vision: true,
+      languages_verified: ["ar", "fr", "en"],
+      web_search: false,
+      prompt_caching: true,
+    },
+  },
+
+  // ── 8. Hugging Face Serverless ──
+  {
+    id: "huggingface",
+    name: "Hugging Face Router",
+    name_ar: "هاجينغ فيس (Hugging Face Router)",
+    category: "cloud_frontier",
+    category_ar: "محركات رائدة",
+    kind: "huggingface",
+    description_ar: "توجيه ذكي للنماذج مفتوحة المصدر العالمية عبر بنية Hugging Face Serverless السحابية.",
+    badge_ar: "مفتوح المصدر (Open Source)",
+    badge_color: "amber",
+    icon: "🤗",
+    default_base_url: "https://router.huggingface.co/v1",
+    default_model: "Qwen/Qwen2.5-72B-Instruct",
+    available_models: [
+      {
+        id: "Qwen/Qwen2.5-72B-Instruct",
+        name: "Qwen 2.5 72B Instruct",
+        description_ar: "أداء عربي متميز جداً للمهام الإدارية والمقالات",
+        badge: "ممتاز بالعربية",
+        contextWindow: "128k",
+      },
+      {
+        id: "deepseek-ai/DeepSeek-R1",
+        name: "DeepSeek R1",
+        description_ar: "نموذج الاستدلال والتفكير العميق عبر بنية HF",
+        badge: "استدلال",
+        contextWindow: "64k",
+      },
+      {
+        id: "meta-llama/Llama-3.3-70B-Instruct",
+        name: "Meta Llama 3.3 70B",
+        description_ar: "النموذج المفتوح الرائد من Meta",
+        contextWindow: "128k",
+      },
+      {
+        id: "Qwen/Qwen2.5-Coder-32B-Instruct",
+        name: "Qwen 2.5 Coder 32B",
+        description_ar: "حلول تقنية وحسابية وبرمجية دقيقة",
+        contextWindow: "32k",
+      },
+    ],
+    key_required: true,
+    key_placeholder_ar: "hf_...",
+    key_docs_url: "https://huggingface.co/settings/tokens",
+    key_docs_label_ar: "الحصول على Hugging Face Token",
+    default_capabilities: {
+      tool_use: true,
+      json_mode: true,
+      structured_output: "json_object",
+      streaming: true,
+      max_context: 128000,
+      vision: false,
+      languages_verified: ["ar", "fr", "en"],
+      web_search: false,
+      prompt_caching: false,
+    },
+  },
+
+  // ── 9. Ollama (Local / On-Premise) ──
+  {
+    id: "ollama",
+    name: "Ollama (محلي / داخلي)",
+    name_ar: "أولاما المحلي (Ollama On-Premise)",
+    category: "local_onprem",
+    category_ar: "محلي / داخل المنشأة",
+    kind: "openai_compatible",
+    description_ar: "تشغيل النماذج محلياً بنسبة 100% داخل خادم المحل أو الكيوسك دون الحاجة لاتصال بالإنترنت وبخصوصية تامة.",
+    badge_ar: "محلي 100% دون إنترنت",
+    badge_color: "emerald",
+    icon: "🦙",
+    default_base_url: "http://localhost:11434/v1",
+    default_model: "llama3.3",
+    available_models: [
+      {
+        id: "llama3.3",
+        name: "Llama 3.3 (Local)",
+        description_ar: "نموذج Meta الأحدث يعمل محلياً بكفاءة عالية",
+        badge: "موصى به محلياً",
+      },
+      {
+        id: "qwen2.5:72b",
+        name: "Qwen 2.5 (Local)",
+        description_ar: "أفضل استيعاب وصياغة باللغة العربية داخل الخادم المحلي",
+        badge: "عربي ممتاز",
+      },
+      {
+        id: "deepseek-r1:14b",
+        name: "DeepSeek R1 14B (Local)",
+        description_ar: "تفكير واستدلال رياضي يعمل على كروت الشاشة المتوسطة",
+        badge: "تفكير محلي",
+      },
+      {
+        id: "mistral",
+        name: "Mistral 7B (Local)",
+        description_ar: "نموذج خفيف وسريع جداً للأجهزة ذات الموارد المحدودة",
+      },
+      {
+        id: "phi4",
+        name: "Microsoft Phi-4 (Local)",
+        description_ar: "نموذج مضغوط عالي الدقة",
+      },
+    ],
+    key_required: false,
+    key_placeholder_ar: "اختياري (يمكن تركه فارغاً في أولاما)...",
+    default_capabilities: {
+      tool_use: false,
+      json_mode: true,
+      structured_output: "none",
+      streaming: true,
+      max_context: 32768,
+      vision: false,
+      languages_verified: ["ar", "fr", "en"],
+      web_search: false,
+      prompt_caching: false,
+    },
+    recommended_config: {
+      allow_local: true,
+      timeout_seconds: 90,
+      temperature: 0.3,
+    },
+  },
+
+  // ── 10. vLLM / LocalAI / LM Studio ──
+  {
+    id: "vllm",
+    name: "vLLM / LocalAI / LM Studio",
+    name_ar: "خادم استدلال محلي (vLLM / LocalAI)",
+    category: "local_onprem",
+    category_ar: "محلي / داخل المنشأة",
+    kind: "openai_compatible",
+    description_ar: "ربط خوادم الاستدلال الذاتي عالية الإنتاجية (High-Throughput vLLM / LocalAI) على الشبكة الداخلية.",
+    badge_ar: "إنتاجية محلية عالية",
+    badge_color: "cyan",
+    icon: "🚀",
+    default_base_url: "http://localhost:8000/v1",
+    default_model: "default",
+    available_models: [
+      {
+        id: "default",
+        name: "Default Active Model",
+        description_ar: "النموذج المحمل والنشط حالياً على خادم الاستدلال المحلي",
+      },
+    ],
+    key_required: false,
+    key_placeholder_ar: "مفتاح الخادم المحلي إن وجد (Bearer token)...",
+    default_capabilities: {
+      tool_use: true,
+      json_mode: true,
+      structured_output: "json_object",
+      streaming: true,
+      max_context: 65536,
+      vision: false,
+      languages_verified: ["ar", "fr", "en"],
+      web_search: false,
+      prompt_caching: false,
+    },
+    recommended_config: {
+      allow_local: true,
+      timeout_seconds: 60,
+    },
+  },
+
+  // ── 11. Fully Custom REST / OpenAI Endpoint ──
+  {
+    id: "custom",
+    name: "Custom OpenAI-Compatible API",
+    name_ar: "مزود مخصص (Custom Endpoint)",
+    category: "custom",
+    category_ar: "مخصص بالكامل",
+    kind: "openai_compatible",
+    description_ar: "ربط أي خادم خارجي أو مزود خاص يدعم بروتوكول OpenAI REST API القياسي مع تخصيص الترويسات والمهلة.",
+    badge_ar: "تخصيص كامل",
+    badge_color: "blue",
+    icon: "🛠️",
+    default_base_url: "https://my-custom-llm.example.com/v1",
+    default_model: "custom-model",
+    available_models: [],
+    key_required: false,
+    key_placeholder_ar: "أدخل مفتاح الـ API المخصص...",
+    default_capabilities: {
+      tool_use: true,
+      json_mode: true,
+      structured_output: "json_object",
+      streaming: true,
+      max_context: 32768,
+      vision: false,
+      languages_verified: ["ar", "fr", "en"],
+      web_search: false,
+      prompt_caching: false,
+    },
+    recommended_config: {
+      timeout_seconds: 60,
+    },
+  },
+];
+
+export function getPresetById(presetId?: string): AIProviderPreset | undefined {
+  if (!presetId) return undefined;
+  return AI_PROVIDER_PRESETS.find((p) => p.id === presetId);
+}

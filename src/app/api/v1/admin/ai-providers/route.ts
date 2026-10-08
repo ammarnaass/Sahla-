@@ -32,10 +32,32 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { kind, name, base_url, model, api_key } = body;
+    const {
+      kind,
+      name,
+      base_url,
+      model,
+      api_key,
+      preset_id,
+      custom_headers,
+      advanced_config,
+      custom_models,
+      capabilities,
+    } = body;
 
     const result = AIProviderRouter.createProvider(
-      { kind, name, base_url, model, api_key },
+      {
+        kind,
+        name,
+        base_url,
+        model,
+        api_key,
+        preset_id,
+        custom_headers,
+        advanced_config,
+        custom_models,
+        capabilities,
+      },
       "super_admin",
       req.headers.get("x-forwarded-for") || undefined
     );

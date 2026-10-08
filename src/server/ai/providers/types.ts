@@ -42,6 +42,16 @@ export interface AIModelDefinition {
   badge?: string;
 }
 
+export interface AdvancedProviderConfig {
+  thinking_budget?: number; // e.g. 0 to 8192 tokens for Gemini reasoning or models with budget
+  enable_search_grounding?: boolean; // Google search grounding toggle
+  safety_level?: "BLOCK_NONE" | "BLOCK_LOW_AND_ABOVE" | "BLOCK_MEDIUM_AND_ABOVE" | "BLOCK_ONLY_HIGH";
+  timeout_seconds?: number; // Request timeout in seconds
+  temperature?: number;
+  max_tokens?: number;
+  allow_local?: boolean; // If true, local/on-premise endpoints are allowed
+}
+
 export interface AIProviderRecord {
   id: string;
   kind: AIProviderKind;
@@ -64,6 +74,11 @@ export interface AIProviderRecord {
   created_at?: string;
   updated_at?: string;
   available_models?: AIModelDefinition[];
+  // Advanced Customization Fields
+  preset_id?: string;
+  custom_headers?: Record<string, string>;
+  advanced_config?: AdvancedProviderConfig;
+  custom_models?: AIModelDefinition[];
 }
 
 // Backward compatibility alias for UI & legacy callers
@@ -130,8 +145,25 @@ export interface LLMProvider {
   id: string;
   kind: AIProviderKind;
   capabilities: Capabilities;
-  generate(req: GenerateRequest, apiKey: string, modelId: string, baseUrl?: string): Promise<GenerateResult>;
-  ping(apiKey: string, modelId: string, baseUrl?: string): Promise<PingResult>;
+  generate(
+    req: GenerateRequest,
+    apiKey: string,
+    modelId: string,
+    baseUrl?: string,
+    options?: {
+      customHeaders?: Record<string, string>;
+      advancedConfig?: AdvancedProviderConfig;
+    }
+  ): Promise<GenerateResult>;
+  ping(
+    apiKey: string,
+    modelId: string,
+    baseUrl?: string,
+    options?: {
+      customHeaders?: Record<string, string>;
+      advancedConfig?: AdvancedProviderConfig;
+    }
+  ): Promise<PingResult>;
 }
 
 export interface AIRoutingRule {

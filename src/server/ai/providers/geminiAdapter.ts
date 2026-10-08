@@ -8,6 +8,7 @@ import type {
   ProviderGenerateOptions,
   ProviderGenerateResult,
   ProviderHealthCheck,
+  AdvancedProviderConfig,
 } from "./types";
 
 /**
@@ -47,7 +48,15 @@ export class GeminiAdapter implements LLMProvider {
     return `خطأ Google Gemini: ${rawMessage}`;
   }
 
-  async ping(apiKey: string, modelId: string): Promise<PingResult> {
+  async ping(
+    apiKey: string,
+    modelId: string,
+    _baseUrl?: string,
+    _options?: {
+      customHeaders?: Record<string, string>;
+      advancedConfig?: AdvancedProviderConfig;
+    }
+  ): Promise<PingResult> {
     const t0 = Date.now();
     const checks: PingResult["checks"] = {
       auth: "error",
@@ -144,7 +153,11 @@ export class GeminiAdapter implements LLMProvider {
     reqOrMessages: any,
     apiKeyOrOptions: any,
     modelIdOrKey?: any,
-    baseUrlOrModelId?: any
+    baseUrlOrModelId?: any,
+    options?: {
+      customHeaders?: Record<string, string>;
+      advancedConfig?: AdvancedProviderConfig;
+    }
   ): Promise<any> {
     // Determine calling signature
     if (Array.isArray(reqOrMessages)) {
@@ -152,7 +165,7 @@ export class GeminiAdapter implements LLMProvider {
       return this.legacyGenerate(reqOrMessages, apiKeyOrOptions, modelIdOrKey, baseUrlOrModelId);
     }
 
-    // Modern signature: generate(req: GenerateRequest, apiKey: string, modelId: string, baseUrl?: string)
+    // Modern signature: generate(req: GenerateRequest, apiKey: string, modelId: string, baseUrl?: string, options?: ...)
     const req: GenerateRequest = reqOrMessages;
     const apiKey: string = apiKeyOrOptions;
     const modelId: string = modelIdOrKey || "gemini-2.5-flash";
@@ -166,8 +179,8 @@ export class GeminiAdapter implements LLMProvider {
     }));
 
     const config: any = {
-      maxOutputTokens: req.maxTokens || 4096,
-      temperature: req.temperature ?? 0.3,
+      maxOutputTokens: options?.advancedConfig?.max_tokens || req.maxTokens || 4096,
+      temperature: options?.advancedConfig?.temperature ?? (req.temperature ?? 0.3),
     };
 
     if (req.system) {
@@ -176,6 +189,15 @@ export class GeminiAdapter implements LLMProvider {
 
     if (req.schema) {
       config.responseMimeType = "application/json";
+    }
+
+    // Advanced Gemini Features: Thinking Budget & Google Search Grounding
+    if (options?.advancedConfig?.thinking_budget !== undefined) {
+      config.thinkingConfig = { thinkingBudget: options.advancedConfig.thinking_budget };
+    }
+
+    if (options?.advancedConfig?.enable_search_grounding) {
+      config.tools = [{ googleSearch: {} }];
     }
 
     const result = await client.models.generateContent({

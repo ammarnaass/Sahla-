@@ -4,6 +4,7 @@ import type {
   GenerateResult,
   PingResult,
   Capabilities,
+  AdvancedProviderConfig,
 } from "./types";
 
 /**
@@ -48,7 +49,15 @@ export class AnthropicAdapter implements LLMProvider {
     }
   }
 
-  async ping(apiKey: string, modelId: string, baseUrl?: string): Promise<PingResult> {
+  async ping(
+    apiKey: string,
+    modelId: string,
+    baseUrl?: string,
+    options?: {
+      customHeaders?: Record<string, string>;
+      advancedConfig?: AdvancedProviderConfig;
+    }
+  ): Promise<PingResult> {
     const t0 = Date.now();
     const endpoint = `${(baseUrl || "https://api.anthropic.com").replace(/\/+$/, "")}/v1/messages`;
 
@@ -72,21 +81,25 @@ export class AnthropicAdapter implements LLMProvider {
       };
     }
 
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey.trim(),
+      "anthropic-version": "2023-06-01",
+      ...(options?.customHeaders || {}),
+    };
+    const timeoutMs = (options?.advancedConfig?.timeout_seconds || 15) * 1000;
+
     try {
       // 1. Stage 1: Auth & Model Available (max_tokens: 10)
       const stage1Res = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey.trim(),
-          "anthropic-version": "2023-06-01",
-        },
+        headers,
         body: JSON.stringify({
           model: modelId || "claude-3-7-sonnet-20250219",
           max_tokens: 10,
           messages: [{ role: "user", content: "ping" }],
         }),
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(timeoutMs),
       });
 
       if (!stage1Res.ok) {
@@ -175,7 +188,11 @@ export class AnthropicAdapter implements LLMProvider {
     req: GenerateRequest,
     apiKey: string,
     modelId: string,
-    baseUrl?: string
+    baseUrl?: string,
+    options?: {
+      customHeaders?: Record<string, string>;
+      advancedConfig?: AdvancedProviderConfig;
+    }
   ): Promise<GenerateResult> {
     const t0 = Date.now();
     const endpoint = `${(baseUrl || "https://api.anthropic.com").replace(/\/+$/, "")}/v1/messages`;
@@ -186,10 +203,10 @@ export class AnthropicAdapter implements LLMProvider {
 
     const bodyPayload: any = {
       model: modelId || "claude-3-7-sonnet-20250219",
-      max_tokens: req.maxTokens || 4096,
+      max_tokens: options?.advancedConfig?.max_tokens || req.maxTokens || 4096,
       system: req.system,
       messages: userMessages,
-      temperature: req.temperature ?? 0.3,
+      temperature: options?.advancedConfig?.temperature ?? (req.temperature ?? 0.3),
     };
 
     // If schema is present, provide it as a tool per Section 6.3
@@ -204,15 +221,22 @@ export class AnthropicAdapter implements LLMProvider {
       bodyPayload.tool_choice = { type: "tool", name: "output_schema_formatter" };
     }
 
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey.trim(),
+      "anthropic-version": "2023-06-01",
+      ...(options?.customHeaders || {}),
+    };
+    const timeoutMs =
+      (options?.advancedConfig?.timeout_seconds ? options.advancedConfig.timeout_seconds * 1000 : undefined) ||
+      req.timeoutMs ||
+      60000;
+
     const res = await fetch(endpoint, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey.trim(),
-        "anthropic-version": "2023-06-01",
-      },
+      headers,
       body: JSON.stringify(bodyPayload),
-      signal: AbortSignal.timeout(req.timeoutMs || 60000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
 
     if (!res.ok) {

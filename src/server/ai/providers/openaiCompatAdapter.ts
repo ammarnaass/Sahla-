@@ -5,10 +5,11 @@ import type {
   PingResult,
   Capabilities,
   AIProviderKind,
+  AdvancedProviderConfig,
 } from "./types";
 
 /**
- * ⚡ OpenAI Compatible Adapter (Hugging Face router, OpenAI, Groq, DeepSeek, vLLM)
+ * ⚡ OpenAI Compatible Adapter (Hugging Face router, OpenAI, Groq, DeepSeek, vLLM, Ollama)
  * Technical Spec v1.0 Section 6.2
  */
 export class OpenAICompatAdapter implements LLMProvider {
@@ -64,7 +65,32 @@ export class OpenAICompatAdapter implements LLMProvider {
     return clean.trim();
   }
 
-  async ping(apiKey: string, modelId: string, baseUrl?: string): Promise<PingResult> {
+  private getRequestHeaders(
+    apiKey?: string,
+    customHeaders?: Record<string, string>
+  ): Record<string, string> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...(customHeaders || {}),
+    };
+
+    const cleanKey = apiKey?.trim();
+    if (cleanKey && cleanKey !== "none" && cleanKey !== "optional") {
+      headers["Authorization"] = `Bearer ${cleanKey}`;
+    }
+
+    return headers;
+  }
+
+  async ping(
+    apiKey: string,
+    modelId: string,
+    baseUrl?: string,
+    options?: {
+      customHeaders?: Record<string, string>;
+      advancedConfig?: AdvancedProviderConfig;
+    }
+  ): Promise<PingResult> {
     const t0 = Date.now();
     const effectiveBase = baseUrl || "https://api.openai.com/v1";
     const endpoint = `${effectiveBase.replace(/\/+$/, "")}/chat/completions`;
@@ -77,7 +103,14 @@ export class OpenAICompatAdapter implements LLMProvider {
       tool_use: "skipped",
     };
 
-    if (!apiKey || !apiKey.trim()) {
+    const isLocal =
+      effectiveBase.includes("localhost") ||
+      effectiveBase.includes("127.0.0.1") ||
+      effectiveBase.includes(":11434") ||
+      effectiveBase.includes(":8000") ||
+      Boolean(options?.advancedConfig?.allow_local);
+
+    if ((!apiKey || !apiKey.trim()) && !isLocal) {
       return {
         status: "error",
         latency_ms: 0,
@@ -89,21 +122,21 @@ export class OpenAICompatAdapter implements LLMProvider {
       };
     }
 
+    const headers = this.getRequestHeaders(apiKey, options?.customHeaders);
+    const timeoutMs = (options?.advancedConfig?.timeout_seconds || 15) * 1000;
+
     try {
       // 1. Stage 1: Auth & Model Available (max_tokens: 8)
       const stage1Res = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey.trim()}`,
-        },
+        headers,
         body: JSON.stringify({
           model: modelId,
           messages: [{ role: "user", content: "ping" }],
           max_tokens: 8,
           temperature: 0.1,
         }),
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(timeoutMs),
       });
 
       if (!stage1Res.ok) {
@@ -128,10 +161,7 @@ export class OpenAICompatAdapter implements LLMProvider {
       try {
         const stage2Res = await fetch(endpoint, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey.trim()}`,
-          },
+          headers,
           body: JSON.stringify({
             model: modelId,
             messages: [
@@ -144,7 +174,7 @@ export class OpenAICompatAdapter implements LLMProvider {
             max_tokens: 30,
             temperature: 0.1,
           }),
-          signal: AbortSignal.timeout(10000),
+          signal: AbortSignal.timeout(Math.min(timeoutMs, 10000)),
         });
 
         if (stage2Res.ok) {
@@ -164,17 +194,14 @@ export class OpenAICompatAdapter implements LLMProvider {
       try {
         const stage3Res = await fetch(endpoint, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey.trim()}`,
-          },
+          headers,
           body: JSON.stringify({
             model: modelId,
             messages: [{ role: "user", content: "أجب بكلمة واحدة فقط باللغة العربية: متصل" }],
             max_tokens: 15,
             temperature: 0.1,
           }),
-          signal: AbortSignal.timeout(10000),
+          signal: AbortSignal.timeout(Math.min(timeoutMs, 10000)),
         });
 
         if (stage3Res.ok) {
@@ -224,7 +251,11 @@ export class OpenAICompatAdapter implements LLMProvider {
     req: GenerateRequest,
     apiKey: string,
     modelId: string,
-    baseUrl?: string
+    baseUrl?: string,
+    options?: {
+      customHeaders?: Record<string, string>;
+      advancedConfig?: AdvancedProviderConfig;
+    }
   ): Promise<GenerateResult> {
     const t0 = Date.now();
     const effectiveBase = baseUrl || "https://api.openai.com/v1";
@@ -239,22 +270,25 @@ export class OpenAICompatAdapter implements LLMProvider {
     const bodyPayload: any = {
       model: modelId,
       messages,
-      max_tokens: req.maxTokens || 4096,
-      temperature: req.temperature ?? 0.3,
+      max_tokens: options?.advancedConfig?.max_tokens || req.maxTokens || 4096,
+      temperature: options?.advancedConfig?.temperature ?? (req.temperature ?? 0.3),
     };
 
     if (useJson && this.capabilities.json_mode) {
       bodyPayload.response_format = { type: "json_object" };
     }
 
+    const headers = this.getRequestHeaders(apiKey, options?.customHeaders);
+    const timeoutMs =
+      (options?.advancedConfig?.timeout_seconds ? options.advancedConfig.timeout_seconds * 1000 : undefined) ||
+      req.timeoutMs ||
+      60000;
+
     const res = await fetch(endpoint, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey.trim()}`,
-      },
+      headers,
       body: JSON.stringify(bodyPayload),
-      signal: AbortSignal.timeout(req.timeoutMs || 60000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
 
     if (!res.ok) {
@@ -274,10 +308,7 @@ export class OpenAICompatAdapter implements LLMProvider {
         // Attempt single repair retry per Section 6.5
         const repairRes = await fetch(endpoint, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey.trim()}`,
-          },
+          headers,
           body: JSON.stringify({
             model: modelId,
             messages: [

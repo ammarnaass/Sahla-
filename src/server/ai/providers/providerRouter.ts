@@ -4,6 +4,7 @@ import { validateBaseUrl } from "./ssrfProtection";
 import { GeminiAdapter } from "./geminiAdapter";
 import { AnthropicAdapter } from "./anthropicAdapter";
 import { OpenAICompatAdapter } from "./openaiCompatAdapter";
+import { getPresetById, AI_PROVIDER_PRESETS } from "./presets";
 import type {
   AIProviderId,
   AIProviderKind,
@@ -19,6 +20,7 @@ import type {
   AIModelDefinition,
   ProviderGenerateOptions,
   ProviderGenerateResult,
+  AdvancedProviderConfig,
 } from "./types";
 
 // In-memory 10-minute cache for models list
@@ -94,6 +96,20 @@ export class AIProviderRouter {
           at TEXT DEFAULT (datetime('now'))
         );
       `);
+
+      // Safe schema migrations for new customization columns
+      try {
+        db.exec(`ALTER TABLE ai_providers ADD COLUMN custom_headers TEXT DEFAULT '{}';`);
+      } catch {}
+      try {
+        db.exec(`ALTER TABLE ai_providers ADD COLUMN advanced_config TEXT DEFAULT '{}';`);
+      } catch {}
+      try {
+        db.exec(`ALTER TABLE ai_providers ADD COLUMN preset_id TEXT;`);
+      } catch {}
+      try {
+        db.exec(`ALTER TABLE ai_providers ADD COLUMN custom_models TEXT DEFAULT '[]';`);
+      } catch {}
 
       // Seed standard providers if empty
       const count = (db.prepare(`SELECT count(*) as c FROM ai_providers`).get() as any)?.c || 0;
@@ -278,6 +294,21 @@ export class AIProviderRouter {
           };
         }
 
+        let customHeaders: Record<string, string> = {};
+        try {
+          if (r.custom_headers) customHeaders = JSON.parse(r.custom_headers);
+        } catch {}
+
+        let advancedConfig: AdvancedProviderConfig = {};
+        try {
+          if (r.advanced_config) advancedConfig = JSON.parse(r.advanced_config);
+        } catch {}
+
+        let customModels: AIModelDefinition[] = [];
+        try {
+          if (r.custom_models) customModels = JSON.parse(r.custom_models);
+        } catch {}
+
         return {
           id: r.id,
           kind: r.kind as AIProviderKind,
@@ -298,6 +329,10 @@ export class AIProviderRouter {
           updated_by: r.updated_by,
           created_at: r.created_at,
           updated_at: r.updated_at,
+          preset_id: r.preset_id || undefined,
+          custom_headers: customHeaders,
+          advanced_config: advancedConfig,
+          custom_models: customModels,
         };
       });
     } catch (err) {
@@ -322,6 +357,21 @@ export class AIProviderRouter {
         caps = {} as any;
       }
 
+      let customHeaders: Record<string, string> = {};
+      try {
+        if (r.custom_headers) customHeaders = JSON.parse(r.custom_headers);
+      } catch {}
+
+      let advancedConfig: AdvancedProviderConfig = {};
+      try {
+        if (r.advanced_config) advancedConfig = JSON.parse(r.advanced_config);
+      } catch {}
+
+      let customModels: AIModelDefinition[] = [];
+      try {
+        if (r.custom_models) customModels = JSON.parse(r.custom_models);
+      } catch {}
+
       return {
         id: r.id,
         kind: r.kind as AIProviderKind,
@@ -342,6 +392,10 @@ export class AIProviderRouter {
         updated_by: r.updated_by,
         created_at: r.created_at,
         updated_at: r.updated_at,
+        preset_id: r.preset_id || undefined,
+        custom_headers: customHeaders,
+        advanced_config: advancedConfig,
+        custom_models: customModels,
       };
     } catch {
       return null;
@@ -359,6 +413,11 @@ export class AIProviderRouter {
       base_url?: string;
       model: string;
       api_key?: string;
+      preset_id?: string;
+      custom_headers?: Record<string, string>;
+      advanced_config?: AdvancedProviderConfig;
+      custom_models?: AIModelDefinition[];
+      capabilities?: Partial<Capabilities>;
     },
     actorId?: string,
     ip?: string
@@ -369,9 +428,14 @@ export class AIProviderRouter {
       return { success: false, error: "الاسم والنموذج ونوع المزود حقول إلزامية" };
     }
 
+    const isLocalAllowed =
+      data.preset_id === "ollama" ||
+      data.preset_id === "vllm" ||
+      Boolean(data.advanced_config?.allow_local);
+
     // SSRF Validation on base_url per Section 4.1 & 7
     if (data.base_url) {
-      const ssrfCheck = validateBaseUrl(data.base_url);
+      const ssrfCheck = validateBaseUrl(data.base_url, { allowLocal: isLocalAllowed });
       if (!ssrfCheck.valid) {
         return { success: false, error: ssrfCheck.error || "عنوان base_url غير آمن" };
       }
@@ -392,6 +456,7 @@ export class AIProviderRouter {
       languages_verified: ["ar", "fr", "en"],
       web_search: data.kind === "gemini",
       prompt_caching: data.kind === "anthropic",
+      ...(data.capabilities || {}),
     };
 
     try {
@@ -399,8 +464,8 @@ export class AIProviderRouter {
         INSERT INTO ai_providers (
           id, kind, name, base_url, model, key_encrypted, key_last4,
           capabilities, status, is_primary, fallback_order, enabled,
-          created_by, updated_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'unknown', 0, NULL, 1, ?, ?)
+          created_by, updated_by, preset_id, custom_headers, advanced_config, custom_models
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'unknown', 0, NULL, 1, ?, ?, ?, ?, ?, ?)
       `).run(
         id,
         data.kind,
@@ -411,7 +476,11 @@ export class AIProviderRouter {
         last4,
         JSON.stringify(defaultCapabilities),
         actorId || null,
-        actorId || null
+        actorId || null,
+        data.preset_id || null,
+        data.custom_headers ? JSON.stringify(data.custom_headers) : "{}",
+        data.advanced_config ? JSON.stringify(data.advanced_config) : "{}",
+        data.custom_models ? JSON.stringify(data.custom_models) : "[]"
       );
 
       // Audit Log
@@ -420,7 +489,7 @@ export class AIProviderRouter {
         actor_id: actorId,
         action: "create_provider",
         provider_id: id,
-        after_json: { id, kind: data.kind, name: data.name, model: data.model, base_url: data.base_url },
+        after_json: { id, kind: data.kind, name: data.name, model: data.model, base_url: data.base_url, preset_id: data.preset_id },
         ip,
         at: new Date().toISOString(),
       });
@@ -445,6 +514,11 @@ export class AIProviderRouter {
       base_url?: string;
       api_key?: string;
       enabled?: boolean;
+      preset_id?: string;
+      custom_headers?: Record<string, string>;
+      advanced_config?: AdvancedProviderConfig;
+      custom_models?: AIModelDefinition[];
+      capabilities?: Partial<Capabilities>;
     },
     actorId?: string,
     ip?: string
@@ -470,10 +544,26 @@ export class AIProviderRouter {
         resetStatusToUnknown = true;
       }
 
+      let isLocalAllowed = Boolean(updates.advanced_config?.allow_local);
+      if (!isLocalAllowed && current.advanced_config) {
+        try {
+          const cfg = JSON.parse(current.advanced_config);
+          if (cfg.allow_local) isLocalAllowed = true;
+        } catch {}
+      }
+      if (
+        current.preset_id === "ollama" ||
+        current.preset_id === "vllm" ||
+        updates.preset_id === "ollama" ||
+        updates.preset_id === "vllm"
+      ) {
+        isLocalAllowed = true;
+      }
+
       let newBaseUrl = current.base_url;
       if (updates.base_url !== undefined) {
         if (updates.base_url) {
-          const ssrfCheck = validateBaseUrl(updates.base_url);
+          const ssrfCheck = validateBaseUrl(updates.base_url, { allowLocal: isLocalAllowed });
           if (!ssrfCheck.valid) {
             return { success: false, error: ssrfCheck.error || "عنوان base_url غير آمن" };
           }
@@ -488,6 +578,14 @@ export class AIProviderRouter {
 
       const newStatus = resetStatusToUnknown ? "unknown" : current.status;
 
+      let newCapabilitiesStr = current.capabilities;
+      if (updates.capabilities) {
+        try {
+          const curCaps = JSON.parse(current.capabilities || "{}");
+          newCapabilitiesStr = JSON.stringify({ ...curCaps, ...updates.capabilities });
+        } catch {}
+      }
+
       db.prepare(`
         UPDATE ai_providers
         SET
@@ -498,6 +596,11 @@ export class AIProviderRouter {
           key_last4 = ?,
           status = ?,
           enabled = COALESCE(?, enabled),
+          preset_id = COALESCE(?, preset_id),
+          custom_headers = CASE WHEN ? IS NOT NULL THEN ? ELSE custom_headers END,
+          advanced_config = CASE WHEN ? IS NOT NULL THEN ? ELSE advanced_config END,
+          custom_models = CASE WHEN ? IS NOT NULL THEN ? ELSE custom_models END,
+          capabilities = COALESCE(?, capabilities),
           updated_by = ?,
           updated_at = datetime('now')
         WHERE id = ?
@@ -509,6 +612,14 @@ export class AIProviderRouter {
         last4,
         newStatus,
         updates.enabled !== undefined ? (updates.enabled ? 1 : 0) : null,
+        updates.preset_id || null,
+        updates.custom_headers ? JSON.stringify(updates.custom_headers) : null,
+        updates.custom_headers ? JSON.stringify(updates.custom_headers) : null,
+        updates.advanced_config ? JSON.stringify(updates.advanced_config) : null,
+        updates.advanced_config ? JSON.stringify(updates.advanced_config) : null,
+        updates.custom_models ? JSON.stringify(updates.custom_models) : null,
+        updates.custom_models ? JSON.stringify(updates.custom_models) : null,
+        newCapabilitiesStr,
         actorId || null,
         id
       );
@@ -600,8 +711,21 @@ export class AIProviderRouter {
     }
     const modelToTest = overrideModelId || row.model;
 
+    let customHeaders: Record<string, string> = {};
+    try {
+      if (row.custom_headers) customHeaders = JSON.parse(row.custom_headers);
+    } catch {}
+
+    let advancedConfig: AdvancedProviderConfig = {};
+    try {
+      if (row.advanced_config) advancedConfig = JSON.parse(row.advanced_config);
+    } catch {}
+
     const adapter = this.getAdapter(row.kind as AIProviderKind, row.id);
-    const result = await adapter.ping(plainKey, modelToTest, row.base_url);
+    const result = await adapter.ping(plainKey, modelToTest, row.base_url, {
+      customHeaders,
+      advancedConfig,
+    });
 
     // Persist ping status & capabilities to database
     try {
@@ -760,8 +884,13 @@ export class AIProviderRouter {
 
     let models: AIModelDefinition[] = [];
 
-    // Fallback models if provider call is slow or unconfigured
-    if (row.kind === "gemini") {
+    // Preset models if matched
+    if (row.preset_id) {
+      const preset = getPresetById(row.preset_id);
+      if (preset && preset.available_models.length > 0) {
+        models = preset.available_models;
+      }
+    } else if (row.kind === "gemini") {
       models = [
         { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", description_ar: "فائق السرعة واقتصادي (الافتراضي)", badge: "افتراضي" },
         { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro", description_ar: "استدلال منطقي عالي الدقة", badge: "متقدم" },
@@ -788,6 +917,16 @@ export class AIProviderRouter {
       ];
     }
 
+    // Include custom models configured on this provider
+    if (row.custom_models) {
+      try {
+        const customList: AIModelDefinition[] = JSON.parse(row.custom_models);
+        if (Array.isArray(customList) && customList.length > 0) {
+          models = [...customList, ...models.filter((m) => !customList.some((c) => c.id === m.id))];
+        }
+      } catch {}
+    }
+
     // Try dynamic fetch if key and endpoint exist
     let key = "";
     if (row.key_encrypted) key = decryptKey(row.key_encrypted);
@@ -806,7 +945,9 @@ export class AIProviderRouter {
               name: m.id,
               description_ar: "نموذج متاح عبر الخادم البعيد",
             }));
-            if (fetched.length > 0) models = fetched;
+            if (fetched.length > 0) {
+              models = [...models, ...fetched.filter((f: any) => !models.some((m) => m.id === f.id))];
+            }
           }
         }
       } catch {}
@@ -983,7 +1124,12 @@ export class AIProviderRouter {
 
       let key = "";
       if (row.key_encrypted) key = decryptKey(row.key_encrypted);
-      if (!key) continue;
+      const isLocal =
+        row.preset_id === "ollama" ||
+        row.preset_id === "vllm" ||
+        row.base_url?.includes("localhost") ||
+        row.base_url?.includes("127.0.0.1");
+      if (!key && !isLocal) continue;
 
       // Check min capabilities if required
       if (req.schema) {
@@ -996,10 +1142,23 @@ export class AIProviderRouter {
         }
       }
 
+      let customHeaders: Record<string, string> = {};
+      try {
+        if (row.custom_headers) customHeaders = JSON.parse(row.custom_headers);
+      } catch {}
+
+      let advancedConfig: AdvancedProviderConfig = {};
+      try {
+        if (row.advanced_config) advancedConfig = JSON.parse(row.advanced_config);
+      } catch {}
+
       const adapter = this.getAdapter(row.kind as AIProviderKind, row.id);
 
       try {
-        const result = await adapter.generate(req, key, row.model, row.base_url);
+        const result = await adapter.generate(req, key, row.model, row.base_url, {
+          customHeaders,
+          advancedConfig,
+        });
 
         // Record successful usage
         db.prepare(`

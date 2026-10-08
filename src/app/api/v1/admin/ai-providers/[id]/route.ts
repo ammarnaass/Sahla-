@@ -31,11 +31,33 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const body = await req.json();
-    const { name, model, base_url, api_key, enabled } = body;
+    const {
+      name,
+      model,
+      base_url,
+      api_key,
+      enabled,
+      preset_id,
+      custom_headers,
+      advanced_config,
+      custom_models,
+      capabilities,
+    } = body;
 
     const result = AIProviderRouter.updateProvider(
       id,
-      { name, model, base_url, api_key, enabled },
+      {
+        name,
+        model,
+        base_url,
+        api_key,
+        enabled,
+        preset_id,
+        custom_headers,
+        advanced_config,
+        custom_models,
+        capabilities,
+      },
       "super_admin",
       req.headers.get("x-forwarded-for") || undefined
     );
