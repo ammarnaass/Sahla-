@@ -70,21 +70,37 @@ export class JsonStore<T extends Record<string, any>> {
         } else if (this.collectionName === "shops") {
           const rows = sqlite.prepare("SELECT * FROM shops").all() as any[];
           if (rows && rows.length > 0) {
-            this._memoryCache = rows.map((r) => ({
-              id: r.id,
-              name: r.name,
-              owner: r.owner,
-              phone: r.phone,
-              wilaya: r.wilaya,
-              wilayaCode: r.wilaya_code,
-              activity: r.activity,
-              plan: r.plan,
-              points: r.points,
-              status: r.status,
-              staff: [],
-              createdAt: r.created_at,
-              updatedAt: r.updated_at,
-            })) as unknown as T[];
+            this._memoryCache = rows.map((r) => {
+              let staffList: any[] = [];
+              try {
+                const staffRows = sqlite.prepare("SELECT id, name, phone, role, created_at FROM users WHERE role = 'STAFF' AND shop_id = ?").all(r.id) as any[];
+                staffList = staffRows.map((s) => ({
+                  id: s.id,
+                  name: s.name,
+                  phone: s.phone || "",
+                  role: s.role || "STAFF",
+                  addedAt: s.created_at ? s.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                }));
+              } catch {
+                staffList = [];
+              }
+              return {
+                id: r.id,
+                name: r.name,
+                owner: r.owner,
+                phone: r.phone,
+                wilaya: r.wilaya,
+                wilayaCode: r.wilaya_code,
+                commune: r.commune || "الجزائر الوسطى",
+                activity: r.activity,
+                plan: r.plan,
+                points: r.points,
+                status: r.status,
+                staff: staffList,
+                createdAt: r.created_at,
+                updatedAt: r.updated_at,
+              };
+            }) as unknown as T[];
             loadedFromSqlite = true;
           }
         } else if (this.collectionName === "invoices") {
@@ -217,8 +233,8 @@ export class JsonStore<T extends Record<string, any>> {
         } else {
           sqlite
             .prepare(`
-              INSERT OR REPLACE INTO shops (id, name, owner, phone, wilaya, wilaya_code, activity, plan, points, status, created_at, updated_at)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+              INSERT OR REPLACE INTO shops (id, name, owner, phone, wilaya, wilaya_code, commune, activity, plan, points, status, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
             `)
             .run(
               s.id,
@@ -227,6 +243,7 @@ export class JsonStore<T extends Record<string, any>> {
               s.phone || "",
               s.wilaya || "16 - الجزائر العاصمة",
               s.wilayaCode || 16,
+              s.commune || "الجزائر الوسطى",
               s.activity || "KIOSK",
               s.plan || "STARTER",
               s.points !== undefined ? s.points : 50,

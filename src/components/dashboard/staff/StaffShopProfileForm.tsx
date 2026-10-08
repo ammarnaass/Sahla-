@@ -17,6 +17,8 @@ interface StaffShopProfileFormProps {
   setActivityType: (v: string) => void;
   saveSuccess: boolean;
   onSave: (e: React.FormEvent) => void;
+  isSaving?: boolean;
+  error?: string;
 }
 
 export function StaffShopProfileForm({
@@ -32,6 +34,8 @@ export function StaffShopProfileForm({
   setActivityType,
   saveSuccess,
   onSave,
+  isSaving,
+  error,
 }: StaffShopProfileFormProps) {
   return (
     <div className="lg:col-span-2 p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-5 transition-colors">
@@ -56,7 +60,8 @@ export function StaffShopProfileForm({
               required
               value={shopName}
               onChange={(e) => setShopName(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+              placeholder="مثال: مكتبة الأمل للخدمات الرقمية"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
 
@@ -69,7 +74,8 @@ export function StaffShopProfileForm({
               required
               value={ownerName}
               onChange={(e) => setOwnerName(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+              placeholder="مثال: أحمد بن علي"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
         </div>
@@ -99,7 +105,8 @@ export function StaffShopProfileForm({
               required
               value={commune}
               onChange={(e) => setCommune(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+              placeholder="مثال: الجزائر الوسطى"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
 
@@ -127,9 +134,20 @@ export function StaffShopProfileForm({
           </div>
         )}
 
+        {error && (
+          <div className="text-xs text-red-600 dark:text-red-400 font-bold p-2.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-300 dark:border-red-500/30 transition-colors">
+            ⚠️ {error}
+          </div>
+        )}
+
         <div className="pt-2">
-          <Button type="submit" variant="primary" className="text-xs py-2 px-6 cursor-pointer">
-            حفظ التعديلات 💾
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={isSaving}
+            className="text-xs py-2 px-6 cursor-pointer disabled:opacity-50"
+          >
+            {isSaving ? "جاري الحفظ..." : "حفظ التعديلات 💾"}
           </Button>
         </div>
       </form>

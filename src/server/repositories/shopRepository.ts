@@ -21,6 +21,7 @@ export interface ShopRecord {
   phone: string;
   wilaya: string;
   wilayaCode: number;
+  commune?: string;
   activity: string;
   plan: "STARTER" | "PRO_KIOSK" | "ENTERPRISE";
   points: number;
@@ -59,6 +60,7 @@ class ShopRepository {
       phone: shop.phone || "0550000000",
       wilaya: shop.wilaya || "16 - الجزائر العاصمة",
       wilayaCode: shop.wilayaCode || parseInt(shop.wilaya?.split(" ")[0] || "16") || 16,
+      commune: shop.commune || "الجزائر الوسطى",
       activity: shop.activity || "KIOSK",
       plan: shop.plan || "STARTER",
       points: shop.points !== undefined ? shop.points : 50,

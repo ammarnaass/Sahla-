@@ -98,16 +98,6 @@ const users = [
     password: shopAdminHash,
     role: 'SHOP_ADMIN',
     shop_id: 'shop_1'
-  },
-  {
-    id: 'user_staff',
-    name: 'سفيان بلقاسم (موظف)',
-    email: 'staff.soufiane@gmail.com',
-    secondary_email: null,
-    phone: '0661998877',
-    password: staffHash,
-    role: 'STAFF',
-    shop_id: 'shop_1'
   }
 ];
 

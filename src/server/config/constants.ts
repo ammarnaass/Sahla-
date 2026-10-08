@@ -282,16 +282,6 @@ export const DEFAULT_USERS = [
     shopId: "shop_1",
     createdAt: "2026-02-15T00:00:00.000Z",
   },
-  {
-    id: "user_staff",
-    name: "سفيان بلقاسم (موظف)",
-    email: "staff.soufiane@gmail.com",
-    phone: "0661998877",
-    password: "Staff@2026!",
-    role: ROLES.STAFF,
-    shopId: "shop_1",
-    createdAt: "2026-03-10T00:00:00.000Z",
-  },
 ];
 
 export const DEFAULT_SHOPS = [
@@ -306,15 +296,7 @@ export const DEFAULT_SHOPS = [
     plan: "PRO_KIOSK",
     points: 140,
     status: "ACTIVE",
-    staff: [
-      {
-        id: "staff_1",
-        name: "سفيان بلقاسم",
-        phone: "0661998877",
-        role: ROLES.STAFF,
-        addedAt: "2026-03-10",
-      },
-    ],
+    staff: [],
   },
   {
     id: "shop_2",

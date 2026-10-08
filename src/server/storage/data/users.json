@@ -1,7 +1,7 @@
 [
   {
     "id": "user_1791222058365",
-    "name": "admin",
+    "name": "عمار",
     "email": "admin@dante.com",
     "secondaryEmail": null,
     "phone": "0555 00 00 00",
@@ -21,7 +21,7 @@
     "role": "SUPER_ADMIN",
     "shopId": null,
     "createdAt": "2026-10-05 14:57:08",
-    "updatedAt": "2026-10-07 21:13:44",
+    "updatedAt": "2026-10-07 21:15:20",
     "adminRole": "SUPER_ADMIN",
     "isRoot": true,
     "status": "ACTIVE"
@@ -36,36 +36,8 @@
     "role": "SUPER_ADMIN",
     "shopId": null,
     "createdAt": "2026-02-01T10:00:00.000Z",
-    "updatedAt": "2026-10-07 21:13:44",
+    "updatedAt": "2026-10-07 21:15:21",
     "adminRole": "SUPER_ADMIN",
-    "isRoot": false,
-    "status": "ACTIVE"
-  },
-  {
-    "id": "user_shop_admin",
-    "name": "أحمد بن علي",
-    "email": "najah.kiosk@gmail.com",
-    "secondaryEmail": null,
-    "phone": "0555123456",
-    "password": "2ac3048d415790b9ef1189b96de73c36:510685aa0677ad94c3c59ff6c6105d58d6b6c6e4bff0a6001c230bd8d08edbb4960219ec889bc127d31ba5e63499d35a25e6c32352e9fc8e205c9139c5f1a550",
-    "role": "SHOP_ADMIN",
-    "shopId": "shop_1",
-    "createdAt": "2026-10-05 14:57:08",
-    "updatedAt": "2026-10-07 21:13:44",
-    "isRoot": false,
-    "status": "ACTIVE"
-  },
-  {
-    "id": "user_staff",
-    "name": "سفيان بلقاسم (موظف)",
-    "email": "staff.soufiane@gmail.com",
-    "secondaryEmail": null,
-    "phone": "0661998877",
-    "password": "36152c56b808571fe10a069d28dfd6f6:c3d909effe632359c4d1728a1ee14a8de959810ff482a7e57ff80f5ff86221a8b92148fa1551b74ae3fe6c419084d64f68306dbe5d2e505cc2f5874fd9ac1ef8",
-    "role": "STAFF",
-    "shopId": "shop_1",
-    "createdAt": "2026-10-05 14:57:08",
-    "updatedAt": "2026-10-07 21:13:44",
     "isRoot": false,
     "status": "ACTIVE"
   },
@@ -79,7 +51,7 @@
     "role": "SUPER_ADMIN",
     "shopId": null,
     "createdAt": "2026-02-10T14:30:00.000Z",
-    "updatedAt": "2026-10-07 21:13:45",
+    "updatedAt": "2026-10-07 21:15:21",
     "adminRole": "SUPER_ADMIN",
     "isRoot": false,
     "status": "ACTIVE"
@@ -94,7 +66,7 @@
     "role": "SUPER_ADMIN",
     "shopId": null,
     "createdAt": "2026-02-20T09:15:00.000Z",
-    "updatedAt": "2026-10-07 21:13:45",
+    "updatedAt": "2026-10-07 21:15:21",
     "adminRole": "SUPER_ADMIN",
     "isRoot": false,
     "status": "ACTIVE"
@@ -109,8 +81,22 @@
     "role": "SUPER_ADMIN",
     "shopId": null,
     "createdAt": "2026-03-01T11:45:00.000Z",
-    "updatedAt": "2026-10-07 21:13:45",
+    "updatedAt": "2026-10-07 21:15:21",
     "adminRole": "SUPER_ADMIN",
+    "isRoot": false,
+    "status": "ACTIVE"
+  },
+  {
+    "id": "user_shop_admin",
+    "name": "أحمد بن علي",
+    "email": "najah.kiosk@gmail.com",
+    "secondaryEmail": null,
+    "phone": "0555123456",
+    "password": "2ac3048d415790b9ef1189b96de73c36:510685aa0677ad94c3c59ff6c6105d58d6b6c6e4bff0a6001c230bd8d08edbb4960219ec889bc127d31ba5e63499d35a25e6c32352e9fc8e205c9139c5f1a550",
+    "role": "SHOP_ADMIN",
+    "shopId": "shop_1",
+    "createdAt": "2026-10-05 14:57:08",
+    "updatedAt": "2026-10-07 21:15:21",
     "isRoot": false,
     "status": "ACTIVE"
   }

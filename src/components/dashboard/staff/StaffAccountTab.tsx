@@ -11,10 +11,19 @@ import { StaffAddModal } from "./StaffAddModal";
 export type { StaffMember };
 
 export function StaffAccountTab() {
-  const { session } = useAuth();
+  const { session, refreshSession } = useAuth();
+  const shopId = session?.shop?.id || session?.user?.shopId || "";
+  const initialShopName = session?.shop?.name || "";
+  const initialOwnerName =
+    session?.shop?.ownerName || session?.shop?.owner || session?.user?.name || "";
+
   const staff = useStaffState(
-    session?.shop?.name || "مكتبة الأمل الرقمية",
-    session?.user?.name || "أحمد بوعزيز"
+    initialShopName,
+    initialOwnerName,
+    shopId,
+    async () => {
+      await refreshSession();
+    }
   );
 
   return (
@@ -35,6 +44,8 @@ export function StaffAccountTab() {
           setActivityType={staff.setActivityType}
           saveSuccess={staff.saveSuccess}
           onSave={staff.saveShopProfile}
+          isSaving={staff.isSavingProfile}
+          error={staff.profileError}
         />
 
         {/* Security / RBAC Summary Card */}
@@ -69,6 +80,7 @@ export function StaffAccountTab() {
 
       <StaffMembersList
         staffList={staff.staffList}
+        isLoading={staff.isLoadingStaff}
         onOpenAddModal={() => staff.setShowAddStaffModal(true)}
         onRemoveStaff={staff.removeStaff}
       />
@@ -82,6 +94,7 @@ export function StaffAccountTab() {
         setPhone={staff.setNewStaffPhone}
         error={staff.staffError}
         onSubmit={staff.addStaff}
+        isSubmitting={staff.isAddingStaff}
       />
     </div>
   );

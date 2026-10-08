@@ -18,5 +18,48 @@
     "targetType": "ADMIN",
     "descriptionAr": "تفعيل مصفوفة الصلاحيات والحماية السيادية لحساب الجذر admin@sahla.dz",
     "timestamp": "2026-02-01T00:00:00.000Z"
+  },
+  {
+    "actorId": "user_super_admin",
+    "actorName": "مدير منصة سهلة المركزي",
+    "actorRole": "SUPER_ADMIN",
+    "action": "UPDATE_ADMIN",
+    "targetId": "admin_ops_1",
+    "targetType": "ADMIN",
+    "descriptionAr": "تعديل بيانات المشرف كريم بلقاسم: الدور إلى مدير العمليات وشبكة الأكشاك",
+    "metadata": {
+      "name": "كريم بلقاسم",
+      "phone": "0551223344",
+      "adminRole": "OPERATIONS_ADMIN",
+      "customPermissions": [
+        "analytics:view",
+        "shops:manage",
+        "shops:topup_points",
+        "broadcast:send"
+      ]
+    },
+    "id": "audit_1791407668699_94k0",
+    "timestamp": "2026-10-07T21:14:28.699Z"
+  },
+  {
+    "actorId": "user_super_admin",
+    "actorName": "مدير منصة سهلة المركزي",
+    "actorRole": "SUPER_ADMIN",
+    "action": "UPDATE_ADMIN",
+    "targetId": "admin_ai_1",
+    "targetType": "ADMIN",
+    "descriptionAr": "تعديل بيانات المشرف أمين زياني: الدور إلى مسؤول الذكاء الاصطناعي والمحتوى",
+    "metadata": {
+      "name": "أمين زياني",
+      "phone": "0553445566",
+      "adminRole": "AI_OPS_ADMIN",
+      "customPermissions": [
+        "analytics:view",
+        "ai:manage_providers",
+        "ai:manage_content"
+      ]
+    },
+    "id": "audit_1791407679315_ykhp",
+    "timestamp": "2026-10-07T21:14:39.315Z"
   }
 ]

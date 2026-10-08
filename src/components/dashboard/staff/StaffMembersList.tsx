@@ -8,12 +8,14 @@ interface StaffMembersListProps {
   staffList: StaffMember[];
   onOpenAddModal: () => void;
   onRemoveStaff: (id: string) => void;
+  isLoading?: boolean;
 }
 
 export function StaffMembersList({
   staffList,
   onOpenAddModal,
   onRemoveStaff,
+  isLoading = false,
 }: StaffMembersListProps) {
   return (
     <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-4 transition-colors">
@@ -36,50 +38,74 @@ export function StaffMembersList({
         </Button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-right text-xs">
-          <thead>
-            <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold bg-slate-50 dark:bg-slate-950/40">
-              <th className="py-3 px-4">اسم الموظف</th>
-              <th className="py-3 px-4">رقم الهاتف</th>
-              <th className="py-3 px-4">الرتبة والدور</th>
-              <th className="py-3 px-4">تاريخ الإضافة</th>
-              <th className="py-3 px-4 text-center">الإجراءات</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-            {staffList.map((staff) => (
-              <tr key={staff.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                <td className="py-3 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px]">
-                    👤
-                  </span>
-                  <span>{staff.name}</span>
-                </td>
-                <td className="py-3 px-4 font-mono text-slate-700 dark:text-slate-300" dir="ltr">
-                  {staff.phone}
-                </td>
-                <td className="py-3 px-4">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
-                    موظف كاونتر (STAFF)
-                  </span>
-                </td>
-                <td className="py-3 px-4 text-slate-500 dark:text-slate-400 text-[11px] font-mono">
-                  {staff.addedAt}
-                </td>
-                <td className="py-3 px-4 text-center">
-                  <button
-                    onClick={() => onRemoveStaff(staff.id)}
-                    className="px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors text-[11px] font-bold cursor-pointer"
-                  >
-                    إلغاء الوصول ✕
-                  </button>
-                </td>
+      {isLoading ? (
+        <div className="py-12 text-center text-slate-500 dark:text-slate-400 text-xs">
+          <div className="inline-block animate-spin rounded-full h-5 w-5 border-2 border-emerald-500 border-t-transparent mb-2"></div>
+          <p>جاري تحميل طاقم العمل...</p>
+        </div>
+      ) : staffList.length === 0 ? (
+        <div className="py-10 px-4 text-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30">
+          <span className="text-3xl block mb-2">👥</span>
+          <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
+            لا يوجد موظفون مفوضون مسجلون حالياً في هذا المحل
+          </p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+            أضف عمال الكاونتر برقم هاتفهم ليتمكنوا من تسجيل الدخول وإنجاز وطباعة وثائق الزبائن فوراً.
+          </p>
+          <Button
+            variant="primary"
+            onClick={onOpenAddModal}
+            className="text-xs py-2 px-5 mt-4 cursor-pointer"
+          >
+            إضافة أول موظف الآن +
+          </Button>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-right text-xs">
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold bg-slate-50 dark:bg-slate-950/40">
+                <th className="py-3 px-4">اسم الموظف</th>
+                <th className="py-3 px-4">رقم الهاتف</th>
+                <th className="py-3 px-4">الرتبة والدور</th>
+                <th className="py-3 px-4">تاريخ الإضافة</th>
+                <th className="py-3 px-4 text-center">الإجراءات</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              {staffList.map((staff) => (
+                <tr key={staff.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                  <td className="py-3 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px]">
+                      👤
+                    </span>
+                    <span>{staff.name}</span>
+                  </td>
+                  <td className="py-3 px-4 font-mono text-slate-700 dark:text-slate-300" dir="ltr">
+                    {staff.phone}
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
+                      موظف كاونتر (STAFF)
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-slate-500 dark:text-slate-400 text-[11px] font-mono">
+                    {staff.addedAt}
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <button
+                      onClick={() => onRemoveStaff(staff.id)}
+                      className="px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors text-[11px] font-bold cursor-pointer"
+                    >
+                      إلغاء الوصول ✕
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

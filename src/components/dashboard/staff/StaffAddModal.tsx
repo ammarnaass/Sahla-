@@ -13,6 +13,7 @@ interface StaffAddModalProps {
   setPhone: (v: string) => void;
   error: string;
   onSubmit: (e: React.FormEvent) => void;
+  isSubmitting?: boolean;
 }
 
 export function StaffAddModal({
@@ -24,6 +25,7 @@ export function StaffAddModal({
   setPhone,
   error,
   onSubmit,
+  isSubmitting = false,
 }: StaffAddModalProps) {
   return (
     <Modal
@@ -75,8 +77,13 @@ export function StaffAddModal({
           <Button type="button" variant="outline" onClick={onClose} className="flex-1 cursor-pointer">
             إلغاء
           </Button>
-          <Button type="submit" variant="primary" className="flex-1 cursor-pointer">
-            تأكيد الإضافة 👤
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={isSubmitting}
+            className="flex-1 cursor-pointer disabled:opacity-50"
+          >
+            {isSubmitting ? "جاري الإضافة..." : "تأكيد الإضافة 👤"}
           </Button>
         </div>
       </form>
