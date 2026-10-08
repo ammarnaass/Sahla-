@@ -87,7 +87,84 @@ export const AI_PROVIDER_PRESETS: AIProviderPreset[] = [
     },
   },
 
-  // ── 2. OpenRouter (Unified Multi-Model Gateway) ──
+  // ── 2. NVIDIA NIM (TensorRT-LLM Inference Microservices) ──
+  {
+    id: "nvidia_nim",
+    name: "NVIDIA NIM",
+    name_ar: "إنفيديا نيم (NVIDIA NIM)",
+    category: "cloud_fast",
+    category_ar: "سحابي فائق السرعة",
+    kind: "openai_compatible",
+    description_ar: "بنية الاستدلال المؤسسية الفائقة من NVIDIA المسرعة عتادياً عبر TensorRT-LLM لنماذج Llama 3.3 و Nemotron و DeepSeek R1.",
+    badge_ar: "تسريع TensorRT-LLM 🟢",
+    badge_color: "emerald",
+    icon: "🟢",
+    default_base_url: "https://integrate.api.nvidia.com/v1",
+    default_model: "meta/llama-3.3-70b-instruct",
+    available_models: [
+      {
+        id: "meta/llama-3.3-70b-instruct",
+        name: "Llama 3.3 70B Instruct (TensorRT)",
+        description_ar: "النموذج الأقوى من Meta مع تسريع عتادي فائق عبر كروت NVIDIA",
+        badge: "موصى به",
+        contextWindow: "128k",
+      },
+      {
+        id: "deepseek-ai/deepseek-r1",
+        name: "DeepSeek R1 (TensorRT-LLM)",
+        description_ar: "استدلال وتفكير رياضي عميق مع تسريع ميكروسيرفيس إنفيديا",
+        badge: "تفكير واستدلال",
+        contextWindow: "64k",
+      },
+      {
+        id: "nvidia/llama-3.1-nemotron-70b-instruct",
+        name: "Llama 3.1 Nemotron 70B",
+        description_ar: "نموذج إنفيديا المخصص بأعلى معايير الدقة والمساعدة والاستدلال",
+        badge: "إنفيديا نيموترون",
+        contextWindow: "128k",
+      },
+      {
+        id: "meta/llama-3.1-405b-instruct",
+        name: "Llama 3.1 405B Instruct",
+        description_ar: "أضخم نموذج مفتوح فائق الذكاء يعمل على عناقيد H100",
+        badge: "العملاق 405B",
+        contextWindow: "128k",
+      },
+      {
+        id: "mistralai/mistral-large-2-instruct",
+        name: "Mistral Large 2 (NIM)",
+        description_ar: "نموذج ميسترال متعدد اللغات عبر بنية إنفيديا السحابية",
+        contextWindow: "128k",
+      },
+      {
+        id: "nvidia/nemotron-4-340b-instruct",
+        name: "Nemotron-4 340B Instruct",
+        description_ar: "نموذج إنفيديا التجاري الضخم لتوليد البيانات الاصطناعية والتقارير",
+        contextWindow: "128k",
+      },
+    ],
+    key_required: true,
+    key_placeholder_ar: "nvapi-...",
+    key_docs_url: "https://build.nvidia.com",
+    key_docs_label_ar: "الحصول على مفتاح NVIDIA Build (1000 نقطة مجانية)",
+    default_capabilities: {
+      tool_use: true,
+      json_mode: true,
+      structured_output: "json_object",
+      streaming: true,
+      max_context: 128000,
+      vision: false,
+      languages_verified: ["ar", "fr", "en"],
+      web_search: false,
+      prompt_caching: true,
+    },
+    recommended_config: {
+      timeout_seconds: 45,
+      temperature: 0.2,
+    },
+  },
+
+  // ── 3. OpenRouter (Unified Multi-Model Gateway) ──
   {
     id: "openrouter",
     name: "OpenRouter",

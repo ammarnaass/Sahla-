@@ -343,7 +343,7 @@ export function AdminAIProvidersManager() {
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-1 max-w-2xl leading-relaxed">
-            بوابة متكاملة تدعم المصادر السحابية فائقة السرعة (Groq LPU)، البوابات المجمعة (OpenRouter)، النماذج المحلية دون إنترنت (Ollama On-Premise)، والتخصيص المتقدم للترويسات وميزانية التفكير.
+            بوابة متكاملة تدعم المصادر السحابية فائقة السرعة المسرعة عتادياً (Groq LPU، NVIDIA NIM TensorRT)، البوابات المجمعة (OpenRouter)، النماذج المحلية دون إنترنت (Ollama On-Premise)، والتخصيص المتقدم للترويسات وميزانية التفكير.
           </p>
         </div>
 
@@ -465,7 +465,7 @@ export function AdminAIProvidersManager() {
             </p>
           </div>
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 self-start md:self-auto">
-            11 مزود مسبق الإعداد ⚡
+            {AI_PROVIDER_PRESETS.length} مزود مسبق الإعداد ⚡
           </span>
         </div>
 
@@ -621,7 +621,7 @@ export function AdminAIProvidersManager() {
                 <div className="flex flex-wrap gap-1 mb-2.5">
                   {[
                     { id: "all", label: "الكل" },
-                    { id: "cloud_fast", label: "⚡ فائق السرعة (LPU)" },
+                    { id: "cloud_fast", label: "⚡ تسريع عتادي فائق (LPU & NIM)" },
                     { id: "cloud_aggregator", label: "🌐 بوابات مجمعة" },
                     { id: "cloud_frontier", label: "💎 محركات رائدة" },
                     { id: "local_onprem", label: "🦙 محلي (On-Premise)" },

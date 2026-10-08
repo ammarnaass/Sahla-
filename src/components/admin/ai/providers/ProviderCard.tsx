@@ -167,6 +167,23 @@ export function ProviderCard({
       };
     }
 
+    if (
+      provider.preset_id === "nvidia_nim" ||
+      provider.name.toLowerCase().includes("nvidia") ||
+      provider.base_url?.includes("nvidia.com")
+    ) {
+      return {
+        gradient: "from-emerald-700/10 via-green-600/5 to-card",
+        border: provider.is_primary ? "border-amber-500/60 ring-1 ring-amber-500/30" : "border-emerald-500/40",
+        iconBg: "bg-[#76B900] text-black shadow-[#76B900]/30",
+        icon: "🟢",
+        docUrl: "https://build.nvidia.com",
+        docText: "لوحة مفاتيح NVIDIA Build",
+        typeBadge: "تسريع TensorRT-LLM 🟢",
+        typeBadgeColor: "bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border-emerald-500/30",
+      };
+    }
+
     if (provider.preset_id === "openrouter") {
       return {
         gradient: "from-purple-600/10 via-indigo-500/5 to-card",

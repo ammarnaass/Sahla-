@@ -123,6 +123,7 @@ export class AIProviderRouter {
           envKey?: string;
           is_primary: number;
           fallback_order: number | null;
+          preset_id?: string;
           capabilities: Capabilities;
         }> = [
           {
@@ -134,6 +135,7 @@ export class AIProviderRouter {
             envKey: process.env.GEMINI_API_KEY,
             is_primary: 1,
             fallback_order: null,
+            preset_id: "gemini",
             capabilities: {
               tool_use: true,
               json_mode: true,
@@ -155,6 +157,7 @@ export class AIProviderRouter {
             envKey: process.env.HUGGINGFACE_API_KEY || process.env.HF_TOKEN,
             is_primary: 0,
             fallback_order: 1,
+            preset_id: "huggingface",
             capabilities: {
               tool_use: true,
               json_mode: true,
@@ -176,6 +179,7 @@ export class AIProviderRouter {
             envKey: process.env.ANTHROPIC_API_KEY,
             is_primary: 0,
             fallback_order: 2,
+            preset_id: "anthropic",
             capabilities: {
               tool_use: true,
               json_mode: true,
@@ -197,6 +201,7 @@ export class AIProviderRouter {
             envKey: process.env.OPENAI_API_KEY,
             is_primary: 0,
             fallback_order: 3,
+            preset_id: "openai",
             capabilities: {
               tool_use: true,
               json_mode: true,
@@ -209,6 +214,28 @@ export class AIProviderRouter {
               prompt_caching: false,
             },
           },
+          {
+            id: "pv_nvidia_nim",
+            kind: "openai_compatible",
+            name: "NVIDIA NIM",
+            base_url: "https://integrate.api.nvidia.com/v1",
+            model: "meta/llama-3.3-70b-instruct",
+            envKey: process.env.NVIDIA_API_KEY || process.env.NVIDIA_NIM_API_KEY,
+            is_primary: 0,
+            fallback_order: 4,
+            preset_id: "nvidia_nim",
+            capabilities: {
+              tool_use: true,
+              json_mode: true,
+              structured_output: "json_object",
+              streaming: true,
+              max_context: 128000,
+              vision: false,
+              languages_verified: ["ar", "fr", "en"],
+              web_search: false,
+              prompt_caching: true,
+            },
+          },
         ];
 
         for (const item of defaults) {
@@ -217,8 +244,8 @@ export class AIProviderRouter {
           db.prepare(`
             INSERT INTO ai_providers (
               id, kind, name, base_url, model, key_encrypted, key_last4,
-              capabilities, status, is_primary, fallback_order, enabled
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+              capabilities, status, is_primary, fallback_order, enabled, preset_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
           `).run(
             item.id,
             item.kind,
@@ -230,7 +257,8 @@ export class AIProviderRouter {
             JSON.stringify(item.capabilities),
             item.envKey ? "ok" : "unknown",
             item.is_primary,
-            item.fallback_order
+            item.fallback_order,
+            item.preset_id || null
           );
         }
 
