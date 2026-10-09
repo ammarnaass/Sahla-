@@ -597,49 +597,93 @@ export function StudioDynamicForm({
 
             {/* Level & Specialty / Subject selection */}
             {eduDocKind === "THESIS" ? (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    الجامعة أو المركز الجامعي:
-                  </label>
-                  <select
-                    value={eduUniversity}
-                    onChange={(e) => setEduUniversity && setEduUniversity(e.target.value)}
-                    className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
-                  >
-                    <option value="">-- اختر الجامعة المعتمدة --</option>
-                    {ALGERIAN_UNIVERSITIES.map((uni) => (
-                      <option key={uni} value={uni}>
-                        {uni}
-                      </option>
-                    ))}
-                  </select>
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      الجامعة أو المركز الجامعي:
+                    </label>
+                    <select
+                      value={eduUniversity}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (setEduUniversity) setEduUniversity(val);
+                        if (val.includes("USTHB") && setEduFaculty) {
+                          setEduFaculty("كلية الإعلام الآلي والذكاء الاصطناعي");
+                          if (setEduSpecialty) setEduSpecialty("إعلام آلي / نظم معلومات");
+                        } else if (val.includes("الجزائر 1") && setEduFaculty) {
+                          setEduFaculty("كلية الحقوق والعلوم السياسية");
+                          if (setEduSpecialty) setEduSpecialty("قانون عام / خاص");
+                        } else if (val.includes("الجزائر 3") && setEduFaculty) {
+                          setEduFaculty("كلية العلوم الاقتصادية والتسيير");
+                          if (setEduSpecialty) setEduSpecialty("علوم التسيير والمالية");
+                        }
+                      }}
+                      className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                    >
+                      <option value="">-- اختر الجامعة المعتمدة --</option>
+                      {ALGERIAN_UNIVERSITIES.map((uni) => (
+                        <option key={uni} value={uni}>
+                          {uni}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      الكلية أو المعهد:
+                    </label>
+                    <input
+                      type="text"
+                      value={eduFaculty}
+                      onChange={(e) => setEduFaculty && setEduFaculty(e.target.value)}
+                      placeholder="مثال: كلية العلوم الاقتصادية"
+                      className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                    >
+                    </input>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      القسم والتخصص العلمي:
+                    </label>
+                    <input
+                      type="text"
+                      value={eduSpecialty}
+                      onChange={(e) => setEduSpecialty && setEduSpecialty(e.target.value)}
+                      placeholder="مثال: إدارة أعمال / إعلام آلي"
+                      className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    الكلية أو المعهد:
-                  </label>
-                  <input
-                    type="text"
-                    value={eduFaculty}
-                    onChange={(e) => setEduFaculty && setEduFaculty(e.target.value)}
-                    placeholder="مثال: كلية العلوم الاقتصادية"
-                    className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    القسم والتخصص العلمي:
-                  </label>
-                  <input
-                    type="text"
-                    value={eduSpecialty}
-                    onChange={(e) => setEduSpecialty && setEduSpecialty(e.target.value)}
-                    placeholder="مثال: إدارة أعمال / إعلام آلي"
-                    className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
+                {/* Institution Profile Banner & Guideline Indicators */}
+                <div className="p-2.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-300/40 dark:border-emerald-800/40 flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="font-bold text-emerald-900 dark:text-emerald-200 text-[11px]">
+                      {eduUniversity.includes("USTHB")
+                        ? "دليل المذكرة: جامعة العلوم والتكنولوجيا USTHB (نظام التوثيق الرقمي IEEE)"
+                        : eduUniversity.includes("الجزائر 1")
+                        ? "دليل المذكرة: جامعة الجزائر 1 - كلية الحقوق (هوامش سفلية ونظام ISO 690)"
+                        : eduUniversity.includes("الجزائر 3")
+                        ? "دليل المذكرة: جامعة الجزائر 3 - كلية الاقتصاد (دراسة ميدانية ونظام APA 7)"
+                        : "دليل المذكرة: النموذج الوطني الموحد لمذكرات الماستر LMD (وزارة التعليم العالي)"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10.5px]">
+                    <span className="px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 font-mono font-bold text-emerald-700 dark:text-emerald-300">
+                      {eduUniversity.includes("USTHB")
+                        ? "IEEE Numeric"
+                        : eduUniversity.includes("الجزائر 1")
+                        ? "ISO 690"
+                        : "APA 7th"}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 font-bold">
+                      فصل تطبيقي/ميداني إلزامي
+                    </span>
+                  </div>
                 </div>
               </div>
             ) : (
