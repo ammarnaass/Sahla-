@@ -134,13 +134,13 @@ export function ProviderCard({
     };
   }, [provider.id, provider.model]);
 
-  const getProviderBrand = () => {
-    const isLocal =
-      provider.preset_id === "ollama" ||
-      provider.preset_id === "vllm" ||
-      provider.base_url?.includes("localhost") ||
-      provider.base_url?.includes("127.0.0.1");
+  const isLocal =
+    provider.preset_id === "ollama" ||
+    provider.preset_id === "vllm" ||
+    provider.base_url?.includes("localhost") ||
+    provider.base_url?.includes("127.0.0.1");
 
+  const getProviderBrand = () => {
     if (isLocal) {
       return {
         gradient: "from-emerald-600/10 via-teal-500/5 to-card",
@@ -481,7 +481,13 @@ export function ProviderCard({
               type={showKey ? "text" : "password"}
               value={apiKeyInput}
               onChange={(e) => setApiKeyInput(e.target.value)}
-              placeholder={provider.key_masked || "أدخل مفتاح الـ API الجديد (أو اتركه فارغاً للمحلي)..."}
+              placeholder={
+                provider.key_masked
+                  ? `المفتاح مسجل (${provider.key_masked}) — أدخل مفتاحاً جديداً لتغييره`
+                  : isLocal
+                  ? "مزود محلي (لا يتطلب مفتاح API)..."
+                  : "الصق مفتاح API هنا واضغط حفظ التخصيص..."
+              }
               className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-emerald-500/40 text-foreground font-mono"
             />
             <button
@@ -492,9 +498,19 @@ export function ProviderCard({
               {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
           </div>
-          <p className="text-[10px] text-muted-foreground">
-            المفتاح الحالي: <span className="font-mono font-bold">{provider.key_masked || "••••••••"}</span>{" "}
-            {provider.key_masked ? "(لا يعود للمتصفح بعد الحفظ)" : "(لا يتطلب مفتاحاً)"}
+          <p className="text-[10.5px]">
+            {provider.key_masked ? (
+              <span className="text-muted-foreground">
+                المفتاح الحالي: <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{provider.key_masked}</span>{" "}
+                (مشفر بواسطة AES-256 — لا يعود للمتصفح بعد الحفظ)
+              </span>
+            ) : isLocal ? (
+              <span className="text-slate-500">(مزود محلي — لا يتطلب مفتاحاً)</span>
+            ) : (
+              <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
+                ⚠️ لم يتم إدخال مفتاح الـ API بعد — يرجى لصق المفتاح في الحقل أعلاه والضغط على «حفظ التخصيص».
+              </span>
+            )}
           </p>
         </div>
 

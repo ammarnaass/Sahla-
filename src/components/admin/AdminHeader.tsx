@@ -10,10 +10,12 @@ import {
   Sparkles,
   Receipt,
   Menu,
+  LogOut,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AdminHeaderProps {
   onOpenBroadcast?: () => void;
@@ -28,6 +30,8 @@ export function AdminHeader({
   onOpenCreateInvoice,
   onToggleMobileMenu,
 }: AdminHeaderProps) {
+  const { logout } = useAuth();
+
   return (
     <header className="sticky top-0 z-30 backdrop-blur-md bg-background/90 border-b border-border px-4 sm:px-6 h-16 flex items-center justify-between transition-colors">
       {/* Right / Brand: Logo & Title (RTL: right side) */}
@@ -36,14 +40,14 @@ export function AdminHeader({
           <button
             type="button"
             onClick={onToggleMobileMenu}
-            className="lg:hidden p-2 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+            className="md:hidden p-2 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             title="فتح القائمة"
           >
             <Menu size={18} />
           </button>
         )}
 
-        <Link href="/" className="flex items-center gap-2.5 group">
+        <Link href="/admin" className="flex items-center gap-2.5 group">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 via-amber-600 to-emerald-500 flex items-center justify-center text-slate-950 font-black text-lg shadow-md group-hover:scale-105 transition-transform">
             <Crown size={20} className="text-slate-950" />
           </div>
@@ -122,6 +126,17 @@ export function AdminHeader({
           <ArrowLeft size={14} />
           <span className="hidden sm:inline">الرئيسية</span>
         </Link>
+
+        {/* Quick Logout Button */}
+        <button
+          type="button"
+          onClick={() => logout()}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 transition-all shadow-xs active:scale-95 cursor-pointer font-cairo"
+          title="تسجيل الخروج من لوحة تحكم مدير النظام"
+        >
+          <LogOut size={14} className="text-rose-500 shrink-0" />
+          <span className="hidden sm:inline">خروج</span>
+        </button>
       </div>
     </header>
   );

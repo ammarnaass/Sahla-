@@ -10,7 +10,7 @@ import { StudioLivePreviewA4 } from "./StudioLivePreviewA4";
 import { StudioPrintActions } from "./StudioPrintActions";
 import { ErrorReportModal } from "./ErrorReportModal";
 import { ConformanceReportModal } from "./ConformanceReportModal";
-import { exportResearchToWord } from "@/lib/wordExport";
+import { exportResearchToWord, exportResearchToHtml } from "@/lib/wordExport";
 import { ALGERIAN_SUBJECTS } from "@/lib/educationConstants";
 
 
@@ -90,27 +90,42 @@ export function StudioModal({
 
   const handleExportWord = () => {
     const subjectName = ALGERIAN_SUBJECTS[studio.eduSubjectId]?.nameAr || "المادة المقررة";
-    const sections = studio.eduCustomPlan.map((heading, idx) => ({
-      heading,
-      content: `يتناول هذا المبحث دراسة مستفيضة لعنصر "${heading}"، حيث تم تبسيط المفاهيم ومطابقتها للمنهاج الجزائري الرسمي، مع ربطها بالشواهد الواقعية والتطبيقات العلمية الميدانية لتعزيز فهم التلميذ واستيعابه الدقيق.`,
-    }));
+    const isThesis = studio.eduDocKind === "THESIS";
+
+    const sections =
+      studio.eduGeneratedSections && studio.eduGeneratedSections.length > 0
+        ? studio.eduGeneratedSections
+        : studio.eduCustomPlan.map((heading) => ({
+            heading,
+            content: `يتناول هذا المبحث دراسة مستفيضة لعنصر "${heading}"، حيث تم تبسيط المفاهيم ومطابقتها للمنهاج الجزائري الرسمي، مع ربطها بالشواهد الواقعية والتطبيقات العلمية الميدانية لتعزيز فهم التلميذ واستيعابه الدقيق.`,
+          }));
 
     exportResearchToWord({
-      title: `بحث مدرسي - ${studio.eduTopic}`,
+      title: `${isThesis ? "مذكرة تخرج" : "بحث مدرسي"} - ${studio.eduTopic || "المستند الأكاديمي"}`,
       topic: studio.eduTopic,
       level: studio.eduLevel,
       grade: studio.eduGradeId,
       subject: subjectName,
-      studentName: studio.customerName.trim() || "تلميذ المؤسسة",
+      docKind: studio.eduDocKind,
+      university: studio.eduUniversity,
+      faculty: studio.eduFaculty,
+      specialty: studio.eduSpecialty,
+      studentName: studio.customerName.trim() || (isThesis ? "الطالب الباحث" : "تلميذ المؤسسة"),
       schoolName: studio.eduSchoolName,
       teacherName: studio.eduTeacherName,
       outline: studio.eduCustomPlan,
       sections,
-      references: [
-        `الكتاب المدرسي المقرر لمادة ${subjectName} - ديوان المطبوعات المدرسية (ONPS)، الجزائر.`,
-        `المنهاج الرسمي والوثيقة المرافقة - وزارة التربية الوطنية الجزائرية.`,
-        `الموسوعة الوطنية للعلوم والدراسات الجزائرية - منشورات ديوان المطبوعات الجامعية (OPU).`,
-      ],
+      rawHtml: studio.activeHtmlContent || undefined,
+      references: isThesis
+        ? [
+            "ديوان المطبوعات الجامعية (OPU) - الجزائر.",
+            "البوابة الوطنية للمجلات العلمية الجزائرية (ASJP).",
+          ]
+        : [
+            `الكتاب المدرسي المقرر لمادة ${subjectName} - ديوان المطبوعات المدرسية (ONPS)، الجزائر.`,
+            `المنهاج الرسمي والوثيقة المرافقة - وزارة التربية الوطنية الجزائرية.`,
+            `الموسوعة الوطنية للعلوم والدراسات الجزائرية - منشورات ديوان المطبوعات الجامعية (OPU).`,
+          ],
       reviewQuestions: studio.eduIncludeReviewQuestions
         ? [
             `س1: ما هي الفكرة المحورية لموضوع "${studio.eduTopic}" بأسلوبك الخاص؟`,
@@ -119,6 +134,14 @@ export function StudioModal({
           ]
         : [],
     });
+  };
+
+  const handleExportHtml = () => {
+    if (studio.activeHtmlContent && studio.eduTopic) {
+      exportResearchToHtml(studio.eduTopic, studio.activeHtmlContent);
+    } else {
+      handleExportWord();
+    }
   };
 
   return (
@@ -263,6 +286,16 @@ export function StudioModal({
                 isGeneratingPlan={studio.isGeneratingPlan}
                 isPlanReviewed={studio.isPlanReviewed}
                 generatePlanAsync={studio.generatePlanAsync}
+                planSuccessNotice={studio.planSuccessNotice}
+                onDismissPlanNotice={() => studio.setPlanSuccessNotice(null)}
+                planErrorNotice={studio.planErrorNotice}
+                onDismissPlanError={() => studio.setPlanErrorNotice(null)}
+                genErrorNotice={studio.genErrorNotice}
+                onDismissGenError={() => studio.setGenErrorNotice(null)}
+                onSubmitFullDocument={() =>
+                  studio.generateDocument(service, points, onDocumentGenerated, onClose)
+                }
+                isProcessing={studio.isProcessing}
                 points={points}
                 onPrintExam={handlePrintExam}
                 onBundlePrint={handleBundlePrint}
@@ -325,8 +358,12 @@ export function StudioModal({
                 eduStyleLevel={studio.eduStyleLevel}
                 eduIncludeReviewQuestions={studio.eduIncludeReviewQuestions}
                 onExportWord={handleExportWord}
+                onExportHtml={handleExportHtml}
                 conformanceScore={studio.conformanceReport?.score || 0.94}
                 onViewConformance={() => studio.setIsConformanceModalOpen(true)}
+                onGenerateFullDocument={() =>
+                  studio.generateDocument(service, points, onDocumentGenerated, onClose)
+                }
                 onReportError={() =>
                   studio.setErrorReportModal({
                     isOpen: true,

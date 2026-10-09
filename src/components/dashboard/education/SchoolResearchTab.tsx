@@ -7,7 +7,7 @@ import { StudioDynamicForm } from "../studio/StudioDynamicForm";
 import { StudioLivePreviewA4 } from "../studio/StudioLivePreviewA4";
 import { ErrorReportModal } from "../studio/ErrorReportModal";
 import { ConformanceReportModal } from "../studio/ConformanceReportModal";
-import { exportResearchToWord } from "@/lib/wordExport";
+import { exportResearchToWord, exportResearchToHtml } from "@/lib/wordExport";
 import { ALGERIAN_SUBJECTS } from "@/lib/educationConstants";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -45,7 +45,7 @@ export function SchoolResearchTab({
   const fetchSavedDocuments = async () => {
     setIsLoadingDocs(true);
     try {
-      const res = await fetch("/api/v1/documents?shop_id=shop_1");
+      const res = await fetch("/api/v1/documents?shop_id=shop_1791222058320");
       if (res.ok) {
         const data = await res.json();
         if (data.items) {
@@ -71,7 +71,7 @@ export function SchoolResearchTab({
     }
 
     if (!studio.eduGeneratedSections || studio.eduGeneratedSections.length === 0) {
-      setExportNotice("تنبيه: اضغط أولاً على «توليد وحفظ البحث» بالذكاء الاصطناعي لصياغة متن البحث الحقيقي قبل التصدير.");
+      setExportNotice("تنبيه: اضغط أولاً على «توليد وحفظ المستند» بالذكاء الاصطناعي لصياغة متن البحث الحقيقي قبل التصدير.");
       setTimeout(() => setExportNotice(null), 5000);
       return;
     }
@@ -94,6 +94,7 @@ export function SchoolResearchTab({
       teacherName: studio.eduTeacherName || (isThesis ? "أ.د المشرف المؤطر" : "الأستاذ المشرف"),
       outline: studio.eduCustomPlan,
       sections: studio.eduGeneratedSections,
+      rawHtml: studio.activeHtmlContent || undefined,
       references: isThesis
         ? [
             "ديوان المطبوعات الجامعية (OPU) - بن عكنون، الجزائر.",
@@ -118,6 +119,22 @@ export function SchoolResearchTab({
     setTimeout(() => setExportNotice(null), 4000);
   };
 
+  const handleExportHtml = () => {
+    if (!studio.eduTopic) {
+      setExportNotice("يرجى تحديد عنوان وموضوع البحث أو المذكرة أولاً.");
+      setTimeout(() => setExportNotice(null), 3500);
+      return;
+    }
+    if (studio.activeHtmlContent) {
+      exportResearchToHtml(studio.eduTopic, studio.activeHtmlContent);
+      setExportNotice("تم تحميل ملف HTML المصمم بنجاح");
+      setTimeout(() => setExportNotice(null), 4000);
+    } else {
+      setExportNotice("تنبيه: قم بتوليد المستند أولاً بالذكاء الاصطناعي لتحميل ملف HTML المنسق.");
+      setTimeout(() => setExportNotice(null), 5000);
+    }
+  };
+
   const handlePrintA4 = () => {
     window.print();
   };
@@ -130,8 +147,8 @@ export function SchoolResearchTab({
       (doc) => {
         onDocumentGenerated?.(doc);
         fetchSavedDocuments();
-        setExportNotice("تم توليد وحفظ المستند الأكاديمي الحقيقي بنجاح ⚡");
-        setTimeout(() => setExportNotice(null), 4000);
+        setExportNotice("تم إنشاء وتنسيق البحث بالكامل بنجاح ⚡ (ملف HTML + ملف Word جاهز للطباعة فوراً)");
+        setTimeout(() => setExportNotice(null), 6000);
       },
       () => {}
     );
@@ -144,7 +161,7 @@ export function SchoolResearchTab({
     setTimeout(() => setExportNotice(null), 4000);
   };
 
-  const handleExportSavedDoc = (doc: any) => {
+  const handleExportSavedDoc = (doc: any, format: "word" | "html" = "word") => {
     let outline: string[] = [];
     if (Array.isArray(doc.outline)) outline = doc.outline;
     else if (typeof doc.outline_json === "string") {
@@ -152,16 +169,42 @@ export function SchoolResearchTab({
     }
 
     let sections: Array<{ heading: string; content: string }> = [];
-    if (Array.isArray(doc.sections)) sections = doc.sections;
-    else if (typeof doc.content_json === "string") {
-      try { sections = JSON.parse(doc.content_json); } catch {}
+    let savedHtml: string | undefined = undefined;
+    if (Array.isArray(doc.sections)) {
+      sections = doc.sections;
+    } else if (typeof doc.content_json === "string") {
+      try {
+        const parsed = JSON.parse(doc.content_json);
+        if (Array.isArray(parsed)) {
+          sections = parsed;
+        } else if (parsed && typeof parsed === "object") {
+          if (Array.isArray(parsed.sections)) sections = parsed.sections;
+          if (typeof parsed.htmlContent === "string") savedHtml = parsed.htmlContent;
+        }
+      } catch {}
+    }
+
+    if (doc.html_content) savedHtml = doc.html_content;
+    if (doc.data_snapshot && !savedHtml) {
+      try {
+        const snap = JSON.parse(doc.data_snapshot);
+        if (snap.htmlContent) savedHtml = snap.htmlContent;
+      } catch {}
     }
 
     const isThesis = doc.level === "UNIVERSITY" || (doc.title && doc.title.includes("مذكرة"));
     const subjectName = ALGERIAN_SUBJECTS[doc.subject]?.nameAr || doc.subject || "المادة المقررة";
+    const docTitle = doc.title || (isThesis ? "مذكرة تخرج" : "بحث مدرسي");
+
+    if (format === "html" && savedHtml) {
+      exportResearchToHtml(doc.topic || docTitle, savedHtml);
+      setExportNotice("تم تحميل ملف HTML للوثيقة بنجاح");
+      setTimeout(() => setExportNotice(null), 3000);
+      return;
+    }
 
     exportResearchToWord({
-      title: doc.title || (isThesis ? "مذكرة تخرج" : "بحث مدرسي"),
+      title: docTitle,
       topic: doc.topic || doc.title,
       level: doc.stage || doc.level || "MIDDLE",
       grade: doc.level || doc.grade || "4AM",
@@ -175,6 +218,7 @@ export function SchoolResearchTab({
       teacherName: doc.teacher_name || (isThesis ? "أ.د المشرف المؤطر" : "الأستاذ المشرف"),
       outline: outline.length > 0 ? outline : ["المقدمة", "المبحث الأول", "المبحث الثاني", "الخاتمة"],
       sections: sections.length > 0 ? sections : [{ heading: "المبحث", content: "محتوى موثق" }],
+      rawHtml: savedHtml,
       references: isThesis
         ? [
             "ديوان المطبوعات الجامعية (OPU) - الجزائر.",
@@ -186,7 +230,7 @@ export function SchoolResearchTab({
           ],
     });
 
-    setExportNotice("تم تصدير ملف Word للوثيقة بنجاح");
+    setExportNotice("تم تصدير وتحميل ملف Word (.doc) المنسق رسمياً بنجاح");
     setTimeout(() => setExportNotice(null), 3000);
   };
 
@@ -254,6 +298,16 @@ export function SchoolResearchTab({
 
             <button
               type="button"
+              onClick={handleExportHtml}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm transition-all cursor-pointer active:scale-95"
+              title="تنزيل ملف HTML المصمم للبحث"
+            >
+              <span>🌐</span>
+              <span>ملف HTML</span>
+            </button>
+
+            <button
+              type="button"
               onClick={handlePrintA4}
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 text-xs font-bold shadow-sm transition-all cursor-pointer active:scale-95"
             >
@@ -277,11 +331,41 @@ export function SchoolResearchTab({
           </div>
         </div>
 
-        {/* Temporary Export Notification */}
+        {/* Temporary Export Notification with Immediate One-Click Download */}
         {exportNotice && (
-          <div className="mt-3 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-2 animate-fade-in">
-            <CheckCircleIcon size={16} />
-            <span>{exportNotice}</span>
+          <div className="mt-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-200 text-xs font-bold flex flex-wrap items-center justify-between gap-3 animate-fade-in shadow-xs">
+            <div className="flex items-center gap-2">
+              <CheckCircleIcon size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span>{exportNotice}</span>
+            </div>
+            {studio.activeHtmlContent && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleExportWord}
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <span>📥</span>
+                  <span>تحميل ملف Word (.doc) فوراً</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportHtml}
+                  className="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+                >
+                  <span>🌐</span>
+                  <span>ملف HTML</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePrintA4}
+                  className="px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+                >
+                  <span>🖨️</span>
+                  <span>طباعة A4</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -451,11 +535,21 @@ export function SchoolResearchTab({
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleExportSavedDoc(doc)}
-                        className="p-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/80 dark:hover:bg-blue-900 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                        title="تصدير Word (.doc)"
+                        onClick={() => handleExportSavedDoc(doc, "word")}
+                        className="py-1 px-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/80 dark:hover:bg-blue-900 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                        title="تحميل ملف Word (.doc)"
                       >
-                        📄
+                        <span>📄</span>
+                        <span className="hidden sm:inline">Word</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleExportSavedDoc(doc, "html")}
+                        className="py-1 px-2 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/80 dark:hover:bg-teal-900 border border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                        title="تنزيل ملف HTML المصمم"
+                      >
+                        <span>🌐</span>
+                        <span className="hidden sm:inline">HTML</span>
                       </button>
                     </div>
                   </div>
@@ -555,6 +649,12 @@ export function SchoolResearchTab({
               planProviderUsed={studio.planProviderUsed}
               planSuccessNotice={studio.planSuccessNotice}
               onDismissPlanNotice={() => studio.setPlanSuccessNotice(null)}
+              planErrorNotice={studio.planErrorNotice}
+              onDismissPlanError={() => studio.setPlanErrorNotice(null)}
+              genErrorNotice={studio.genErrorNotice}
+              onDismissGenError={() => studio.setGenErrorNotice(null)}
+              onSubmitFullDocument={() => handleGenerateFullDocument()}
+              isProcessing={studio.isProcessing}
               points={points}
               applyPresetTopic={studio.applyPresetTopic}
               getDynamicPricing={studio.getDynamicPricing}
@@ -629,6 +729,7 @@ export function SchoolResearchTab({
                 eduTeacherRequirements={studio.eduTeacherRequirements}
                 eduUnitTitle={studio.eduUnitTitle}
                 onExportWord={handleExportWord}
+                onExportHtml={handleExportHtml}
                 onReportError={() =>
                   studio.setErrorReportModal({
                     isOpen: true,
@@ -637,6 +738,7 @@ export function SchoolResearchTab({
                 }
                 conformanceScore={studio.conformanceReport?.score}
                 onViewConformance={() => studio.setIsConformanceModalOpen(true)}
+                onGenerateFullDocument={() => handleGenerateFullDocument()}
               />
             </div>
           </div>

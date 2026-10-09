@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { markAllAsRead } from "@/server/notifications/dispatcher";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const shopId = body?.shopId || "shop_1";
+    const shopId = body?.shopId || DEFAULT_SHOP_ID;
 
     const result = markAllAsRead(shopId);
     return NextResponse.json({ success: true, ...result });

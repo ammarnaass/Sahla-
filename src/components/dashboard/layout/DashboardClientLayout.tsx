@@ -137,7 +137,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
 export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
   return (
-    <NotificationProvider shopId="shop_1">
+    <NotificationProvider shopId="shop_1791222058320">
       <DashboardTabProvider>
         <DashboardLayoutContent>{children}</DashboardLayoutContent>
       </DashboardTabProvider>

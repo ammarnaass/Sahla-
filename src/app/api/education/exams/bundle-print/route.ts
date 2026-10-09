@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { trackEvent } from "@/lib/analytics";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { examIds = [], shopId = "shop_1", watermark = true } = body;
+    const { examIds = [], shopId = DEFAULT_SHOP_ID, watermark = true } = body;
 
     if (!Array.isArray(examIds) || examIds.length === 0) {
       return NextResponse.json({ error: "يرجى اختيار موضوع واحد على الأقل للطباعة المجمعة" }, { status: 400 });

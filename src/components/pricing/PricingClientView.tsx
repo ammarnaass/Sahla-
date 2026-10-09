@@ -43,7 +43,7 @@ export function PricingClientView() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          shopId: "shop_1",
+          shopId: "shop_1791222058320",
           planId: plan.id,
           paymentMethod: "CIB_EDAHABIA",
         }),

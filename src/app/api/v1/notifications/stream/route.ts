@@ -4,12 +4,13 @@ import {
   listNotifications,
   getUnreadCount,
 } from "@/server/notifications/dispatcher";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const shopId = searchParams.get("shopId") || "shop_1";
+  const shopId = searchParams.get("shopId") || DEFAULT_SHOP_ID;
 
   const encoder = new TextEncoder();
 

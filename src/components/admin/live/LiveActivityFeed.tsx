@@ -25,73 +25,45 @@ interface LiveActivityItem {
   badge: string;
 }
 
-const INITIAL_ACTIVITIES: LiveActivityItem[] = [
-  {
-    id: "act-1",
-    type: "document",
-    title: "استخراج شهادة سوابق عدلية إلكترونية",
-    shopName: "كشك النجاح والخدمات الرقمية",
-    wilayaName: "سطيف",
-    wilayaCode: 19,
-    timeAgo: "منذ دقيقتين",
-    badge: "15 نقطة",
-  },
-  {
-    id: "act-2",
-    type: "topup",
-    title: "شحن رصيد كاونتر المحل عبر بطاقة وطنية",
-    shopName: "مكتبة المعرفة للطباعة",
-    wilayaName: "الجزائر",
-    wilayaCode: 16,
-    timeAgo: "منذ 4 دقائق",
-    badge: "+500 نقطة",
-  },
-  {
-    id: "act-3",
-    type: "subscription",
-    title: "ترقية اشتراك المحل إلى باقة Kiosk Pro السنوية",
-    shopName: "فضاء الباهية لخدمات الإنترنت",
-    wilayaName: "وهران",
-    wilayaCode: 31,
-    timeAgo: "منذ 8 دقائق",
-    badge: "2,000 دج/شهر",
-  },
-  {
-    id: "act-4",
-    type: "document",
-    title: "توليد تصريح جبائي G50 وطباعة الإشعار",
-    shopName: "مكتب خدمات المستقبل السريع",
-    wilayaName: "قسنطينة",
-    wilayaCode: 25,
-    timeAgo: "منذ 11 دقيقة",
-    badge: "20 نقطة",
-  },
-  {
-    id: "act-5",
-    type: "kiosk",
-    title: "انضمام كشك جديد إلى الشبكة الوطنية السحابية",
-    shopName: "مكتبة الحضنة الحديثة",
-    wilayaName: "المسيلة",
-    wilayaCode: 28,
-    timeAgo: "منذ 16 دقيقة",
-    badge: "كشك جديد 🇩🇿",
-  },
-  {
-    id: "act-6",
-    type: "document",
-    title: "تصميم وطباعة سيرة ذاتية احترافية ATS باللغتين",
-    shopName: "كيوسك الأوراس للإعلام الآلي",
-    wilayaName: "باتنة",
-    wilayaCode: 5,
-    timeAgo: "منذ 21 دقيقة",
-    badge: "15 نقطة",
-  },
-];
-
 export function LiveActivityFeed() {
   const [filterType, setFilterType] = useState<string>("ALL");
+  const [activities, setActivities] = useState<LiveActivityItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const filtered = INITIAL_ACTIVITIES.filter((a) => {
+  React.useEffect(() => {
+    async function loadRealActivities() {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/wallet/ledger?shopId=shop_1791222058320");
+        const json = await res.json();
+        if (json.success && Array.isArray(json.ledger) && json.ledger.length > 0) {
+          const items: LiveActivityItem[] = json.ledger.slice(0, 10).map((l: any, idx: number) => {
+            const isTopup = Number(l.pointsChange || l.points_change || 0) > 0;
+            return {
+              id: l.id || `act_${idx}`,
+              type: isTopup ? "topup" : "document",
+              title: l.description || "معاملة منصة سهلة",
+              shopName: "مكتبة دانتي الرقمية",
+              wilayaName: "الجزائر",
+              wilayaCode: 16,
+              timeAgo: "عملية مسجلة",
+              badge: `${l.pointsChange || l.points_change || 0} نقطة`,
+            };
+          });
+          setActivities(items);
+        } else {
+          setActivities([]);
+        }
+      } catch {
+        setActivities([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadRealActivities();
+  }, []);
+
+  const filtered = activities.filter((a) => {
     if (filterType === "ALL") return true;
     return a.type === filterType;
   });
@@ -163,11 +135,16 @@ export function LiveActivityFeed() {
 
         {/* Activity Items List */}
         <div className="space-y-2.5 pt-2">
-          {filtered.map((item) => (
-            <div
-              key={item.id}
-              className="p-3.5 rounded-xl bg-muted/20 hover:bg-muted/40 border border-border/70 flex items-center justify-between gap-3 transition-colors"
-            >
+          {filtered.length === 0 ? (
+            <div className="py-8 text-center text-muted-foreground text-xs font-bold">
+              لا توجد عمليات مسجلة حديثاً في هذا التصنيف.
+            </div>
+          ) : (
+            filtered.map((item) => (
+              <div
+                key={item.id}
+                className="p-3.5 rounded-xl bg-muted/20 hover:bg-muted/40 border border-border/70 flex items-center justify-between gap-3 transition-colors"
+              >
               <div className="flex items-center gap-3 min-w-0">
                 <div
                   className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
@@ -210,7 +187,8 @@ export function LiveActivityFeed() {
                 </span>
               </div>
             </div>
-          ))}
+          ))
+        )}
         </div>
       </div>
 

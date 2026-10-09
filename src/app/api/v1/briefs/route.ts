@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { Brief } from "@/server/education/guidance/types";
 import { SpecCompiler } from "@/server/education/guidance/specCompiler";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const {
-      shop_id = "shop_1",
+      shop_id = DEFAULT_SHOP_ID,
       kind = "research",
       context,
       topic,

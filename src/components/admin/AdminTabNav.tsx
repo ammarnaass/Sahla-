@@ -14,7 +14,9 @@ import {
   Printer,
   Brain,
   BookOpenCheck,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import type { UnifiedAdminTab } from "./layout/AdminUnifiedSidebar";
 
 interface AdminTabNavProps {
@@ -32,6 +34,8 @@ export function AdminTabNav({
   invoicesCount = 0,
   docsCount = 0,
 }: AdminTabNavProps) {
+  const { logout } = useAuth();
+
   const tabs = [
     {
       id: "analytics" as UnifiedAdminTab,
@@ -41,9 +45,9 @@ export function AdminTabNav({
     },
     {
       id: "ai-engine" as UnifiedAdminTab,
-      label: "محرك الذكاء الاصطناعي",
+      label: "مزودو الذكاء الاصطناعي (Gateway)",
       icon: Brain,
-      badge: "جديد",
+      badge: "v2.0 ⚡",
     },
     {
       id: "shops" as UnifiedAdminTab,
@@ -130,6 +134,17 @@ export function AdminTabNav({
             </button>
           );
         })}
+
+        {/* Mobile Quick Logout */}
+        <button
+          type="button"
+          onClick={() => logout()}
+          title="تسجيل الخروج من لوحة التحكم"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 transition-all shrink-0 cursor-pointer"
+        >
+          <LogOut size={14} className="text-rose-500" />
+          <span>خروج</span>
+        </button>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { WalletGuard } from "@/server/education/walletGuard";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export async function POST(
   req: NextRequest,
@@ -9,7 +10,7 @@ export async function POST(
   try {
     const { id } = await params;
     const body = await req.json().catch(() => ({}));
-    const { shop_id = "shop_1" } = body;
+    const { shop_id = DEFAULT_SHOP_ID } = body;
 
     const exam: any = db.prepare("SELECT * FROM exams WHERE id = ?").get(id);
     if (!exam) {

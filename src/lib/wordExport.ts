@@ -5,10 +5,10 @@
 
 export interface ExportWordOptions {
   title: string;
-  topic: string;
-  level: string;
-  grade: string;
-  subject: string;
+  topic?: string;
+  level?: string;
+  grade?: string;
+  subject?: string;
   docKind?: "RESEARCH" | "THESIS" | "SUMMARY" | "PEDAGOGIC";
   university?: string;
   faculty?: string;
@@ -16,19 +16,20 @@ export interface ExportWordOptions {
   studentName?: string;
   schoolName?: string;
   teacherName?: string;
-  outline: string[];
-  sections: Array<{ heading: string; content: string }>;
-  references: string[];
+  outline?: string[];
+  sections?: Array<{ heading: string; content: string }>;
+  references?: string[];
   reviewQuestions?: string[];
   watermark?: string;
+  rawHtml?: string;
 }
 
 export function exportResearchToWord(options: ExportWordOptions) {
   const {
     title,
-    topic,
-    grade,
-    subject,
+    topic = "",
+    grade = "",
+    subject = "",
     docKind = "RESEARCH",
     university = "",
     faculty = "",
@@ -36,16 +37,20 @@ export function exportResearchToWord(options: ExportWordOptions) {
     studentName = "التلميذ",
     schoolName = "المؤسسة التعليمية",
     teacherName = "الأستاذ المشرف",
-    outline,
-    sections,
-    references,
+    outline = [],
+    sections = [],
+    references = [],
     reviewQuestions = [],
     watermark,
+    rawHtml,
   } = options;
 
-  const isThesis = docKind === "THESIS";
+  let htmlContent = rawHtml;
 
-  const htmlContent = `
+  if (!htmlContent) {
+    const isThesis = docKind === "THESIS";
+
+    htmlContent = `
     <!DOCTYPE html>
     <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
     <head>
@@ -253,6 +258,7 @@ export function exportResearchToWord(options: ExportWordOptions) {
     </body>
     </html>
   `;
+  }
 
   // Create downloadable Blob with Word MIME type
   const blob = new Blob(["\ufeff", htmlContent], {
@@ -267,3 +273,18 @@ export function exportResearchToWord(options: ExportWordOptions) {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+export function exportResearchToHtml(title: string, htmlContent: string) {
+  const blob = new Blob([htmlContent], {
+    type: "text/html;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${title.replace(/[/\\?%*:|"<>]/g, "-")}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+

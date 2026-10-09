@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export async function GET(
   req: NextRequest,
@@ -8,7 +9,7 @@ export async function GET(
   try {
     const { id } = await params;
     const { searchParams } = new URL(req.url);
-    const shopId = searchParams.get("shop_id") || "shop_1";
+    const shopId = searchParams.get("shop_id") || DEFAULT_SHOP_ID;
 
     const exam: any = db.prepare("SELECT * FROM exams WHERE id = ?").get(id);
     if (!exam) {

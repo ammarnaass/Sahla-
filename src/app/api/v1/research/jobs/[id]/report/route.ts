@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export async function POST(
   req: NextRequest,
@@ -35,7 +36,7 @@ export async function POST(
       VALUES (?, ?, ?, NULL, ?, ?, 'pending', datetime('now'))
     `).run(
       reportId,
-      job.shop_id || "shop_1",
+      job.shop_id || DEFAULT_SHOP_ID,
       jobId,
       issue_type,
       fullDescription

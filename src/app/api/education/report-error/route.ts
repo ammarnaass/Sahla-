@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { trackEvent } from "@/lib/analytics";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const {
-      shopId = "shop_1",
+      shopId = DEFAULT_SHOP_ID,
       docId = null,
       examId = null,
       issueType = "SCIENTIFIC_ERROR",

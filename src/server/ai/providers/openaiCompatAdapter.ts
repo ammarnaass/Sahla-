@@ -280,9 +280,8 @@ export class OpenAICompatAdapter implements LLMProvider {
 
     const headers = this.getRequestHeaders(apiKey, options?.customHeaders);
     const timeoutMs =
-      (options?.advancedConfig?.timeout_seconds ? options.advancedConfig.timeout_seconds * 1000 : undefined) ||
       req.timeoutMs ||
-      60000;
+      (options?.advancedConfig?.timeout_seconds ? options.advancedConfig.timeout_seconds * 1000 : 90000);
 
     const res = await fetch(endpoint, {
       method: "POST",

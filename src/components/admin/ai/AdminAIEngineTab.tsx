@@ -35,8 +35,12 @@ interface SubTabConfig {
   badgeVariant?: "emerald" | "amber" | "teal" | "blue";
 }
 
-export function AdminAIEngineTab() {
-  const [activeSubTab, setActiveSubTab] = useState<AIEngineSubTab>("chat");
+interface AdminAIEngineTabProps {
+  initialSubTab?: AIEngineSubTab;
+}
+
+export function AdminAIEngineTab({ initialSubTab = "providers" }: AdminAIEngineTabProps = {}) {
+  const [activeSubTab, setActiveSubTab] = useState<AIEngineSubTab>(initialSubTab);
   const [forecasts, setForecasts] = useState<AIForecast[]>([]);
   const [loadingForecasts, setLoadingForecasts] = useState(true);
   const [chatQuery, setChatQuery] = useState<string | undefined>(undefined);
@@ -72,18 +76,25 @@ export function AdminAIEngineTab() {
 
   const subTabs: SubTabConfig[] = [
     {
+      id: "providers",
+      label: "إدارة مزودي الذكاء الاصطناعي (AI Gateway)",
+      icon: Layers,
+      badge: "v2.0 ⚡",
+      badgeVariant: "emerald",
+    },
+    {
       id: "chat",
       label: "المساعد الإداري الذكي",
       icon: MessageSquareText,
       badge: "مباشر ⚡",
-      badgeVariant: "emerald",
+      badgeVariant: "teal",
     },
     {
       id: "insights",
       label: "الرؤى والتحليلات الفورية",
       icon: Sparkles,
       badge: "تحديث آلي",
-      badgeVariant: "teal",
+      badgeVariant: "blue",
     },
     {
       id: "forecasts",
@@ -91,13 +102,6 @@ export function AdminAIEngineTab() {
       icon: TrendingUp,
       badge: "شهري",
       badgeVariant: "amber",
-    },
-    {
-      id: "providers",
-      label: "بوابة مزودي الخدمة (API Gateway)",
-      icon: Layers,
-      badge: "OpenAI · Gemini · HF",
-      badgeVariant: "blue",
     },
   ];
 

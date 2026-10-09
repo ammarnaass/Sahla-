@@ -1,53 +1,5 @@
 [
   {
-    "id": "shop_1",
-    "name": "مكتبة النجاح الرقمية",
-    "owner": "أحمد بن علي",
-    "phone": "0555123456",
-    "wilaya": "16 - الجزائر العاصمة",
-    "wilayaCode": 16,
-    "commune": "الجزائر الوسطى",
-    "activity": "KIOSK",
-    "plan": "PRO_KIOSK",
-    "points": 240,
-    "status": "ACTIVE",
-    "staff": [],
-    "createdAt": "2026-10-05 14:57:08",
-    "updatedAt": "2026-10-05 14:57:08"
-  },
-  {
-    "id": "shop_2",
-    "name": "سيبار الأمل وهران",
-    "owner": "عبد القادر بلحاج",
-    "phone": "0770112233",
-    "wilaya": "31 - وهران",
-    "wilayaCode": 31,
-    "commune": "الجزائر الوسطى",
-    "activity": "CYBER",
-    "plan": "STARTER",
-    "points": 85,
-    "status": "ACTIVE",
-    "staff": [],
-    "createdAt": "2026-10-05 14:57:08",
-    "updatedAt": "2026-10-05 14:57:08"
-  },
-  {
-    "id": "shop_3",
-    "name": "فضاء الخدمات الرقمية سطيف",
-    "owner": "مراد قرفي",
-    "phone": "0660445566",
-    "wilaya": "19 - سطيف",
-    "wilayaCode": 19,
-    "commune": "الجزائر الوسطى",
-    "activity": "PUBLIC_WRITER",
-    "plan": "PRO_KIOSK",
-    "points": 210,
-    "status": "ACTIVE",
-    "staff": [],
-    "createdAt": "2026-10-05 14:57:08",
-    "updatedAt": "2026-10-05 14:57:08"
-  },
-  {
     "id": "shop_1791222058320",
     "name": "مكتبة دانتي الرقمية",
     "owner": "عمار",
@@ -57,10 +9,10 @@
     "commune": "الجزائر الوسطى",
     "activity": "KIOSK",
     "plan": "STARTER",
-    "points": 50,
+    "points": 860,
     "status": "ACTIVE",
     "staff": [],
     "createdAt": "2026-10-05T17:40:58.320Z",
-    "updatedAt": "2026-10-08 22:10:05"
+    "updatedAt": "2026-10-09 08:31:41"
   }
 ]

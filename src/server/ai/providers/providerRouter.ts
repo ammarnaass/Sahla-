@@ -131,7 +131,7 @@ export class AIProviderRouter {
             kind: "gemini",
             name: "Google Gemini",
             base_url: "https://generativelanguage.googleapis.com",
-            model: "gemini-2.5-flash",
+            model: "gemini-flash-lite-latest",
             envKey: process.env.GEMINI_API_KEY,
             is_primary: 1,
             fallback_order: null,
@@ -262,13 +262,13 @@ export class AIProviderRouter {
           );
         }
 
-        // Default routing rules from Section 6.4
+        // Default routing rules per specialized skill engine
         const defaultRules = [
-          { skill: "section-writer", provider_id: "pv_huggingface", min: { json_mode: true } },
+          { skill: "section-writer", provider_id: "pv_openai", min: { json_mode: true } },
           { skill: "quality-reviewer", provider_id: "pv_gemini", min: { json_mode: true } },
           { skill: "math-science-solver", provider_id: "pv_anthropic", min: { tool_use: true } },
           { skill: "solution-drafter", provider_id: "pv_anthropic", min: { json_mode: true } },
-          { skill: "web-researcher", provider_id: "pv_gemini", min: { web_search: true } },
+          { skill: "web-researcher", provider_id: "pv_nvidia_nim", min: {} },
         ];
 
         for (const r of defaultRules) {
@@ -768,6 +768,7 @@ export class AIProviderRouter {
         UPDATE ai_providers
         SET
           status = ?,
+          model = ?,
           last_ping_at = datetime('now'),
           last_ping_ms = ?,
           last_error = ?,
@@ -776,6 +777,7 @@ export class AIProviderRouter {
         WHERE id = ?
       `).run(
         result.status,
+        result.status === "ok" && result.model ? result.model : row.model,
         result.latency_ms,
         result.status === "error" ? result.message_ar : null,
         JSON.stringify(mergedCapabilities),
@@ -920,9 +922,11 @@ export class AIProviderRouter {
       }
     } else if (row.kind === "gemini") {
       models = [
-        { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", description_ar: "فائق السرعة واقتصادي (الافتراضي)", badge: "افتراضي" },
-        { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro", description_ar: "استدلال منطقي عالي الدقة", badge: "متقدم" },
-        { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", description_ar: "معالجة سريعة ومتوازنة" },
+        { id: "gemini-flash-lite-latest", name: "Gemini Flash Lite", description_ar: "فائق السرعة واقتصادي مع استجابة فورية (افتراضي)", badge: "افتراضي وموصى به" },
+        { id: "gemini-flash-latest", name: "Gemini Flash Latest", description_ar: "أحدث إصدار عالي السرعة مع ميزات التفكير المتقدمة", badge: "موصى به" },
+        { id: "gemini-3.5-flash-lite", name: "Gemini 3.5 Flash Lite", description_ar: "خفيف وسريع جداً للمهام الإدارية والأكاديمية" },
+        { id: "gemini-3.8-flash", name: "Gemini 3.8 Flash", description_ar: "الجيل المحدث مع استدلال منطقي وسرعة معالجة عالية" },
+        { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro Preview", description_ar: "أعلى قدرة على الاستدلال المنطقي وحل المسائل (يتطلب رصيد مدفوع)", badge: "استدلال فائق" },
       ];
     } else if (row.kind === "anthropic") {
       models = [
@@ -1134,8 +1138,8 @@ export class AIProviderRouter {
     // Add Fallbacks in order
     const fallbacks = db.prepare(`
       SELECT id FROM ai_providers
-      WHERE is_primary = 0 AND enabled = 1 AND fallback_order IS NOT NULL
-      ORDER BY fallback_order ASC
+      WHERE is_primary = 0 AND enabled = 1
+      ORDER BY CASE WHEN fallback_order IS NOT NULL THEN fallback_order ELSE 999 END ASC, created_at ASC
     `).all() as any[];
 
     for (const fb of fallbacks) {
@@ -1209,7 +1213,7 @@ export class AIProviderRouter {
 
         return result;
       } catch (err: any) {
-        console.warn(`[AIProviderRouter] Provider ${row.id} (${row.name}) failed, falling back:`, err.message);
+        console.error(`[AIProviderRouter] Provider ${row.id} (${row.name}) failed, falling back:`, err);
         lastError = err;
 
         // Record failed attempt

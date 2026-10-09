@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { EducationOrchestrator } from "@/server/education/orchestrator";
 import { ResearchPlan } from "@/server/education/types";
 import { calculateJobPoints } from "@/server/education/config";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,7 +12,7 @@ export async function POST(req: NextRequest) {
     const {
       plan_id,
       cover = { template: "official", student: "تلميذ المؤسسة", school: "المؤسسة التعليمية" },
-      shop_id = "shop_1",
+      shop_id = DEFAULT_SHOP_ID,
     } = body;
 
     if (!plan_id) {

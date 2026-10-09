@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { runPracticeExamGenerator } from "@/server/education/skills/practiceExamGenerator";
 import { WalletGuard } from "@/server/education/walletGuard";
 import { trackEvent } from "@/lib/analytics";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
       school_name = "المؤسسة التعليمية النموذجية",
       exam_type = "exam",
       unit_ids = [],
-      shop_id = "shop_1",
+      shop_id = DEFAULT_SHOP_ID,
     } = body;
 
     const pointsCost = 5; // تكلفة توليد موضوع تدريبي كامل مع الحل النموذجي وسلم التنقيط

@@ -60,7 +60,7 @@ export function extractLast4(rawKey: string): string {
  * Mask an API key for safe UI display (e.g. ••••••••a1b2 per PRD Section 3.1 & 7)
  */
 export function maskKey(rawKeyOrLast4: string): string {
-  if (!rawKeyOrLast4) return "••••••••";
+  if (!rawKeyOrLast4 || !rawKeyOrLast4.trim()) return "";
   const last4 = rawKeyOrLast4.length <= 4 ? rawKeyOrLast4 : rawKeyOrLast4.slice(-4);
   return `••••••••${last4}`;
 }

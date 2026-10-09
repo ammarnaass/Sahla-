@@ -293,30 +293,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: false, error: "رمز التحقق يجب أن يتكون من 6 أرقام" };
     }
 
-    const demoPhone = pendingOTP?.phone || "0555123456";
+    const demoPhone = pendingOTP?.phone || "0555 00 00 00";
     const demoShop: ShopProfile = {
-      id: "shop_1",
-      name: "مكتبة النجاح الرقمية",
-      ownerName: "أحمد بن علي",
+      id: "shop_1791222058320",
+      name: "مكتبة دانتي الرقمية",
+      ownerName: "عمار",
       phone: demoPhone,
-      wilaya: "16 - الجزائر العاصمة",
+      wilaya: "16 - الجزائر",
       wilayaCode: 16,
       activity: "KIOSK",
       activityType: "KIOSK",
-      points: 250,
+      points: 350,
       status: "ACTIVE",
     };
 
     const newSession: UserSession = {
       token: `sahla_session_${Date.now()}`,
       user: {
-        id: "user_shop_admin",
-        name: "أحمد بن علي",
-        email: "najah.kiosk@gmail.com",
+        id: "user_1791222058365",
+        name: "عمار",
+        email: "admin@dante.com",
         phone: demoPhone,
         formattedPhone: demoPhone,
         role: "SHOP_ADMIN",
-        shopId: "shop_1",
+        shopId: "shop_1791222058320",
       },
       shop: demoShop,
       createdAt: Date.now(),

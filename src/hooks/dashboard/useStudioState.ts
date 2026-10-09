@@ -83,9 +83,12 @@ export function useStudioState() {
   const [planSummary, setPlanSummary] = useState<string>("");
   const [planProviderUsed, setPlanProviderUsed] = useState<string>("");
   const [planSuccessNotice, setPlanSuccessNotice] = useState<string | null>(null);
+  const [planErrorNotice, setPlanErrorNotice] = useState<string | null>(null);
+  const [genErrorNotice, setGenErrorNotice] = useState<string | null>(null);
   const [eduGeneratedSections, setEduGeneratedSections] = useState<
     Array<{ id: string; heading: string; content: string }>
   >([]);
+  const [activeHtmlContent, setActiveHtmlContent] = useState<string | null>(null);
   const [errorReportModal, setErrorReportModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -143,8 +146,10 @@ export function useStudioState() {
 
   // Step 1: توليد خطة البحث أولاً ومراجعتها مجاناً
   const generatePlanAsync = async () => {
+    setPlanErrorNotice(null);
+    setPlanSuccessNotice(null);
     if (!eduTopic.trim()) {
-      alert("يرجى كتابة عنوان وموضوع البحث أو المذكرة أولاً لتوليد الخطة المناسبة.");
+      setPlanErrorNotice("يرجى كتابة عنوان وموضوع البحث أو المذكرة أولاً لتوليد الخطة المناسبة.");
       return;
     }
 
@@ -161,11 +166,14 @@ export function useStudioState() {
         body: JSON.stringify({
           stage: eduLevel.toLowerCase(),
           level: eduGradeId,
+          grade: eduGradeId,
           subject: eduSubjectId,
           topic: effectiveTopic,
           pages: eduPageCount,
           style: eduStyleLevel.toLowerCase(),
           doc_kind: eduDocKind,
+          language,
+          cover_template: eduCoverTemplate,
           options: {
             doc_kind: eduDocKind,
             teacher_requirements: eduTeacherRequirements,
@@ -175,6 +183,8 @@ export function useStudioState() {
             university: eduUniversity,
             faculty: eduFaculty,
             specialty: eduSpecialty,
+            language,
+            cover_template: eduCoverTemplate,
           },
         }),
       });
@@ -186,14 +196,27 @@ export function useStudioState() {
             typeof o === "string" ? o : o.title || "محور بحث"
           );
           setEduCustomPlan(titles);
+          if (data.corrected_topic && setEduTopic && data.corrected_topic !== effectiveTopic) {
+            setEduTopic(data.corrected_topic);
+          }
           setPlanSummary(
             data.summary_ar ||
               (eduDocKind === "THESIS"
                 ? "تمت صياغة خطة المذكرة الأكاديمية وفق معايير التعليم العالي والبحث العلمي (الجزائر)."
-                : "تمت صياغة الخطة بواسطة محرك الذكاء الاصطناعي وفق معايير المنهاج الجزائري الرسمي.")
+                : `تمت صياغة الخطة بواسطة محرك الذكاء الاصطناعي لتناسب ${eduPageCount} صفحات وفق المنهاج الجزائري.`)
           );
-          setPlanProviderUsed(data.provider || "Gemini / AI Router");
-          setPlanSuccessNotice("تم إنشاء وتنسيق خطة العمل بالذكاء الاصطناعي بنجاح ⚡");
+          const provDisplay =
+            data.provider === "gemini" || data.provider?.includes("gemini")
+              ? "Google Gemini ⚡"
+              : data.provider === "curriculum-rules"
+              ? "المنهاج الجزائري الرسمي"
+              : data.provider || "الذكاء الاصطناعي";
+          setPlanProviderUsed(provDisplay);
+          const noticeMsg =
+            data.corrected_topic && data.corrected_topic !== effectiveTopic
+              ? `تم إنشاء وتنسيق خطة العمل بالذكاء الاصطناعي بنجاح ⚡ (تم تصحيح وتدقيق العنوان: "${data.corrected_topic}")`
+              : `تم إنشاء وتنسيق خطة العمل بالذكاء الاصطناعي بنجاح ⚡ (${eduPageCount} صفحات)`;
+          setPlanSuccessNotice(noticeMsg);
           setIsPlanReviewed(true);
           return;
         }
@@ -211,7 +234,13 @@ export function useStudioState() {
 
       let fallbackOutline: string[] = [];
 
-      if (eduDocKind === "THESIS" || stage === "university") {
+      if (eduPageCount === 1) {
+        fallbackOutline = [
+          `مقدمة وتمهيد موجز حول ${effectiveTopic}`,
+          `المحور الشامل: العرض والتحليل المركز للموضوع`,
+          `خاتمة وخلاصة المستند والمصادر`,
+        ];
+      } else if (eduDocKind === "THESIS" || stage === "university") {
         fallbackOutline = [
           `المقدمة العامة: الإشكالية المركزية، الفرضيات وأهمية دراسة "${effectiveTopic}"`,
           `الفصل الأول: الإطار المفاهيمي والنظري والأدبيات السابقة`,
@@ -281,10 +310,10 @@ export function useStudioState() {
       setPlanSummary(
         eduDocKind === "THESIS"
           ? "تمت صياغة هيكل المذكرة وفق المعايير المنهجية المعتمدة للتعليم العالي والبحث العلمي."
-          : "تمت صياغة الخطة وفق معايير المنهاج الوطني الجزائري الرسمي (الجيل الثاني)."
+          : `تمت صياغة الخطة وفق معايير المنهاج الوطني الجزائري الرسمي (الجيل الثاني) لـ ${eduPageCount} صفحات.`
       );
       setPlanProviderUsed("المعايير المنهجية الجزائرية");
-      setPlanSuccessNotice("تم توليد الخطة المعتمدة بنجاح!");
+      setPlanSuccessNotice(`تم توليد الخطة المعتمدة بنجاح لـ ${eduPageCount} صفحات!`);
       setIsPlanReviewed(true);
     } finally {
       setIsGeneratingPlan(false);
@@ -371,14 +400,35 @@ export function useStudioState() {
       setIsPlanReviewed(true);
     }
 
-    // استرجاع المحتوى الحقيقي للأقسام
+    // استرجاع المحتوى الحقيقي للأقسام وتصميم الـ HTML
     let sections: Array<{ id: string; heading: string; content: string }> = [];
-    if (Array.isArray(doc.sections)) sections = doc.sections;
-    else if (typeof doc.content_json === "string") {
-      try { sections = JSON.parse(doc.content_json); } catch {}
+    let savedHtml: string | null = null;
+    if (Array.isArray(doc.sections)) {
+      sections = doc.sections;
+    } else if (typeof doc.content_json === "string") {
+      try {
+        const parsed = JSON.parse(doc.content_json);
+        if (Array.isArray(parsed)) {
+          sections = parsed;
+        } else if (parsed && typeof parsed === "object") {
+          if (Array.isArray(parsed.sections)) sections = parsed.sections;
+          if (typeof parsed.htmlContent === "string") savedHtml = parsed.htmlContent;
+        }
+      } catch {}
     }
+    if (doc.html_content) savedHtml = doc.html_content;
+    if (doc.data_snapshot && !savedHtml) {
+      try {
+        const snap = JSON.parse(doc.data_snapshot);
+        if (snap.htmlContent) savedHtml = snap.htmlContent;
+      } catch {}
+    }
+
     if (sections.length > 0) {
       setEduGeneratedSections(sections);
+    }
+    if (savedHtml) {
+      setActiveHtmlContent(savedHtml);
     }
 
     setPlanSuccessNotice("تم استرجاع محتوى الوثيقة المحفوظة في المعاينة بنجاح ⚡");
@@ -404,8 +454,9 @@ export function useStudioState() {
     onSuccess: (doc: GeneratedDocPayload) => void,
     onClose: () => void
   ) => {
+    setGenErrorNotice(null);
     if (!eduTopic.trim()) {
-      alert("يرجى كتابة عنوان وموضوع البحث أو المذكرة أولاً.");
+      setGenErrorNotice("يرجى كتابة عنوان وموضوع البحث أو المذكرة أولاً قبل بدء التوليد.");
       return;
     }
 
@@ -414,7 +465,7 @@ export function useStudioState() {
     const isInsufficient = points < cost && !service.isFree;
 
     if (isInsufficient) {
-      alert("رصيد نقاطك غير كافٍ لتوليد هذا البحث. يُرجى شحن الرصيد أولاً.");
+      setGenErrorNotice(`رصيد نقاطك (${points} ن) غير كافٍ لتوليد هذا البحث (${cost} ن). يُرجى شحن الرصيد أولاً.`);
       return;
     }
 
@@ -425,7 +476,7 @@ export function useStudioState() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          shopId: "shop_1",
+          shopId: "shop_1791222058320",
           docKind: eduDocKind,
           level: eduLevel,
           grade: eduGradeId,
@@ -458,12 +509,15 @@ export function useStudioState() {
 
       if (!res.ok) {
         setIsProcessing(false);
-        alert(data.error || "تعذر توليد البحث. يرجى التحقق من الرصيد والبيانات المدخلة.");
+        setGenErrorNotice(data.error || "تعذر توليد البحث. يرجى التحقق من الرصيد والبيانات المدخلة.");
         return;
       }
 
       if (Array.isArray(data.sections) && data.sections.length > 0) {
         setEduGeneratedSections(data.sections);
+      }
+      if (data.html_content) {
+        setActiveHtmlContent(data.html_content);
       }
       setActiveDocId(data.docId || null);
 
@@ -508,7 +562,7 @@ export function useStudioState() {
     } catch (err: any) {
       setIsProcessing(false);
       console.error("Document generation error:", err);
-      alert(`حدث خطأ أثناء الاتصال بالخادم: ${err.message || "فشل الاتصال"}`);
+      setGenErrorNotice(`حدث خطأ أثناء الاتصال بالخادم: ${err.message || "فشل الاتصال"}`);
     }
   };
 
@@ -522,6 +576,7 @@ export function useStudioState() {
     setEduTeacherRequirements("");
     setEduCustomPlan([]);
     setEduGeneratedSections([]);
+    setActiveHtmlContent(null);
     setActiveDocId(null);
   };
 
@@ -612,8 +667,14 @@ export function useStudioState() {
     setPlanProviderUsed,
     planSuccessNotice,
     setPlanSuccessNotice,
+    planErrorNotice,
+    setPlanErrorNotice,
+    genErrorNotice,
+    setGenErrorNotice,
     eduGeneratedSections,
     setEduGeneratedSections,
+    activeHtmlContent,
+    setActiveHtmlContent,
     errorReportModal,
     setErrorReportModal,
     applyPresetTopic,

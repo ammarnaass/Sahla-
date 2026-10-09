@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GuidanceOrchestrator } from "@/server/education/guidance/guidanceOrchestrator";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export async function POST(req: NextRequest) {
   try {
     const idempotencyKey = req.headers.get("idempotency-key") || req.headers.get("Idempotency-Key") || undefined;
     const body = await req.json();
-    const { spec_id, shop_id = "shop_1", cover } = body;
+    const { spec_id, shop_id = DEFAULT_SHOP_ID, cover } = body;
 
     if (!spec_id) {
       return NextResponse.json(

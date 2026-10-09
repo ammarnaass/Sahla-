@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,7 +9,7 @@ export async function POST(req: NextRequest) {
       exam_ids = [],
       include_solutions = false,
       watermark_text = "منصة سهلة · حزمة الامتحانات النموذجية",
-      shop_id = "shop_1",
+      shop_id = DEFAULT_SHOP_ID,
     } = body;
 
     if (!Array.isArray(exam_ids) || exam_ids.length === 0) {

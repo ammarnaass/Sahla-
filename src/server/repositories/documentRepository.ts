@@ -4,6 +4,7 @@
  */
 
 import { JsonStore } from "../storage/jsonStore";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export interface DocumentRecord {
   id: string;
@@ -36,7 +37,7 @@ class DocumentRepository {
   create(doc: Partial<DocumentRecord>): DocumentRecord {
     const newDoc: DocumentRecord = {
       id: doc.id || `doc_${Date.now()}`,
-      shopId: doc.shopId || "shop_1",
+      shopId: doc.shopId || DEFAULT_SHOP_ID,
       title: doc.title || "وثيقة رقمية",
       customer: doc.customer || "زبون المحل",
       serviceCode: doc.serviceCode || "GENERIC",

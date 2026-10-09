@@ -34,7 +34,7 @@ const NotificationContext = createContext<NotificationContextValue | null>(null)
 
 export function NotificationProvider({
   children,
-  shopId = "shop_1",
+  shopId = "shop_1791222058320",
 }: {
   children: React.ReactNode;
   shopId?: string;

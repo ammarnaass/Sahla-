@@ -5,7 +5,7 @@
 
 export const AI_CONFIG = {
   /** Gemini model identifier */
-  model: process.env.AI_MODEL || "gemini-2.5-flash",
+  model: process.env.AI_MODEL || "gemini-flash-lite-latest",
 
   /** Gemini API Key */
   apiKey: process.env.GEMINI_API_KEY || "",

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { runSectionWriter } from "@/server/education/skills/sectionWriter";
 import { WalletGuard } from "@/server/education/walletGuard";
 import { SectionContent, FinalResearchDocument } from "@/server/education/types";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export async function POST(
   req: NextRequest,
@@ -45,7 +46,7 @@ export async function POST(
     const currentRegenCount = runRows[0]?.count || 0;
 
     let pointsCharged = 0;
-    const shopId = job.shop_id || "shop_1";
+    const shopId = job.shop_id || DEFAULT_SHOP_ID;
 
     if (currentRegenCount >= 3) {
       // Cost 2 points for subsequent regenerations

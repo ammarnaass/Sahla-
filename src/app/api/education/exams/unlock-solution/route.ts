@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { trackEvent } from "@/lib/analytics";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { examId, shopId = "shop_1" } = body;
+    const { examId, shopId = DEFAULT_SHOP_ID } = body;
 
     if (!examId) {
       return NextResponse.json({ error: "معرف الامتحان مطلوب" }, { status: 400 });

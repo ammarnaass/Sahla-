@@ -60,11 +60,60 @@ interface StudioLivePreviewA4Props {
   eduUnitTitle?: string;
   eduGeneratedSections?: Array<{ id: string; heading: string; content: string }>;
   onExportWord?: () => void;
+  onExportHtml?: () => void;
   onReportError?: () => void;
   conformanceScore?: number;
   onViewConformance?: () => void;
+  onGenerateFullDocument?: () => void;
 }
 
+/**
+ * Distribute N plan items across K content pages fairly and deterministically,
+ * ensuring zero omitted items, zero gaps, and following official academic structure.
+ */
+function getPageItemIndices(pageIdx: number, K: number, N: number): number[] {
+  if (N <= 0 || K <= 0 || pageIdx < 0 || pageIdx >= K) return [];
+  if (K === 1) return Array.from({ length: N }, (_, i) => i);
+
+  if (K >= N) {
+    return pageIdx < N ? [pageIdx] : [];
+  }
+
+  if (K === 2) {
+    const mid = Math.ceil(N / 2);
+    return pageIdx === 0
+      ? Array.from({ length: mid }, (_, i) => i)
+      : Array.from({ length: N - mid }, (_, i) => mid + i);
+  }
+
+  // K >= 3 and N > K:
+  // First content page has TOC card and gets Intro (item 0)
+  // Last content page gets Conclusion & References
+  const lastCount = N - 1 >= K ? (N >= 5 ? 2 : 1) : 1;
+  const firstCount = 1;
+  const middleItemsCount = N - firstCount - lastCount;
+  const middlePagesCount = K - 2;
+
+  if (pageIdx === 0) {
+    return Array.from({ length: firstCount }, (_, i) => i);
+  }
+
+  if (pageIdx === K - 1) {
+    return Array.from({ length: lastCount }, (_, i) => N - lastCount + i);
+  }
+
+  // Middle pages (pageIdx from 1 to K - 2)
+  const middlePageIdx = pageIdx - 1;
+  const startOffset = firstCount;
+
+  const q = Math.floor(middleItemsCount / middlePagesCount);
+  const r = middleItemsCount % middlePagesCount;
+
+  const mySize = q + (middlePageIdx < r ? 1 : 0);
+  const myStart = startOffset + middlePageIdx * q + Math.min(middlePageIdx, r);
+
+  return Array.from({ length: mySize }, (_, i) => myStart + i);
+}
 
 export function StudioLivePreviewA4({
   service,
@@ -107,9 +156,11 @@ export function StudioLivePreviewA4({
   eduStyleLevel = "MODERATE",
   eduIncludeReviewQuestions = true,
   onExportWord,
+  onExportHtml,
   onReportError,
   conformanceScore = 0.94,
   onViewConformance,
+  onGenerateFullDocument,
 }: StudioLivePreviewA4Props) {
   const isSchoolService = service.code === "SCHOOL_RESEARCH" || service.code === "EXAMS";
 
@@ -129,6 +180,29 @@ export function StudioLivePreviewA4({
     nameAr: "العلوم العامة",
     nameFr: "Sciences Générales",
   };
+
+  const defaultPlanItems =
+    eduDocKind === "THESIS"
+      ? [
+          "المقدمة العامة وطرح الإشكالية",
+          "الفصل الأول: الإطار المفاهيمي والنظري",
+          "الفصل الثاني: واقع وتحديات التطبيق في الجزائر",
+          "الفصل الثالث: الدراسة التطبيقية ومناقشة النتائج",
+          "الخاتمة العامة والتوصيات",
+        ]
+      : [
+          "مقدمة وطرح الإشكالية",
+          "المبحث الأول: المفاهيم والشواهد التاريخية",
+          "المبحث الثاني: حركة التحرر والواقع الوطني",
+          "الخاتمة والاستنتاجات والتوصيات",
+        ];
+
+  const planItems: string[] =
+    eduCustomPlan && eduCustomPlan.length > 0
+      ? eduCustomPlan
+      : eduGeneratedSections && eduGeneratedSections.length > 0
+      ? eduGeneratedSections.map((s) => s.heading)
+      : defaultPlanItems;
 
   const isRTL = language === "ar";
 
@@ -200,9 +274,26 @@ export function StudioLivePreviewA4({
                 <span>الصفحة السابقة</span>
               </button>
 
-              <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono text-xs sm:text-sm">
-                الصفحة {activePage} من {eduPageCount}
-              </span>
+              {/* Direct Jump Buttons for Pages */}
+              <div className="flex items-center gap-1 overflow-x-auto py-0.5 max-w-[260px] sm:max-w-none">
+                {Array.from({ length: eduPageCount }, (_, i) => i + 1).map((p) => {
+                  const isCover = p === 1 && eduIncludeCover && eduPageCount > 1;
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => updatePage(p)}
+                      className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                        activePage === p
+                          ? "bg-emerald-600 text-white shadow-xs font-black scale-105"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      {isCover ? "🇩🇿 الغلاف" : `ص ${p}`}
+                    </button>
+                  );
+                })}
+              </div>
 
               <button
                 type="button"
@@ -214,6 +305,28 @@ export function StudioLivePreviewA4({
                 <ArrowLeftIcon size={12} />
               </button>
             </div>
+
+            {/* Plan Distribution Notification Banner */}
+            {eduMode === "RESEARCH" && planItems.length > 0 && (!eduGeneratedSections || eduGeneratedSections.length === 0) && (
+              <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center justify-between gap-2 shadow-2xs animate-fade-in">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="shrink-0">💡</span>
+                  <span className="truncate">
+                    تم توزيع محاور الخطة ({planItems.length}) على صفحات المستند ({eduPageCount}). انقر لصياغة المتن بالذكاء الاصطناعي:
+                  </span>
+                </div>
+                {onGenerateFullDocument && (
+                  <button
+                    type="button"
+                    onClick={onGenerateFullDocument}
+                    className="px-3 py-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-[10px] font-black cursor-pointer shadow-xs transition-colors shrink-0 flex items-center gap-1"
+                  >
+                    <span>🚀</span>
+                    <span>توليد وصياغة المتن</span>
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Quick Export & Actions Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] px-1">
@@ -227,6 +340,17 @@ export function StudioLivePreviewA4({
                   >
                     <span>📄</span>
                     <span>تصدير Word (.doc)</span>
+                  </button>
+                )}
+                {onExportHtml && (
+                  <button
+                    type="button"
+                    onClick={onExportHtml}
+                    className="px-2.5 py-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/80 dark:hover:bg-teal-900 border border-teal-200 dark:border-teal-800/60 text-teal-700 dark:text-teal-300 flex items-center gap-1.5 transition-all font-medium cursor-pointer min-h-[34px]"
+                    title="تنزيل ملف HTML المصمم للبحث"
+                  >
+                    <span>🌐</span>
+                    <span>ملف HTML</span>
                   </button>
                 )}
                 {onReportError && (
@@ -272,9 +396,124 @@ export function StudioLivePreviewA4({
           }`}
         >
           {/* ======================================================== */}
+          {/* 🎓 SCHOOL RESEARCH & THESIS: UNIFIED 1-PAGE DOCUMENT     */}
+          {/* ======================================================== */}
+          {isSchoolService && eduMode === "RESEARCH" && eduPageCount === 1 && (
+            <div className="space-y-3 text-right">
+              {/* Institutional Header Banner */}
+              <div className="border-b-2 border-emerald-800 pb-2 flex justify-between items-start text-[9.5px] text-slate-700">
+                <div className="space-y-0.5">
+                  <div className="font-extrabold text-slate-900 text-[10.5px]">الجمهورية الجزائرية الديمقراطية الشعبية</div>
+                  <div className="font-bold text-emerald-800">
+                    {eduDocKind === "THESIS" ? "وزارة التعليم العالي والبحث العلمي" : "وزارة التربية الوطنية"}
+                  </div>
+                  <div className="text-slate-600 font-medium">
+                    {eduDocKind === "THESIS"
+                      ? `${eduUniversity || "الجامعة الجزائرية"}${eduFaculty ? ` · ${eduFaculty}` : ""}`
+                      : `${eduDirectorate || "مديرية التربية والتعليم"} · ${eduSchoolName || "المؤسسة التعليمية"}`}
+                  </div>
+                </div>
+                <div className="text-left space-y-0.5 text-slate-500 font-mono text-[9px]">
+                  <div>الموسم: 2025/2026 م</div>
+                  <div>المستوى: {gradeInfo?.nameAr || "السنة الدراسية"}</div>
+                  <div className="text-emerald-700 font-bold">ورقة بحثية موثقة (A4)</div>
+                </div>
+              </div>
+
+              {/* Title & Topic Box */}
+              <div className="bg-emerald-50/70 border border-emerald-400 p-2.5 rounded-xl text-center space-y-1">
+                <span className="text-[9px] font-black uppercase text-emerald-800 block">
+                  {eduDocKind === "THESIS" ? "مذكرة أكاديمية موجزة" : `بحث مدرسي في مادة: ${subjectInfo.nameAr}`}
+                </span>
+                <h2 className="text-sm sm:text-base font-black text-slate-950">
+                  {eduTopic || "عنوان البحث المدرسي"}
+                </h2>
+                <div className="flex justify-between items-center text-[9.5px] text-slate-700 pt-1 border-t border-emerald-200">
+                  <span><strong>إعداد:</strong> {customerName || (eduDocKind === "THESIS" ? "الطالب الباحث" : "تلميذ المؤسسة")}</span>
+                  <span><strong>تحت إشراف:</strong> {eduTeacherName || "الأستاذ المشرف"}</span>
+                </div>
+              </div>
+
+              {/* Compact Outline Summary */}
+              {eduIncludeOutline && planItems.length > 0 && (
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-1.5 flex flex-wrap items-center gap-1.5 text-[9px] text-slate-700 font-medium">
+                  <span className="font-bold text-emerald-800 shrink-0">📌 محاور الخطة:</span>
+                  {planItems.map((item, idx) => (
+                    <span key={idx} className="bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-800 font-bold">
+                      {idx + 1}. {item}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* All Sections for 1-Page Document */}
+              <div className="space-y-2.5">
+                {planItems.map((planHeading, itemIdx) => {
+                  const genSection =
+                    eduGeneratedSections &&
+                    (eduGeneratedSections[itemIdx] ||
+                      eduGeneratedSections.find((s) => s.heading === planHeading));
+                  const heading = genSection?.heading || planHeading;
+                  const hasContent = Boolean(genSection?.content);
+
+                  return (
+                    <div key={itemIdx} className="space-y-1 text-[10.5px]">
+                      <div className="flex items-center justify-between border-b border-emerald-100 pb-0.5 font-bold text-slate-900">
+                        <span className="text-emerald-900 font-extrabold text-[11px]">{heading}</span>
+                        {hasContent ? (
+                          <span className="text-[8px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-mono font-bold">
+                            AI ⚡ موثق
+                          </span>
+                        ) : (
+                          <span className="text-[8px] px-1.5 py-0.2 rounded bg-amber-50 text-amber-800 font-bold border border-amber-200">
+                            📋 معتمد في الخطة
+                          </span>
+                        )}
+                      </div>
+                      {hasContent ? (
+                        <div className="text-justify text-[10px] text-slate-800 leading-relaxed whitespace-pre-line">
+                          {genSection!.content}
+                        </div>
+                      ) : (
+                        <p className="text-[9.5px] text-slate-600 bg-emerald-50/30 p-2 rounded border border-dashed border-emerald-300 leading-relaxed">
+                          {itemIdx === 0
+                            ? `مقدمة وطرح الإشكالية لموضوع «${eduTopic || "البحث"}» وفق منهاج الجيل الثاني المعتمد.`
+                            : itemIdx === planItems.length - 1
+                            ? "الخاتمة والاستنتاجات والتوصيات الختامية المعتمدة."
+                            : `العرض والتحليل المفصل لمبحث «${heading}» مع الشواهد والأمثلة التاريخية الجزائرية.`}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Official References */}
+              {eduIncludeSources && (
+                <div className="p-2 bg-slate-50 rounded border border-slate-200 text-[8.5px] text-slate-600 space-y-0.5">
+                  <span className="font-bold text-slate-900 block">📚 المراجع الوطنية المعتمدة:</span>
+                  <div>• الكتاب المدرسي المقرر لمادة {subjectInfo.nameAr} - ديوان المطبوعات المدرسية (ONPS).</div>
+                  <div>• المنهاج الرسمي والوثيقة المرافقة - منشورات ديوان المطبوعات الجامعية (OPU).</div>
+                </div>
+              )}
+
+              {/* Educational Review Question */}
+              {eduIncludeReviewQuestions && eduDocKind !== "THESIS" && (
+                <div className="p-2 bg-blue-50/80 rounded border border-blue-200 text-[8.5px] text-blue-900">
+                  <strong>💡 سؤال مراجعة وتثبيت الفهم:</strong> ما هي الفكرة الأساسية لموضوع «{eduTopic || "هذا البحث"}» بأسلوبك الخاص؟
+                </div>
+              )}
+
+              <div className="pt-1.5 border-t text-center text-[8.5px] text-slate-400 font-mono">
+                منصة سهلة · معتمد للطباعة والتسليم المدرسي (A4 · 300 DPI)
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
           {/* 🎓 SCHOOL RESEARCH & THESIS: A4 COVER PAGE (Page 1)       */}
           {/* ======================================================== */}
-          {isSchoolService && eduMode === "RESEARCH" && activePage === 1 && eduIncludeCover && (
+          {isSchoolService && eduMode === "RESEARCH" && eduPageCount > 1 && activePage === 1 && eduIncludeCover && (
             <div
               className={`p-4 h-full flex flex-col justify-between text-center space-y-4 ${
                 eduCoverTemplate === "OFFICIAL"
@@ -373,141 +612,226 @@ export function StudioLivePreviewA4({
           )}
 
           {/* ======================================================== */}
-          {/* 🎓 SCHOOL RESEARCH & THESIS: CONTENT (Page 2+)           */}
+          {/* 🎓 SCHOOL RESEARCH & THESIS: CONTENT (Multi-Page)         */}
           {/* ======================================================== */}
-          {isSchoolService && eduMode === "RESEARCH" && (activePage > 1 || !eduIncludeCover) && (
-            <div className="space-y-3.5 text-right">
-              {/* Document Header Line */}
-              <div className="flex justify-between items-center border-b pb-1.5 text-[9px] text-slate-500 font-bold">
-                <span>
-                  {eduDocKind === "THESIS"
-                    ? eduUniversity || "الجامعة الجزائرية"
-                    : eduSchoolName || "المؤسسة التعليمية"}
-                </span>
-                <span className="truncate max-w-[200px]">{eduTopic || "مستند تعليمي"}</span>
-                <span className="font-mono">ص {activePage}</span>
-              </div>
-
-              {/* If Page 2 or Outline page */}
-              {activePage === (eduIncludeCover ? 2 : 1) && eduIncludeOutline && (
-                <div className="bg-slate-50 p-3 rounded border border-slate-200 space-y-2">
-                  <h4 className="font-black text-slate-900 text-xs border-b pb-1 flex items-center gap-1">
-                    <span>📌</span>
-                    <span>
-                      {eduDocKind === "THESIS"
-                        ? "خطة وفهرس مذكرة التخرج المعتمدة:"
-                        : "خطة البحث والفهرس المعتمد:"}
-                    </span>
-                  </h4>
-                  {eduCustomPlan && eduCustomPlan.length > 0 ? (
-                    <ul className="space-y-1.5 text-[10px] text-slate-800 pr-2">
-                      {eduCustomPlan.map((item, idx) => (
-                        <li key={idx} className="flex items-start gap-1.5 leading-snug">
-                          <span className="text-emerald-700 font-bold shrink-0">▪</span>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-[10px] text-slate-500 italic">
-                      اضغط على «الخطوة 1: توليد خطة وفهرس البحث» لإنشاء خطة منهجية متوافقة.
-                    </p>
-                  )}
+          {isSchoolService &&
+            eduMode === "RESEARCH" &&
+            eduPageCount > 1 &&
+            (activePage > 1 || !eduIncludeCover) && (
+              <div className="space-y-3.5 text-right">
+                {/* Document Header Line */}
+                <div className="flex justify-between items-center border-b pb-1.5 text-[9px] text-slate-500 font-bold">
+                  <span>
+                    {eduDocKind === "THESIS"
+                      ? eduUniversity || "الجامعة الجزائرية"
+                      : eduSchoolName || "المؤسسة التعليمية"}
+                  </span>
+                  <span className="truncate max-w-[200px] text-slate-800 font-black">{eduTopic || "مستند تعليمي"}</span>
+                  <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-emerald-800 font-bold">
+                    ص {activePage} من {eduPageCount}
+                  </span>
                 </div>
-              )}
 
-              {/* Dynamic Content Paragraphs */}
-              {(() => {
-                const sectionIdx = activePage - (eduIncludeCover ? 2 : 1);
-                const isLastPage = activePage === eduPageCount;
-                const genSection = eduGeneratedSections && eduGeneratedSections[sectionIdx];
-                const planTitle = eduCustomPlan && eduCustomPlan[sectionIdx];
+                {(() => {
+                  const hasCover = eduIncludeCover && eduPageCount > 1;
+                  const totalContentPages = hasCover ? eduPageCount - 1 : eduPageCount;
+                  const contentPageIdx = hasCover ? activePage - 2 : activePage - 1;
+                  const isFirstContentPage = contentPageIdx === 0;
+                  const isLastDocPage = activePage === eduPageCount;
 
-                const heading =
-                  genSection?.heading ||
-                  planTitle ||
-                  (isLastPage
-                    ? "الخاتمة والاستنتاجات النهائية:"
-                    : `المبحث ${Math.max(1, sectionIdx + 1)}: العرض والتحليل المفصل`);
+                  const assignedIndices = getPageItemIndices(
+                    contentPageIdx,
+                    totalContentPages,
+                    planItems.length
+                  );
 
-                const hasContent = Boolean(genSection?.content);
+                  return (
+                    <div className="space-y-3">
+                      {/* Table of Contents Card on First Content Page */}
+                      {isFirstContentPage && eduIncludeOutline && (
+                        <div className="bg-gradient-to-b from-slate-50 to-emerald-50/20 p-3 rounded-xl border border-emerald-200/80 space-y-2 shadow-2xs">
+                          <div className="flex items-center justify-between border-b border-emerald-200/60 pb-1.5">
+                            <h4 className="font-black text-slate-900 text-xs flex items-center gap-1.5">
+                              <span className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px]">
+                                📌
+                              </span>
+                              <span>
+                                {eduDocKind === "THESIS"
+                                  ? "خطة وفهرس مذكرة التخرج المعتمدة:"
+                                  : "خطة وفهرس البحث المعتمدة:"}
+                              </span>
+                            </h4>
+                            <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">
+                              {planItems.length} محاور · مصممة لـ {eduPageCount} صفحات
+                            </span>
+                          </div>
 
-                return (
-                  <div className="space-y-2.5 text-[11px] text-slate-800 leading-relaxed">
-                    <div className="font-bold text-slate-900 text-xs text-emerald-800 flex items-center justify-between border-b pb-1">
-                      <span>{heading}</span>
-                      {hasContent && (
-                        <span className="text-[8.5px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono font-bold">
-                          AI ⚡ موثق
-                        </span>
+                          {planItems.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[9.5px] text-slate-800 pr-1">
+                              {planItems.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex items-center gap-1.5 bg-white/80 p-1 rounded border border-slate-200/60"
+                                >
+                                  <span className="w-4 h-4 rounded bg-emerald-100 text-emerald-800 font-mono font-bold flex items-center justify-center text-[9px] shrink-0">
+                                    {idx + 1}
+                                  </span>
+                                  <span className="truncate">{item}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-slate-500 italic">
+                              اضغط على «توليد الخطة بالذكاء الاصطناعي» لإنشاء خطة منهجية متوافقة.
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* If no sections are assigned to this page (edge case fallback) */}
+                      {assignedIndices.length === 0 && (
+                        <div className="p-4 rounded-xl border border-dashed border-slate-300 text-center text-slate-500 text-xs">
+                          هذه الصفحة مخصصة للمتن والتوسع الأكاديمي.
+                        </div>
+                      )}
+
+                      {/* Render Assigned Sections for this page */}
+                      {assignedIndices.map((itemIdx) => {
+                        const planHeading = planItems[itemIdx];
+                        const genSection =
+                          eduGeneratedSections &&
+                          (eduGeneratedSections[itemIdx] ||
+                            eduGeneratedSections.find((s) => s.heading === planHeading));
+
+                        const isIntro = itemIdx === 0 || planHeading.includes("مقدمة");
+                        const isConclusion =
+                          itemIdx === planItems.length - 1 ||
+                          planHeading.includes("خاتمة") ||
+                          (itemIdx === planItems.length - 2 &&
+                            planItems[planItems.length - 1].includes("مراجع"));
+                        const isRef = planHeading.includes("مراجع") || planHeading.includes("مصادر");
+
+                        const heading =
+                          genSection?.heading ||
+                          planHeading ||
+                          (isIntro
+                            ? "المقدمة وطرح الإشكالية"
+                            : isConclusion
+                            ? "الخاتمة والاستنتاجات والتوصيات"
+                            : `المبحث ${itemIdx}: العرض والتحليل المفصل`);
+
+                        const hasContent = Boolean(genSection?.content);
+
+                        return (
+                          <div
+                            key={itemIdx}
+                            className="space-y-2 text-[11px] text-slate-800 leading-relaxed border-b border-slate-100 dark:border-slate-800 pb-3 last:border-b-0"
+                          >
+                            <div className="flex items-center justify-between border-b border-emerald-100 dark:border-emerald-800/40 pb-1">
+                              <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
+                                <span className="w-5 h-5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black flex items-center justify-center shrink-0">
+                                  {itemIdx + 1}
+                                </span>
+                                <span className="text-emerald-950 font-black">{heading}</span>
+                              </div>
+                              {hasContent ? (
+                                <span className="text-[8.5px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono font-bold border border-emerald-300">
+                                  AI ⚡ نص موثق
+                                </span>
+                              ) : (
+                                <span className="text-[8.5px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 font-bold border border-amber-200">
+                                  📋 معتمد في الخطة
+                                </span>
+                              )}
+                            </div>
+
+                            {hasContent ? (
+                              <div className="text-justify text-[10.5px] text-slate-800 leading-relaxed whitespace-pre-line space-y-2">
+                                {genSection!.content}
+                              </div>
+                            ) : (
+                              <div className="p-3 rounded-xl border border-dashed border-emerald-300 bg-emerald-50/40 text-right space-y-1.5">
+                                <div className="text-[10px] text-emerald-900 font-bold flex items-center justify-between">
+                                  <span>
+                                    {isIntro
+                                      ? "📌 الإطار التمهيدي وطرح الإشكالية العلمية"
+                                      : isConclusion
+                                      ? "📌 خلاصة النتائج والتوصيات المعتمدة"
+                                      : isRef
+                                      ? "📌 التوثيق الأكاديمي والمصادر الوطنية"
+                                      : `📌 العرض التحليلي والشواهد لمحور «${heading}»`}
+                                  </span>
+                                  <span className="text-[9px] text-emerald-700 font-mono">جاهز للتوليد</span>
+                                </div>
+                                <p className="text-[10px] text-slate-600 leading-relaxed">
+                                  {isIntro
+                                    ? `يتناول هذا القسم التمهيد العلمي والمنهجي لموضوع «${eduTopic || "هذا البحث"}»، وطرح الإشكالية والتساؤلات الفرعية وفق منهاج الجيل الثاني المعتمد.`
+                                    : isConclusion
+                                    ? `يستعرض هذا القسم أهم الاستنتاجات العلمية والنتائج المستخلصة من البحث، مع تقديم التوصيات التربوية والعملية.`
+                                    : isRef
+                                    ? `يحتوي هذا القسم على المراجع والمصادر الوطنية المعتمدة من ديوان المطبوعات المدرسية والجامعية.`
+                                    : `يتناول هذا المبحث العرض المفصل لعنصر «${heading}»، مدعماً بالشواهد والأمثلة التاريخية والجغرافية من البيئة الجزائرية.`}
+                                </p>
+                                <div className="text-[9px] text-emerald-800/80 font-medium pt-0.5 flex items-center gap-1">
+                                  <span>⚡</span>
+                                  <span>انقر على «توليد وحفظ المستند كاملاً» لصياغة هذا المحور نصاً كاملاً وموثقاً.</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+
+                      {/* Educational Review Questions on Last Page */}
+                      {isLastDocPage && eduIncludeReviewQuestions && eduDocKind !== "THESIS" && (
+                        <div className="mt-3 p-2.5 bg-blue-50/80 rounded-xl border border-blue-200 text-[9.5px] text-blue-900 space-y-1.5">
+                          <span className="font-bold text-blue-950 flex items-center gap-1">
+                            <span>💡</span>
+                            <span>أسئلة مراجعة ومفردات الدرس (لتحفيز الفهم وتجنب الغش الأكاديمي):</span>
+                          </span>
+                          <ul className="list-disc list-inside space-y-0.5 text-blue-800 pr-1 leading-relaxed">
+                            <li>ما هي الفكرة الأساسية التي يعالجها موضوع "{eduTopic || "هذا البحث"}" بأسلوبك الخاص؟</li>
+                            <li>استخرج مثالين واقعيين وردا في البحث يربطان المفاهيم بالمنهاج الدراسي الوطني.</li>
+                            <li>لخص أهم ما توصلت إليه الخاتمة في جملتين لدعم مشاركتك وتفوقك في القسم.</li>
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Official References on Last Page */}
+                      {isLastDocPage && eduIncludeSources && (
+                        <div className="mt-3 p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-[9px] text-slate-700 space-y-1">
+                          <span className="font-bold text-slate-900 block border-b border-slate-200 pb-1">
+                            {eduDocKind === "THESIS"
+                              ? "📚 قائمة المراجع والمصادر الأكاديمية المعتمدة:"
+                              : "📚 قائمة المراجع والمصادر الرسمية المعتمدة:"}
+                          </span>
+                          {eduDocKind === "THESIS" ? (
+                            <div className="space-y-0.5 pr-1">
+                              <div>1. منشورات ديوان المطبوعات الجامعية (OPU) - بن عكنون، الجزائر.</div>
+                              <div>2. البوابة الوطنية للمجلات العلمية الجزائرية (ASJP)، وزارة التعليم العالي والبحث العلمي.</div>
+                              <div>3. المنشورات الأكاديمية والمراجع العلمية المتخصصة في الميدان.</div>
+                            </div>
+                          ) : (
+                            <div className="space-y-0.5 pr-1">
+                              <div>1. الكتاب المدرسي المقرر لوزارة التربية الوطنية لمادة {subjectInfo.nameAr} - ديوان المطبوعات المدرسية (ONPS).</div>
+                              <div>2. المنهاج والوثيقة المرافقة لمادة {subjectInfo.nameAr}، المعهد الوطني للبحث في التربية (INRE).</div>
+                              <div>3. الموسوعة الجزائرية للتاريخ والجغرافيا والعلوم، منشورات ديوان المطبوعات الجامعية (OPU).</div>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
+                  );
+                })()}
 
-                    {hasContent ? (
-                      <div className="text-justify text-[10.5px] text-slate-800 leading-relaxed whitespace-pre-line space-y-2">
-                        {genSection!.content}
-                      </div>
-                    ) : (
-                      <div className="my-4 p-4 rounded-xl border border-dashed border-emerald-300 dark:border-emerald-700 bg-emerald-50/40 dark:bg-emerald-950/20 text-center space-y-2">
-                        <div className="text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5">
-                          <span>📋</span>
-                          <span>{heading}</span>
-                        </div>
-                        <p className="text-slate-600 dark:text-slate-400 text-[10px] max-w-sm mx-auto leading-relaxed">
-                          {eduTopic
-                            ? "هذا القسم معتمد وجاهز للتوليد الأكاديمي. انقر على «توليد وحفظ البحث» لإنشاء محتوى أكاديمي متكامل وموثق."
-                            : "يرجى تحديد عنوان وموضوع البحث في النموذج لبدء التوليد الفعلي."}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Educational Review Questions (PRD Section 8: النزاهة الأكاديمية) */}
-                    {isLastPage && eduIncludeReviewQuestions && eduDocKind !== "THESIS" && (
-                      <div className="mt-2.5 p-2.5 bg-blue-50/80 rounded border border-blue-200 text-[9.5px] text-blue-900 space-y-1">
-                        <span className="font-bold text-blue-950 block">💡 أسئلة مراجعة ومفردات الدرس (لتحفيز الفهم وتجنب الغش):</span>
-                        <ul className="list-disc list-inside space-y-0.5 text-blue-800 pr-1">
-                          <li>ما هي الفكرة الأساسية التي يعالجها موضوع "{eduTopic || "هذا البحث"}" بأسلوبك الخاص؟</li>
-                          <li>استخرج مثالين واقعيين وردا في البحث يربطان المفاهيم بالمنهاج الدراسي.</li>
-                          <li>لخص أهم ما توصلت إليه الخاتمة في جملتين لدعم مشاركتك في القسم.</li>
-                        </ul>
-                      </div>
-                    )}
-
-                    {/* Verified Official References */}
-                    {isLastPage && eduIncludeSources && (
-                      <div className="mt-2.5 p-2 bg-slate-50 rounded border border-slate-200 text-[9px] text-slate-600 space-y-1">
-                        <span className="font-bold text-slate-900 block">
-                          {eduDocKind === "THESIS"
-                            ? "قائمة المراجع والمصادر الأكاديمية المعتمدة:"
-                            : "قائمة المراجع والمصادر الرسمية المعتمدة:"}
-                        </span>
-                        {eduDocKind === "THESIS" ? (
-                          <>
-                            <div>1. منشورات ديوان المطبوعات الجامعية (OPU) - بن عكنون، الجزائر.</div>
-                            <div>2. البوابة الوطنية للمجلات العلمية الجزائرية (ASJP)، وزارة التعليم العالي والبحث العلمي.</div>
-                            <div>3. المنشورات الأكاديمية والمراجع العلمية المتخصصة في الميدان.</div>
-                          </>
-                        ) : (
-                          <>
-                            <div>1. الكتاب المدرسي المقرر لوزارة التربية الوطنية لمادة {subjectInfo.nameAr} - ديوان المطبوعات المدرسية (ONPS).</div>
-                            <div>2. المنهاج والوثيقة المرافقة لمادة {subjectInfo.nameAr}، المعهد الوطني للبحث في التربية (INRE).</div>
-                            <div>3. الموسوعة الجزائرية للتاريخ والجغرافيا والعلوم، منشورات ديوان المطبوعات الجامعية (OPU).</div>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
-
-              {/* Page Footer */}
-              <div className="pt-3 border-t text-center text-[9px] text-slate-400 font-mono">
-                {eduDocKind === "THESIS"
-                  ? "منصة سهلة · معتمد لمذكرات التخرج والأطروحات الجامعية"
-                  : "منصة سهلة · معتمد للطباعة والتسليم المدرسي"}
+                {/* Page Footer */}
+                <div className="pt-3 border-t text-center text-[9px] text-slate-400 font-mono">
+                  {eduDocKind === "THESIS"
+                    ? "منصة سهلة · معتمد لمذكرات التخرج والأطروحات الجامعية (A4 · 300 DPI)"
+                    : "منصة سهلة · معتمد للطباعة والتسليم المدرسي (A4 · 300 DPI)"}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* ======================================================== */}
           {/* 📝 EXAM / TEST MODE (Page 1)                             */}

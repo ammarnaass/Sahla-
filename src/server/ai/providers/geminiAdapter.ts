@@ -1,4 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
+import dns from "node:dns";
+
+try {
+  dns.setDefaultResultOrder?.("ipv4first");
+} catch {}
 import type {
   LLMProvider,
   GenerateRequest,
@@ -10,6 +15,34 @@ import type {
   ProviderHealthCheck,
   AdvancedProviderConfig,
 } from "./types";
+
+const DEFAULT_GEMINI_MODEL = "gemini-flash-lite-latest";
+
+function isModelUnavailableError(err: any): boolean {
+  const msg = (err?.message || "").toLowerCase();
+  return (
+    msg.includes("no longer available") ||
+    msg.includes("not found") ||
+    msg.includes("not supported for generatecontent") ||
+    msg.includes("404")
+  );
+}
+
+function resolveGeminiModel(modelId?: string): string {
+  if (!modelId) return DEFAULT_GEMINI_MODEL;
+  const m = modelId.trim();
+  // Map outdated model names if directly passed
+  if (
+    m === "gemini-2.5-flash" ||
+    m === "gemini-2.0-flash" ||
+    m === "gemini-1.5-flash" ||
+    m === "gemini-2.5-pro" ||
+    m === "gemini-1.5-pro"
+  ) {
+    return DEFAULT_GEMINI_MODEL;
+  }
+  return m;
+}
 
 /**
  * ⚡ Google Gemini Provider Adapter
@@ -70,7 +103,7 @@ export class GeminiAdapter implements LLMProvider {
       return {
         status: "error",
         latency_ms: 0,
-        model: modelId,
+        model: modelId || DEFAULT_GEMINI_MODEL,
         checks,
         capabilities: {},
         message_ar: "مفتاح API الخاص بـ Google Gemini غير محدد",
@@ -78,15 +111,33 @@ export class GeminiAdapter implements LLMProvider {
       };
     }
 
+    let activeModel = resolveGeminiModel(modelId);
+    let fellBack = activeModel !== (modelId || DEFAULT_GEMINI_MODEL);
+
     try {
       const client = new GoogleGenAI({ apiKey: apiKey.trim() });
-      const res = await client.models.generateContent({
-        model: modelId || "gemini-2.5-flash",
-        contents: [{ role: "user", parts: [{ text: "ping" }] }],
-        config: { maxOutputTokens: 8, temperature: 0.1 },
-      });
+      let res: any;
+      try {
+        res = await client.models.generateContent({
+          model: activeModel,
+          contents: [{ role: "user", parts: [{ text: "ping" }] }],
+          config: { maxOutputTokens: 16, temperature: 0.1 },
+        });
+      } catch (firstErr: any) {
+        if (isModelUnavailableError(firstErr) && activeModel !== DEFAULT_GEMINI_MODEL) {
+          activeModel = DEFAULT_GEMINI_MODEL;
+          fellBack = true;
+          res = await client.models.generateContent({
+            model: activeModel,
+            contents: [{ role: "user", parts: [{ text: "ping" }] }],
+            config: { maxOutputTokens: 16, temperature: 0.1 },
+          });
+        } else {
+          throw firstErr;
+        }
+      }
 
-      if (res.text !== undefined) {
+      if (res && res.text !== undefined) {
         checks.auth = "ok";
         checks.model_available = "ok";
       }
@@ -94,7 +145,7 @@ export class GeminiAdapter implements LLMProvider {
       // Stage 2: JSON & Arabic check
       try {
         const testRes = await client.models.generateContent({
-          model: modelId || "gemini-2.5-flash",
+          model: activeModel,
           contents: [{ role: "user", parts: [{ text: "أجب بهذا الـ JSON حصراً: {\"status\":\"ok\",\"lang\":\"ar\"}" }] }],
           config: {
             maxOutputTokens: 30,
@@ -115,7 +166,7 @@ export class GeminiAdapter implements LLMProvider {
       return {
         status: "ok",
         latency_ms: latencyMs,
-        model: modelId || "gemini-2.5-flash",
+        model: activeModel,
         checks,
         capabilities: {
           json_mode: true,
@@ -123,13 +174,16 @@ export class GeminiAdapter implements LLMProvider {
           web_search: true,
           languages_verified: ["ar", "fr", "en"],
         },
-        message_ar: `تم الاتصال بنجاح بـ Google Gemini (${latencyMs}ms)`,
+        message_ar: fellBack
+          ? `تم الاتصال بنجاح بـ Google Gemini باستخدام النموذج النشط ${activeModel} (${latencyMs}ms)`
+          : `تم الاتصال بنجاح بـ Google Gemini (${latencyMs}ms)`,
       };
     } catch (err: any) {
+      console.error("[GeminiAdapter.ping ERROR]:", err);
       return {
         status: "error",
         latency_ms: Date.now() - t0,
-        model: modelId || "gemini-2.5-flash",
+        model: activeModel,
         checks,
         capabilities: {},
         message_ar: this.mapErrorMessage(err.message || ""),
@@ -145,7 +199,7 @@ export class GeminiAdapter implements LLMProvider {
       ...res,
       success: res.status === "ok",
       providerId: this.id,
-      modelId: modelId || "gemini-2.5-flash",
+      modelId: res.model,
     };
   }
 
@@ -168,7 +222,7 @@ export class GeminiAdapter implements LLMProvider {
     // Modern signature: generate(req: GenerateRequest, apiKey: string, modelId: string, baseUrl?: string, options?: ...)
     const req: GenerateRequest = reqOrMessages;
     const apiKey: string = apiKeyOrOptions;
-    const modelId: string = modelIdOrKey || "gemini-2.5-flash";
+    let activeModel = resolveGeminiModel(modelIdOrKey);
 
     const t0 = Date.now();
     const client = new GoogleGenAI({ apiKey: apiKey.trim() });
@@ -200,11 +254,39 @@ export class GeminiAdapter implements LLMProvider {
       config.tools = [{ googleSearch: {} }];
     }
 
-    const result = await client.models.generateContent({
-      model: modelId,
-      contents,
-      config,
-    });
+    let result: any;
+    try {
+      result = await client.models.generateContent({
+        model: activeModel,
+        contents,
+        config,
+      });
+    } catch (err: any) {
+      const is429 =
+        err?.status === 429 ||
+        (err?.message &&
+          (err.message.includes("429") ||
+            err.message.includes("quota") ||
+            err.message.includes("RESOURCE_EXHAUSTED")));
+
+      if (isModelUnavailableError(err) && activeModel !== DEFAULT_GEMINI_MODEL) {
+        activeModel = DEFAULT_GEMINI_MODEL;
+        result = await client.models.generateContent({
+          model: activeModel,
+          contents,
+          config,
+        });
+      } else if (is429 && activeModel !== "gemini-3.5-flash-lite") {
+        activeModel = "gemini-3.5-flash-lite";
+        result = await client.models.generateContent({
+          model: activeModel,
+          contents,
+          config,
+        });
+      } else {
+        throw err;
+      }
+    }
 
     const text = result.text || "";
     let jsonParsed: any = undefined;
@@ -223,7 +305,7 @@ export class GeminiAdapter implements LLMProvider {
       },
       latencyMs: Date.now() - t0,
       providerId: this.id,
-      modelId,
+      modelId: activeModel,
     };
   }
 
@@ -235,6 +317,7 @@ export class GeminiAdapter implements LLMProvider {
   ): Promise<ProviderGenerateResult> {
     const startTime = Date.now();
     const client = new GoogleGenAI({ apiKey: apiKey.trim() });
+    let activeModel = resolveGeminiModel(modelId);
 
     const chatHistory = messages.slice(0, -1).map((m) => ({
       role: m.role === "assistant" ? ("model" as const) : ("user" as const),
@@ -256,14 +339,48 @@ export class GeminiAdapter implements LLMProvider {
       config.tools = options.tools;
     }
 
-    const result = await client.models.generateContent({
-      model: modelId || "gemini-2.5-flash",
-      contents: [
-        ...chatHistory,
-        { role: "user" as const, parts: [{ text: lastMsg }] },
-      ],
-      config,
-    });
+    let result: any;
+    try {
+      result = await client.models.generateContent({
+        model: activeModel,
+        contents: [
+          ...chatHistory,
+          { role: "user" as const, parts: [{ text: lastMsg }] },
+        ],
+        config,
+      });
+    } catch (err: any) {
+      const is429 =
+        err?.status === 429 ||
+        (err?.message &&
+          (err.message.includes("429") ||
+            err.message.includes("quota") ||
+            err.message.includes("RESOURCE_EXHAUSTED")));
+
+      if (isModelUnavailableError(err) && activeModel !== DEFAULT_GEMINI_MODEL) {
+        activeModel = DEFAULT_GEMINI_MODEL;
+        result = await client.models.generateContent({
+          model: activeModel,
+          contents: [
+            ...chatHistory,
+            { role: "user" as const, parts: [{ text: lastMsg }] },
+          ],
+          config,
+        });
+      } else if (is429 && activeModel !== "gemini-3.5-flash-lite") {
+        activeModel = "gemini-3.5-flash-lite";
+        result = await client.models.generateContent({
+          model: activeModel,
+          contents: [
+            ...chatHistory,
+            { role: "user" as const, parts: [{ text: lastMsg }] },
+          ],
+          config,
+        });
+      } else {
+        throw err;
+      }
+    }
 
     const durationMs = Date.now() - startTime;
     const candidate = result.candidates?.[0];
@@ -287,7 +404,7 @@ export class GeminiAdapter implements LLMProvider {
     return {
       text: text.trim(),
       providerId: this.id,
-      modelId: modelId || "gemini-2.5-flash",
+      modelId: activeModel,
       durationMs,
       functionCalls: functionCalls.length > 0 ? functionCalls : undefined,
       tokensUsed: {

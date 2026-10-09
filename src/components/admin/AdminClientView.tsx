@@ -432,7 +432,7 @@ export default function AdminClientView() {
       )}
 
       {/* 3. Mobile Sub-Navbar Tabs */}
-      <div className="lg:hidden">
+      <div className="md:hidden">
         <AdminTabNav
           activeTab={activeTab}
           setActiveTab={handleSelectTab}
@@ -444,7 +444,7 @@ export default function AdminClientView() {
 
       {/* 4. Main Body: Sidebar + Dynamic Content Canvas */}
       <div className="flex-1 flex flex-row min-w-0">
-        {/* Desktop Sovereign Unified Sidebar (RTL) */}
+        {/* Desktop Sovereign Unified Sidebar & Mobile Drawer (RTL) */}
         <AdminUnifiedSidebar
           activeTab={activeTab}
           onSelectTab={handleSelectTab}
@@ -454,6 +454,8 @@ export default function AdminClientView() {
           invoicesCount={invoices?.length || 0}
           docsCount={documents.length}
           onOpenBroadcast={() => setShowBroadcastModal(true)}
+          isOpenMobile={showMobileSidebar}
+          onCloseMobile={() => setShowMobileSidebar(false)}
         />
 
         {/* Content Canvas */}

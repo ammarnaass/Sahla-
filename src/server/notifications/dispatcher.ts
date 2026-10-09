@@ -5,6 +5,7 @@
 
 import { EventEmitter } from "node:events";
 import { db } from "@/lib/db";
+import { DEFAULT_SHOP_ID } from "@/server/config/constants";
 
 export interface NotificationRecord {
   id: string;
@@ -60,7 +61,7 @@ export function initNotificationTables() {
     db.exec(`
       CREATE TABLE IF NOT EXISTS notifications (
         id TEXT PRIMARY KEY,
-        shop_id TEXT NOT NULL DEFAULT 'shop_1',
+        shop_id TEXT NOT NULL DEFAULT '${DEFAULT_SHOP_ID}',
         user_id TEXT,
         type TEXT NOT NULL,
         priority TEXT NOT NULL DEFAULT 'NORMAL',
@@ -100,7 +101,7 @@ export function initNotificationTables() {
       const initialSeed = [
         {
           id: `notif_${Date.now()}_1`,
-          shop_id: "shop_1",
+          shop_id: DEFAULT_SHOP_ID,
           type: "AI_PLAN_READY",
           priority: "NORMAL",
           title: "خطة بحث جاهزة بالذكاء الاصطناعي ⚡",
@@ -112,7 +113,7 @@ export function initNotificationTables() {
         },
         {
           id: `notif_${Date.now()}_2`,
-          shop_id: "shop_1",
+          shop_id: DEFAULT_SHOP_ID,
           type: "NEW_SERVICE",
           priority: "NORMAL",
           title: "ميزة جديدة: استوديو البحوث والمذكرات",
@@ -124,7 +125,7 @@ export function initNotificationTables() {
         },
         {
           id: `notif_${Date.now()}_3`,
-          shop_id: "shop_1",
+          shop_id: DEFAULT_SHOP_ID,
           type: "LEGAL_UPDATE",
           priority: "NORMAL",
           title: "مطابقة القانون 18-07 لحماية المعطيات",
@@ -173,7 +174,7 @@ export async function dispatchNotification(
   initNotificationTables();
 
   const id = `notif_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-  const shopId = input.shopId || "shop_1";
+  const shopId = input.shopId || DEFAULT_SHOP_ID;
   const priority = input.priority || "NORMAL";
   const metaJson = input.meta ? JSON.stringify(input.meta) : null;
   const createdAt = new Date().toISOString();
@@ -242,7 +243,7 @@ export async function dispatchNotification(
 /**
  * 2. Get unread count for a shop
  */
-export function getUnreadCount(shopId: string = "shop_1"): number {
+export function getUnreadCount(shopId: string = DEFAULT_SHOP_ID): number {
   initNotificationTables();
   try {
     const row = db
@@ -267,7 +268,7 @@ export function listNotifications(params: {
   offset?: number;
 }): { notifications: NotificationRecord[]; unreadCount: number; totalCount: number } {
   initNotificationTables();
-  const shopId = params.shopId || "shop_1";
+  const shopId = params.shopId || DEFAULT_SHOP_ID;
   const limit = Math.min(params.limit || 30, 100);
   const offset = params.offset || 0;
 
@@ -300,7 +301,7 @@ export function listNotifications(params: {
 /**
  * 4. Mark single notification as read
  */
-export function markAsRead(id: string, shopId: string = "shop_1"): boolean {
+export function markAsRead(id: string, shopId: string = DEFAULT_SHOP_ID): boolean {
   initNotificationTables();
   const res = db
     .prepare(
@@ -319,7 +320,7 @@ export function markAsRead(id: string, shopId: string = "shop_1"): boolean {
 /**
  * 5. Mark all notifications for shop as read
  */
-export function markAllAsRead(shopId: string = "shop_1"): { markedCount: number; unreadCount: number } {
+export function markAllAsRead(shopId: string = DEFAULT_SHOP_ID): { markedCount: number; unreadCount: number } {
   initNotificationTables();
   const res = db
     .prepare(
@@ -334,7 +335,7 @@ export function markAllAsRead(shopId: string = "shop_1"): { markedCount: number;
 /**
  * 6. Delete a notification
  */
-export function deleteNotification(id: string, shopId: string = "shop_1"): boolean {
+export function deleteNotification(id: string, shopId: string = DEFAULT_SHOP_ID): boolean {
   initNotificationTables();
   const res = db
     .prepare("DELETE FROM notifications WHERE id = ? AND shop_id = ?")
