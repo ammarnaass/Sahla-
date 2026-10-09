@@ -20,6 +20,33 @@ import {
   ShieldCheckIcon,
   BoltIcon,
 } from "@/components/ui/Icons";
+import {
+  GraduationCap,
+  BookOpen,
+  FileText,
+  ClipboardList,
+  Sparkles,
+  CheckCircle2,
+  ShieldCheck,
+  Zap,
+  ChevronUp,
+  ChevronDown,
+  Trash2,
+  Plus,
+  RefreshCw,
+  AlertTriangle,
+  X,
+  Info,
+  Building2,
+  User,
+  School,
+  Languages,
+  Check,
+  Layers,
+  FileCheck,
+  Layout,
+  Sliders,
+} from "lucide-react";
 import { ALGERIAN_WILAYAS_DIRECTORATES } from "@/server/education/curriculumCatalog";
 
 interface StudioDynamicFormProps {
@@ -530,32 +557,113 @@ export function StudioDynamicForm({
       {/* 🎓 SCHOOL RESEARCH & THESIS STUDIO: HIGH-END WORKFLOW   */}
       {/* ======================================================== */}
       {isSchoolService && (
-        <div className="space-y-4 pt-1">
+        <div className="space-y-4 pt-1 text-right">
+          {/* ========================================================= */}
+          {/* شريط المسار والخطوات التفاعلي (3-Step Progress Bar)       */}
+          {/* ========================================================= */}
+          <div className="bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 text-xs">
+            {/* خطوة 1 */}
+            <div className="flex-1 flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
+              <span className="w-5 h-5 rounded-lg bg-emerald-600 text-white font-bold text-[11px] flex items-center justify-center shrink-0">
+                1
+              </span>
+              <div className="min-w-0">
+                <div className="font-bold text-slate-900 dark:text-white text-[11px] truncate">
+                  النوع والطور
+                </div>
+                <div className="text-[9.5px] text-emerald-600 dark:text-emerald-400 font-medium truncate">
+                  {eduDocKind === "THESIS"
+                    ? "مذكرة تخرج جامعية"
+                    : eduDocKind === "PEDAGOGIC"
+                    ? "مذكرة بيداغوجية"
+                    : eduDocKind === "SUMMARY"
+                    ? "ملخص درس"
+                    : `بحث مدرسي · ${eduGradeId}`}
+                </div>
+              </div>
+            </div>
+
+            {/* سهم الربط */}
+            <span className="text-slate-300 dark:text-slate-600 font-bold hidden sm:inline">←</span>
+
+            {/* خطوة 2 */}
+            <div className={`flex-1 flex items-center gap-2 px-2.5 py-1.5 rounded-xl border transition-all ${
+              eduCustomPlan.length > 0
+                ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200"
+                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+            }`}>
+              <span className={`w-5 h-5 rounded-lg text-white font-bold text-[11px] flex items-center justify-center shrink-0 ${
+                eduCustomPlan.length > 0 ? "bg-emerald-600" : "bg-slate-700"
+              }`}>
+                2
+              </span>
+              <div className="min-w-0">
+                <div className="font-bold text-slate-900 dark:text-white text-[11px] truncate">
+                  الموضوع والخطة
+                </div>
+                <div className="text-[9.5px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                  {eduCustomPlan.length > 0
+                    ? `${eduCustomPlan.length} محاور · ${eduPageCount} صفحات`
+                    : `${eduPageCount} صفحات · مجاناً`}
+                </div>
+              </div>
+            </div>
+
+            {/* سهم الربط */}
+            <span className="text-slate-300 dark:text-slate-600 font-bold hidden sm:inline">←</span>
+
+            {/* خطوة 3 */}
+            <div className="flex-1 flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
+              <span className="w-5 h-5 rounded-lg bg-slate-700 text-white font-bold text-[11px] flex items-center justify-center shrink-0">
+                3
+              </span>
+              <div className="min-w-0">
+                <div className="font-bold text-slate-900 dark:text-white text-[11px] truncate">
+                  الغلاف والتصدير
+                </div>
+                <div className="text-[9.5px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                  {customerName ? customerName : "بيانات الطالب"}
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* ========================================================= */}
           {/* الخطوة 1: نوع الوثيقة والطور الأكاديمي                    */}
           {/* ========================================================= */}
-          <div className="bg-white dark:bg-slate-900/90 p-4 rounded-2xl border border-slate-200 dark:border-slate-800/90 shadow-2xs space-y-3">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-black text-slate-900 dark:text-white flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">
-                    1
-                  </span>
-                  <span>نوع الوثيقة الأكاديمية:</span>
+          <div className="bg-white dark:bg-slate-900/90 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs space-y-3.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                  1
                 </span>
-                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">
-                  {eduDocKind === "THESIS"
-                    ? "مذكرة تخرج جامعية / تقني سامي"
-                    : eduDocKind === "PEDAGOGIC"
-                    ? "مذكرة بيداغوجية للأستاذ"
-                    : eduDocKind === "SUMMARY"
-                    ? "ملخص ومراجعة درس"
-                    : "بحث مدرسي رسمي"}
-                </span>
-              </div>
+                <span>نوع الوثيقة والطور الأكاديمي:</span>
+              </span>
+              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800">
+                {eduDocKind === "THESIS"
+                  ? "مذكرة تخرج جامعية / تقني سامي"
+                  : eduDocKind === "PEDAGOGIC"
+                  ? "مذكرة بيداغوجية للأستاذ"
+                  : eduDocKind === "SUMMARY"
+                  ? "ملخص ومراجعة درس"
+                  : "بحث مدرسي رسمي"}
+              </span>
+            </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {EDUCATION_DOC_KINDS.map((k) => (
+            {/* Document Kind Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {EDUCATION_DOC_KINDS.map((k) => {
+                const isSelected = eduDocKind === k.id;
+                const IconComponent =
+                  k.id === "RESEARCH"
+                    ? GraduationCap
+                    : k.id === "THESIS"
+                    ? BookOpen
+                    : k.id === "SUMMARY"
+                    ? FileText
+                    : ClipboardList;
+
+                return (
                   <button
                     key={k.id}
                     type="button"
@@ -573,26 +681,31 @@ export function StudioDynamicForm({
                         if (setEduGradeId) setEduGradeId("4AM");
                       }
                     }}
-                    className={`p-2.5 rounded-xl text-right transition-all border cursor-pointer ${
-                      eduDocKind === k.id
+                    className={`p-3 rounded-xl text-right transition-all border cursor-pointer flex flex-col justify-between ${
+                      isSelected
                         ? "bg-emerald-600 border-emerald-500 text-white shadow-md shadow-emerald-950/20"
                         : "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-emerald-500/40"
                     }`}
                   >
-                    <div className="text-xs font-bold flex items-center gap-1.5">
-                      <span>{k.icon}</span>
-                      <span className="truncate">{k.nameAr}</span>
+                    <div className="flex items-center justify-between gap-1 mb-1.5">
+                      <IconComponent className={`w-4 h-4 ${isSelected ? "text-white" : "text-emerald-600 dark:text-emerald-400"}`} />
+                      {isSelected && <Check className="w-3.5 h-3.5 text-white shrink-0" />}
                     </div>
-                    <div
-                      className={`text-[9.5px] mt-1 truncate ${
-                        eduDocKind === k.id ? "text-emerald-100" : "text-slate-500 dark:text-slate-400"
-                      }`}
-                    >
-                      {k.badge}
+                    <div>
+                      <div className="text-xs font-bold truncate leading-tight">
+                        {k.nameAr}
+                      </div>
+                      <div
+                        className={`text-[9.5px] mt-1 truncate ${
+                          isSelected ? "text-emerald-100" : "text-slate-500 dark:text-slate-400"
+                        }`}
+                      >
+                        {k.badge}
+                      </div>
                     </div>
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
 
             {/* Level & Specialty / Subject selection */}
@@ -619,7 +732,7 @@ export function StudioDynamicForm({
                           if (setEduSpecialty) setEduSpecialty("علوم التسيير والمالية");
                         }
                       }}
-                      className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
                     >
                       <option value="">-- اختر الجامعة المعتمدة --</option>
                       {ALGERIAN_UNIVERSITIES.map((uni) => (
@@ -639,9 +752,8 @@ export function StudioDynamicForm({
                       value={eduFaculty}
                       onChange={(e) => setEduFaculty && setEduFaculty(e.target.value)}
                       placeholder="مثال: كلية العلوم الاقتصادية"
-                      className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
-                    >
-                    </input>
+                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                    />
                   </div>
 
                   <div>
@@ -653,13 +765,13 @@ export function StudioDynamicForm({
                       value={eduSpecialty}
                       onChange={(e) => setEduSpecialty && setEduSpecialty(e.target.value)}
                       placeholder="مثال: إدارة أعمال / إعلام آلي"
-                      className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                     />
                   </div>
                 </div>
 
                 {/* Institution Profile Banner & Guideline Indicators */}
-                <div className="p-2.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-300/40 dark:border-emerald-800/40 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div className="p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-300/40 dark:border-emerald-800/40 flex flex-wrap items-center justify-between gap-2 text-xs">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     <span className="font-bold text-emerald-900 dark:text-emerald-200 text-[11px]">
@@ -688,6 +800,7 @@ export function StudioDynamicForm({
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+                {/* الطور التعليمي */}
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                     الطور التعليمي:
@@ -702,9 +815,9 @@ export function StudioDynamicForm({
                           const matching = ALGERIAN_GRADES.find((g) => g.level === lvl.id);
                           if (matching && setEduGradeId) setEduGradeId(matching.id);
                         }}
-                        className={`py-1.5 px-2 rounded-xl text-center text-xs font-bold border transition-all cursor-pointer ${
+                        className={`py-2 px-1.5 rounded-xl text-center text-xs font-bold border transition-all cursor-pointer ${
                           eduLevel === lvl.id
-                            ? "bg-emerald-600 border-emerald-500 text-white shadow-xs"
+                            ? "bg-emerald-600 border-emerald-500 text-white shadow-xs font-black"
                             : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-emerald-500/30"
                         }`}
                       >
@@ -714,6 +827,7 @@ export function StudioDynamicForm({
                   </div>
                 </div>
 
+                {/* السنة الدراسية */}
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                     السنة الدراسية / الشعبة:
@@ -721,7 +835,7 @@ export function StudioDynamicForm({
                   <select
                     value={eduGradeId}
                     onChange={(e) => setEduGradeId && setEduGradeId(e.target.value)}
-                    className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
                   >
                     {filteredGrades.map((g) => (
                       <option key={g.id} value={g.id}>
@@ -731,6 +845,7 @@ export function StudioDynamicForm({
                   </select>
                 </div>
 
+                {/* المادة المقررة */}
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                     المادة الدراسية المقررة:
@@ -743,7 +858,7 @@ export function StudioDynamicForm({
                       const sub = ALGERIAN_SUBJECTS[sId];
                       if (sub && setLanguage) setLanguage(sub.defaultLang);
                     }}
-                    className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
                   >
                     {availableSubjectIds.map((sId) => {
                       const sub = ALGERIAN_SUBJECTS[sId];
@@ -760,27 +875,27 @@ export function StudioDynamicForm({
           </div>
 
           {/* ========================================================= */}
-          {/* الخطوة 2 (المحور الأساسي): موضوع البحث وخطة العمل الذكية    */}
+          {/* الخطوة 2: موضوع البحث وإعدادات المستند والخطة الذكية       */}
           {/* ========================================================= */}
-          <div className="bg-gradient-to-b from-emerald-500/10 via-white to-white dark:from-emerald-950/30 dark:via-slate-900 dark:to-slate-900 p-4 sm:p-5 rounded-2xl border-2 border-emerald-500/40 dark:border-emerald-500/30 shadow-md space-y-3.5">
+          <div className="bg-white dark:bg-slate-900/90 p-4 sm:p-5 rounded-2xl border-2 border-emerald-500/40 dark:border-emerald-500/30 shadow-md space-y-4">
             {/* Header */}
-            <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
               <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
                   2
                 </span>
-                <SparklesIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>موضوع البحث وخطة العمل بالذكاء الاصطناعي:</span>
+                <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span>موضوع البحث وإعدادات المستند والخطة الذكية:</span>
               </span>
               <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 shadow-2xs">
                 ⚡ توليد ومراجعة مجانية للخطة
               </span>
             </div>
 
-            {/* Topic Input with AI Button Integrated */}
-            <div className="space-y-2.5">
-              <div>
-                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
+            {/* Topic Input + Presets */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
                   {eduDocKind === "THESIS"
                     ? "عنوان مذكرة التخرج أو الأطروحة الجامعية *"
                     : eduDocKind === "SUMMARY"
@@ -789,173 +904,6 @@ export function StudioDynamicForm({
                     ? "عنوان المذكرة البيداغوجية / درس الأستاذ *"
                     : "عنوان وموضوع البحث المدرسي *"}
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={eduTopic}
-                  onChange={(e) => {
-                    if (setEduTopic) setEduTopic(e.target.value);
-                    if (onDismissPlanError) onDismissPlanError();
-                  }}
-                  placeholder={
-                    eduDocKind === "THESIS"
-                      ? "مثال: أثر الرقمنة والشمول المالي على أداء المؤسسات المصرفية في الجزائر"
-                      : eduDocKind === "SUMMARY"
-                      ? "مثال: ملخص شامل لقواعد اللغة والتحليل الأدبي للثلاثي الأول"
-                      : eduDocKind === "PEDAGOGIC"
-                      ? "مثال: مذكرة نموذجية لتحضير درس الطاقة الحركية وتطبيقاتها"
-                      : "مثال: المقاومة الشعبية الجزائرية ومحطات الثورة التحريرية 1954-1962"
-                  }
-                  className="w-full px-4 py-3 bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs sm:text-sm font-bold focus:outline-none focus:border-emerald-500 shadow-2xs transition-all"
-                />
-              </div>
-
-              {/* مواصفات المستند والخطة (حجم الصفحات، الصياغة، الغلاف، اللغة) */}
-              <div className="p-3 sm:p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-emerald-500/20 space-y-3">
-                {/* حجم المستند وعدد الصفحات */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-[11px] font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      <span>حجم المستند وعدد الصفحات:</span>
-                    </label>
-                    <span className="text-[10px] text-emerald-700 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 font-mono">
-                      {pricing.pointsCost} نقطة · سعر البيع: {pricing.defaultSaleDZD} دج
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-5 gap-1.5">
-                    {([1, 2, 3, 5, 10] as const).map((num) => (
-                      <button
-                        key={num}
-                        type="button"
-                        onClick={() => {
-                          if (setEduPageCount) setEduPageCount(num);
-                        }}
-                        className={`py-2 rounded-xl text-center text-xs font-bold border transition-all cursor-pointer ${
-                          eduPageCount === num
-                            ? "bg-emerald-600 border-emerald-500 text-white shadow-xs font-black"
-                            : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-emerald-500/40"
-                        }`}
-                      >
-                        <span>
-                          {num} {num === 1 ? "صفحة" : num === 2 ? "صفحتين" : "صفحات"}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* مستوى الصياغة + قالب الغلاف + لغة المستند والطباعة */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                  {/* مستوى الصياغة */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                      مستوى الصياغة:
-                    </label>
-                    <select
-                      value={eduStyleLevel}
-                      onChange={(e) => setEduStyleLevel && setEduStyleLevel(e.target.value as any)}
-                      className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
-                    >
-                      <option value="SIMPLE">بسيط (جمل واضحة للتلاميذ)</option>
-                      <option value="MODERATE">متوسط (غني بالأمثلة والشواهد)</option>
-                      <option value="ADVANCED">متقدم (تحليلي ومصطلحات تخصصية)</option>
-                    </select>
-                  </div>
-
-                  {/* قالب الغلاف */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                      قالب صفحة الغلاف:
-                    </label>
-                    <select
-                      value={eduCoverTemplate}
-                      onChange={(e) => setEduCoverTemplate && setEduCoverTemplate(e.target.value as any)}
-                      className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
-                    >
-                      <option value="OFFICIAL">🇩🇿 رسمي جزائري (شعار الجمهورية)</option>
-                      <option value="CLASSIC">كلاسيكي أنيق (إطار أكاديمي)</option>
-                      <option value="MODERN">عصري ملوّن (تصميم حديث)</option>
-                    </select>
-                  </div>
-
-                  {/* لغة المستند والطباعة */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                      لغة المستند والطباعة:
-                    </label>
-                    <div className="flex gap-1">
-                      {(["ar", "fr", "en"] as const).map((l) => (
-                        <button
-                          key={l}
-                          type="button"
-                          onClick={() => setLanguage(l)}
-                          className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
-                            language === l
-                              ? "bg-emerald-600 border-emerald-500 text-white font-black"
-                              : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
-                          }`}
-                        >
-                          {l === "ar" ? "عربي" : l === "fr" ? "Fr" : "En"}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Optional Teacher Requirements */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1 flex items-center justify-between">
-                    <span>توجيهات أو عناصر خاصة من الأستاذ المشرف (اختياري):</span>
-                    <span className="text-[10px] text-slate-400 font-normal">
-                      يلتزم الذكاء الاصطناعي بإدراجها في الخطة والمتن
-                    </span>
-                  </label>
-                  <input
-                    type="text"
-                    value={eduTeacherRequirements}
-                    onChange={(e) => setEduTeacherRequirements && setEduTeacherRequirements(e.target.value)}
-                    placeholder="مثال: التركيز على بيان أول نوفمبر، إدراج دور الحركة الوطنية، استخدام مراجع رسمية..."
-                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-800 dark:text-slate-200 text-xs placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* Action Bar: Generate AI Plan + Quick Preset dropdown */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                {isGeneratingPlan ? (
-                  <div className="flex-1 p-3 bg-slate-900 border border-emerald-500/60 rounded-xl shadow-lg space-y-2 animate-fade-in text-right">
-                    <div className="flex items-center justify-between text-xs font-black">
-                      <div className="flex items-center gap-2 text-emerald-400 min-w-0">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                        <span className="truncate">{planStageText || `جاري صياغة الخطة بالذكاء الاصطناعي (${eduPageCount} صفحات)...`}</span>
-                      </div>
-                      <div className="flex items-center gap-1 font-mono text-emerald-300 font-black text-sm shrink-0 bg-slate-800 px-2 py-0.5 rounded border border-emerald-500/30">
-                        <span>{Math.min(100, Math.round(planProgress))}</span>
-                        <span className="text-[10px] text-emerald-400">%</span>
-                      </div>
-                    </div>
-                    {/* Progress Bar Track & Fill */}
-                    <div className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700">
-                      <div
-                        className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-300 rounded-full transition-all duration-300 shadow-sm shadow-emerald-400/50"
-                        style={{ width: `${Math.min(100, Math.max(8, planProgress))}%` }}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => generatePlanAsync && generatePlanAsync()}
-                    className="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-emerald-950/20 active:scale-98"
-                  >
-                    <SparklesIcon className="w-4 h-4 text-emerald-200" />
-                    <span>
-                      ✨ اضغط هنا لتوليد الخطة بالذكاء الاصطناعي ({eduPageCount} {eduPageCount === 1 ? "صفحة" : eduPageCount === 2 ? "صفحتين" : "صفحات"} · {language === "ar" ? "عربي" : language === "fr" ? "Français" : "English"})
-                    </span>
-                  </button>
-                )}
-
                 {availablePresets.length > 0 && (
                   <select
                     onChange={(e) => {
@@ -963,9 +911,9 @@ export function StudioDynamicForm({
                         applyPresetTopic(e.target.value);
                       }
                     }}
-                    className="sm:w-64 px-3 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-emerald-500 transition-colors font-medium cursor-pointer"
+                    className="text-[11px] font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 cursor-pointer"
                   >
-                    <option value="">💡 مواضيع جزائرية نموذجية جاهزة...</option>
+                    <option value="">💡 مواضيع نموذجية من المنهاج...</option>
                     {availablePresets.map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.title}
@@ -974,13 +922,179 @@ export function StudioDynamicForm({
                   </select>
                 )}
               </div>
+
+              <input
+                type="text"
+                required
+                value={eduTopic}
+                onChange={(e) => {
+                  if (setEduTopic) setEduTopic(e.target.value);
+                  if (onDismissPlanError) onDismissPlanError();
+                }}
+                placeholder={
+                  eduDocKind === "THESIS"
+                    ? "مثال: أثر الرقمنة والشمول المالي على أداء المؤسسات المصرفية في الجزائر"
+                    : eduDocKind === "SUMMARY"
+                    ? "مثال: ملخص شامل لقواعد اللغة والتحليل الأدبي للثلاثي الأول"
+                    : eduDocKind === "PEDAGOGIC"
+                    ? "مثال: مذكرة نموذجية لتحضير درس الطاقة الحركية وتطبيقاتها"
+                    : "مثال: المقاومة الشعبية الجزائرية ومحطات الثورة التحريرية 1954-1962"
+                }
+                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-2xs transition-all"
+              />
             </div>
 
-            {/* Error Notification Alert (Inline, No Browser Alert!) */}
+            {/* مواصفات المستند الموحدة (بدون أي تكرار) */}
+            <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/80 space-y-3">
+              {/* حجم المستند وعدد الصفحات */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[11px] font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span>حجم المستند وعدد الصفحات:</span>
+                  </label>
+                  <span className="text-[10px] text-emerald-700 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 font-mono">
+                    {pricing.pointsCost} نقطة · سعر البيع: {pricing.defaultSaleDZD} دج
+                  </span>
+                </div>
+                <div className="grid grid-cols-5 gap-1.5">
+                  {([1, 2, 3, 5, 10] as const).map((num) => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => {
+                        if (setEduPageCount) setEduPageCount(num);
+                      }}
+                      className={`py-2 rounded-xl text-center text-xs font-bold border transition-all cursor-pointer ${
+                        eduPageCount === num
+                          ? "bg-emerald-600 border-emerald-500 text-white shadow-xs font-black"
+                          : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-emerald-500/40"
+                      }`}
+                    >
+                      <span>
+                        {num} {num === 1 ? "صفحة" : num === 2 ? "صفحتين" : "صفحات"}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* مستوى الصياغة + قالب الغلاف + لغة المستند والطباعة */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {/* مستوى الصياغة */}
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    مستوى الصياغة:
+                  </label>
+                  <select
+                    value={eduStyleLevel}
+                    onChange={(e) => setEduStyleLevel && setEduStyleLevel(e.target.value as any)}
+                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
+                  >
+                    <option value="SIMPLE">بسيط (جمل واضحة ومباشرة)</option>
+                    <option value="MODERATE">متوسط (غني بالأمثلة والشواهد)</option>
+                    <option value="ADVANCED">متقدم (تحليلي ومصطلحات تخصصية)</option>
+                  </select>
+                </div>
+
+                {/* قالب الغلاف */}
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    قالب صفحة الغلاف:
+                  </label>
+                  <select
+                    value={eduCoverTemplate}
+                    onChange={(e) => setEduCoverTemplate && setEduCoverTemplate(e.target.value as any)}
+                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
+                  >
+                    <option value="OFFICIAL">🇩🇿 رسمي جزائري (شعار الجمهورية)</option>
+                    <option value="CLASSIC">كلاسيكي أنيق (إطار أكاديمي)</option>
+                    <option value="MODERN">عصري ملوّن (تصميم حديث)</option>
+                  </select>
+                </div>
+
+                {/* لغة المستند والطباعة */}
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    لغة المستند والطباعة:
+                  </label>
+                  <div className="flex gap-1">
+                    {(["ar", "fr", "en"] as const).map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => setLanguage(l)}
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
+                          language === l
+                            ? "bg-emerald-600 border-emerald-500 text-white font-black"
+                            : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-emerald-500/30"
+                        }`}
+                      >
+                        {l === "ar" ? "عربي" : l === "fr" ? "Fr" : "En"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* توجيهات الأستاذ المشرف (اختياري) */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1 flex items-center justify-between">
+                  <span>توجيهات أو عناصر خاصة من الأستاذ المشرف (اختياري):</span>
+                  <span className="text-[10px] text-slate-400 font-normal">
+                    يلتزم الذكاء الاصطناعي بإدراجها في الخطة والمتن
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  value={eduTeacherRequirements}
+                  onChange={(e) => setEduTeacherRequirements && setEduTeacherRequirements(e.target.value)}
+                  placeholder="مثال: التركيز على بيان أول نوفمبر، إدراج دور الحركة الوطنية، استخدام مراجع رسمية..."
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl text-slate-800 dark:text-slate-200 text-xs placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* AI Plan Generation Action Button */}
+            <div>
+              {isGeneratingPlan ? (
+                <div className="w-full p-3.5 bg-slate-900 border border-emerald-500/60 rounded-xl shadow-lg space-y-2 animate-fade-in text-right">
+                  <div className="flex items-center justify-between text-xs font-black">
+                    <div className="flex items-center gap-2 text-emerald-400 min-w-0">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                      <span className="truncate">{planStageText || `جاري صياغة الخطة بالذكاء الاصطناعي (${eduPageCount} صفحات)...`}</span>
+                    </div>
+                    <div className="flex items-center gap-1 font-mono text-emerald-300 font-black text-sm shrink-0 bg-slate-800 px-2 py-0.5 rounded border border-emerald-500/30">
+                      <span>{Math.min(100, Math.round(planProgress))}</span>
+                      <span className="text-[10px] text-emerald-400">%</span>
+                    </div>
+                  </div>
+                  <div className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700">
+                    <div
+                      className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-300 rounded-full transition-all duration-300 shadow-sm shadow-emerald-400/50"
+                      style={{ width: `${Math.min(100, Math.max(8, planProgress))}%` }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => generatePlanAsync && generatePlanAsync()}
+                  className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-emerald-950/20 active:scale-99"
+                >
+                  <Sparkles className="w-4 h-4 text-emerald-200" />
+                  <span>
+                    ✨ اضغط هنا لتوليد الخطة بالذكاء الاصطناعي ({eduPageCount} {eduPageCount === 1 ? "صفحة" : eduPageCount === 2 ? "صفحتين" : "صفحات"} · {language === "ar" ? "عربي" : language === "fr" ? "Français" : "English"})
+                  </span>
+                </button>
+              )}
+            </div>
+
+            {/* Error Notification Alert */}
             {planErrorNotice && (
               <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/40 text-amber-800 dark:text-amber-300 text-xs font-bold flex items-center justify-between animate-fade-in shadow-2xs">
                 <div className="flex items-center gap-2">
-                  <span className="text-amber-500 text-base">⚠️</span>
+                  <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
                   <span>{planErrorNotice}</span>
                 </div>
                 {onDismissPlanError && (
@@ -999,7 +1113,7 @@ export function StudioDynamicForm({
             {planSuccessNotice && (
               <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center justify-between animate-fade-in shadow-2xs">
                 <div className="flex items-center gap-2">
-                  <CheckCircleIcon size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>{planSuccessNotice}</span>
                 </div>
                 {onDismissPlanNotice && (
@@ -1027,9 +1141,9 @@ export function StudioDynamicForm({
                 </p>
               </div>
             ) : (
-              <div className="rounded-xl border border-emerald-500/30 bg-white dark:bg-slate-900 p-3.5 space-y-3 shadow-2xs">
+              <div className="rounded-xl border border-emerald-500/30 bg-slate-50 dark:bg-slate-900 p-3.5 space-y-3 shadow-2xs">
                 {/* Header of outline */}
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                     <span className="text-xs font-black text-slate-900 dark:text-white">
@@ -1039,21 +1153,24 @@ export function StudioDynamicForm({
                       {eduCustomPlan.length} محاور · مصممة لـ {eduPageCount} {eduPageCount === 1 ? "صفحة" : eduPageCount === 2 ? "صفحتين" : "صفحات"}
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                     ⚡ {planProviderUsed || "الذكاء الاصطناعي"}
                   </span>
                 </div>
 
                 {/* Plan Summary */}
                 {planSummary && (
-                  <div className="p-2 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-[11px] text-slate-700 dark:text-slate-300 flex items-start gap-1.5">
-                    <span className="text-emerald-600 dark:text-emerald-400 font-bold shrink-0">💡 ملخص منهجي:</span>
-                    <p className="font-medium leading-relaxed">{planSummary}</p>
+                  <div className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-emerald-500/20 text-[11px] text-slate-700 dark:text-slate-300 flex items-start gap-2 shadow-2xs">
+                    <Info className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold text-emerald-800 dark:text-emerald-300">ملخص منهجي: </span>
+                      <span className="font-medium leading-relaxed">{planSummary}</span>
+                    </div>
                   </div>
                 )}
 
                 {/* Chapter List */}
-                <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                <div className="space-y-1.5 max-h-60 overflow-y-auto pr-1">
                   {eduCustomPlan.map((heading, idx) => {
                     const isIntro = idx === 0 || heading.includes("مقدمة");
                     const isConclusion = idx === eduCustomPlan.length - 1 || heading.includes("خاتمة");
@@ -1063,13 +1180,13 @@ export function StudioDynamicForm({
                     return (
                       <div
                         key={idx}
-                        className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/60 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700/80 text-[11px] transition-all hover:border-emerald-500/40 group"
+                        className="flex items-center gap-2 bg-white dark:bg-slate-800/80 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700/80 text-[11px] transition-all hover:border-emerald-500/40 group shadow-2xs"
                       >
                         <div className="flex items-center gap-1 shrink-0">
                           <span className="w-5 h-5 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-mono font-black text-[10px] flex items-center justify-center">
                             {idx + 1}
                           </span>
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-bold">
+                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-bold">
                             {tag}
                           </span>
                         </div>
@@ -1087,7 +1204,7 @@ export function StudioDynamicForm({
                           className="flex-1 bg-transparent text-slate-800 dark:text-slate-200 outline-none focus:text-slate-950 dark:focus:text-white text-[11px] font-medium"
                         />
 
-                        {/* Reorder Buttons */}
+                        {/* Reorder Buttons (Vector Lucide Icons) */}
                         <div className="flex items-center gap-0.5 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
                           {idx > 0 && (
                             <button
@@ -1101,10 +1218,10 @@ export function StudioDynamicForm({
                                   setEduCustomPlan(updated);
                                 }
                               }}
-                              className="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 text-[10px] cursor-pointer"
+                              className="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 cursor-pointer"
                               title="تحريك لأعلى"
                             >
-                              ▲
+                              <ChevronUp className="w-3.5 h-3.5" />
                             </button>
                           )}
                           {idx < eduCustomPlan.length - 1 && (
@@ -1119,15 +1236,15 @@ export function StudioDynamicForm({
                                   setEduCustomPlan(updated);
                                 }
                               }}
-                              className="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 text-[10px] cursor-pointer"
+                              className="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 cursor-pointer"
                               title="تحريك لأسفل"
                             >
-                              ▼
+                              <ChevronDown className="w-3.5 h-3.5" />
                             </button>
                           )}
                         </div>
 
-                        {/* Delete Button */}
+                        {/* Delete Button (Vector Lucide Icon) */}
                         <button
                           type="button"
                           onClick={() => {
@@ -1135,10 +1252,10 @@ export function StudioDynamicForm({
                               setEduCustomPlan(eduCustomPlan.filter((_, i) => i !== idx));
                             }
                           }}
-                          className="text-slate-400 hover:text-rose-500 shrink-0 text-xs px-1 cursor-pointer transition-colors"
+                          className="w-5 h-5 flex items-center justify-center rounded hover:bg-rose-50 dark:hover:bg-rose-950/50 text-slate-400 hover:text-rose-500 shrink-0 cursor-pointer transition-colors"
                           title="حذف هذا المحور"
                         >
-                          ✕
+                          <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
                     );
@@ -1159,7 +1276,7 @@ export function StudioDynamicForm({
                     }}
                     className="flex-1 py-1.5 text-[11px] border border-dashed border-emerald-500/40 text-emerald-700 dark:text-emerald-400 rounded-xl font-bold hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all cursor-pointer flex items-center justify-center gap-1"
                   >
-                    <span>+</span>
+                    <Plus className="w-3.5 h-3.5" />
                     <span>إضافة محور جديد للخطة</span>
                   </button>
 
@@ -1169,52 +1286,33 @@ export function StudioDynamicForm({
                     disabled={isGeneratingPlan}
                     className="py-1.5 px-3 text-[11px] bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-950/60 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-200 rounded-xl font-bold transition-all cursor-pointer flex items-center gap-1.5 border border-emerald-400/30 shadow-2xs"
                   >
-                    <span>🔄</span>
+                    <RefreshCw className={`w-3.5 h-3.5 ${isGeneratingPlan ? "animate-spin" : ""}`} />
                     <span>إعادة تكييف الخطة مع ({eduPageCount} صفحات)</span>
                   </button>
                 </div>
 
-                {/* Plan to Document Generation Action Strip */}
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-400 font-bold">
-                    <CheckCircleIcon size={14} className="shrink-0" />
-                    <span>تم توزيع محاور الخطة ({eduCustomPlan.length}) على صفحات المستند ({eduPageCount})</span>
-                  </div>
-                  {onSubmitFullDocument && (
-                    isProcessing ? (
-                      <div className="py-2 px-3.5 bg-slate-900 border border-emerald-500/60 rounded-xl text-emerald-400 text-xs font-bold flex items-center gap-2 shrink-0 animate-fade-in shadow-xs">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                        <span>جاري صياغة المتن...</span>
-                        <span className="font-mono text-emerald-300 font-black text-xs bg-slate-800 px-2 py-0.5 rounded border border-emerald-500/30">
-                          {Math.min(100, Math.round(docProgress))}%
-                        </span>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={onSubmitFullDocument}
-                        className="py-1.5 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-98"
-                      >
-                        <span>🚀</span>
-                        <span>توليد وحفظ المستند كاملاً ({pricing.pointsCost} ن · {pricing.defaultSaleDZD} دج)</span>
-                      </button>
-                    )
-                  )}
+                {/* Plan Distribution Badge */}
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-400 font-bold">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>تم توزيع محاور الخطة ({eduCustomPlan.length}) على صفحات المستند ({eduPageCount})</span>
                 </div>
               </div>
             )}
           </div>
 
           {/* ========================================================= */}
-          {/* الخطوة 3: بيانات الغلاف وإعدادات الطباعة والتصدير          */}
+          {/* الخطوة 3: بيانات الغلاف والطباعة والتصدير                  */}
           {/* ========================================================= */}
-          <div className="bg-white dark:bg-slate-900/90 p-4 rounded-2xl border border-slate-200 dark:border-slate-800/90 shadow-2xs space-y-3.5">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <span className="w-5 h-5 rounded-lg bg-slate-700 text-white font-bold text-xs flex items-center justify-center">
+          <div className="bg-white dark:bg-slate-900/90 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs space-y-3.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <span className="w-6 h-6 rounded-lg bg-slate-700 text-white font-bold text-xs flex items-center justify-center shadow-xs">
                   3
                 </span>
                 <span>بيانات الغلاف والطباعة والتصدير:</span>
+              </span>
+              <span className="text-[10px] text-slate-500 font-bold">
+                تُطبع مباشرة على صفحة الغلاف الرسمية
               </span>
             </div>
 
@@ -1234,7 +1332,7 @@ export function StudioDynamicForm({
                       ? "مثال: اسم الطالب الباحث / فريق البحث"
                       : "مثال: اسم التلميذ(ة)"
                   }
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                  className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
                 />
               </div>
 
@@ -1247,7 +1345,7 @@ export function StudioDynamicForm({
                   value={eduTeacherName}
                   onChange={(e) => setEduTeacherName && setEduTeacherName(e.target.value)}
                   placeholder="مثال: أ.د. الأستاذ المشرف"
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                  className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
                 />
               </div>
             </div>
@@ -1264,7 +1362,7 @@ export function StudioDynamicForm({
                     value={eduSchoolName}
                     onChange={(e) => setEduSchoolName && setEduSchoolName(e.target.value)}
                     placeholder="مثال: ثانوية حسيبة بن بوعلي / متوسطة الأمير عبد القادر"
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                    className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
                   />
                 </div>
 
@@ -1275,7 +1373,7 @@ export function StudioDynamicForm({
                   <select
                     value={eduDirectorate}
                     onChange={(e) => setEduDirectorate && setEduDirectorate(e.target.value)}
-                    className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                    className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium cursor-pointer"
                   >
                     {ALGERIAN_WILAYAS_DIRECTORATES.slice(0, 58).map((d) => (
                       <option key={d} value={d}>
@@ -1287,113 +1385,27 @@ export function StudioDynamicForm({
               </div>
             )}
 
-            {/* Document Size & Pages */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                  حجم المستند وعدد الصفحات:
-                </label>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
-                  {pricing.pointsCost} نقطة · سعر البيع: {pricing.defaultSaleDZD} دج
-                </span>
-              </div>
-              <div className="grid grid-cols-5 gap-1.5">
-                {([1, 2, 3, 5, 10] as const).map((num) => (
-                  <button
-                    key={num}
-                    type="button"
-                    onClick={() => setEduPageCount && setEduPageCount(num)}
-                    className={`py-2 rounded-xl text-center text-xs font-bold border transition-all cursor-pointer ${
-                      eduPageCount === num
-                        ? "bg-emerald-600 border-emerald-500 text-white shadow-xs"
-                        : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-emerald-500/30"
-                    }`}
-                  >
-                    <span>
-                      {num} {num === 1 ? "صفحة" : num === 2 ? "صفحتين" : "صفحات"}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Style Level + Cover Template + Language */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              {/* Style level */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  مستوى الصياغة:
-                </label>
-                <select
-                  value={eduStyleLevel}
-                  onChange={(e) => setEduStyleLevel && setEduStyleLevel(e.target.value as any)}
-                  className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
-                >
-                  <option value="SIMPLE">بسيط (جمل واضحة للتلاميذ)</option>
-                  <option value="MODERATE">متوسط (غني بالأمثلة والشواهد)</option>
-                  <option value="ADVANCED">متقدم (تحليلي ومصطلحات تخصصية)</option>
-                </select>
-              </div>
-
-              {/* Cover Template */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  قالب صفحة الغلاف:
-                </label>
-                <select
-                  value={eduCoverTemplate}
-                  onChange={(e) => setEduCoverTemplate && setEduCoverTemplate(e.target.value as any)}
-                  className="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 transition-colors"
-                >
-                  <option value="OFFICIAL">🇩🇿 رسمي جزائري (شعار الجمهورية)</option>
-                  <option value="CLASSIC">كلاسيكي أنيق (إطار أكاديمي)</option>
-                  <option value="MODERN">عصري ملوّن (تصميم حديث)</option>
-                </select>
-              </div>
-
-              {/* Language */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  لغة المستند والطباعة:
-                </label>
-                <div className="flex gap-1">
-                  {(["ar", "fr", "en"] as const).map((l) => (
-                    <button
-                      key={l}
-                      type="button"
-                      onClick={() => setLanguage(l)}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
-                        language === l
-                          ? "bg-emerald-600 border-emerald-500 text-white"
-                          : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
-                      }`}
-                    >
-                      {l === "ar" ? "عربي" : l === "fr" ? "Fr" : "En"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
             {/* Educational Review Questions Toggle */}
-            <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
+            <label className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 text-xs text-slate-700 dark:text-slate-300 cursor-pointer hover:border-emerald-500/40 transition-colors">
               <input
                 type="checkbox"
                 checked={eduIncludeReviewQuestions}
                 onChange={(e) =>
                   setEduIncludeReviewQuestions && setEduIncludeReviewQuestions(e.target.checked)
                 }
-                className="accent-emerald-500 rounded"
+                className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
               />
-              <span>إدراج أسئلة مراجعة وتثبيت الفهم في نهاية البحث (لتجنب الغش وتحفيز الاستيعاب)</span>
+              <span className="font-medium">
+                إدراج أسئلة مراجعة وتثبيت الفهم في نهاية البحث (لتجنب الغش وتحفيز الاستيعاب)
+              </span>
             </label>
           </div>
 
-          {/* Error Notification Alert for Generation (Inline, No Browser Alert!) */}
+          {/* Error Notification Alert for Generation (Inline) */}
           {genErrorNotice && (
             <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/40 text-rose-800 dark:text-rose-300 text-xs font-bold flex items-center justify-between animate-fade-in shadow-2xs">
               <div className="flex items-center gap-2">
-                <span className="text-rose-500 text-base">❌</span>
+                <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" />
                 <span>{genErrorNotice}</span>
               </div>
               {onDismissGenError && (
@@ -1440,11 +1452,11 @@ export function StudioDynamicForm({
               <button
                 type="button"
                 onClick={onSubmitFullDocument}
-                className="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl font-black text-sm shadow-lg shadow-emerald-950/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-99"
+                className="w-full py-4 px-5 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl font-black text-sm shadow-lg shadow-emerald-950/20 transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-99 hover:shadow-emerald-500/25"
               >
-                <BoltIcon className="w-5 h-5 text-emerald-200" />
+                <Zap className="w-5 h-5 text-emerald-200 fill-emerald-200" />
                 <span>
-                  🚀 توليد وحفظ المستند كاملاً بالذكاء الاصطناعي ({pricing.pointsCost} ن · {pricing.defaultSaleDZD} دج)
+                  توليد وحفظ المستند كاملاً بالذكاء الاصطناعي ({pricing.pointsCost} ن · {pricing.defaultSaleDZD} دج)
                 </span>
               </button>
             )
@@ -1452,7 +1464,7 @@ export function StudioDynamicForm({
 
           {/* Subtle Footnote */}
           <div className="text-center text-[10px] text-slate-400 flex items-center justify-center gap-1.5 pt-1">
-            <ShieldCheckIcon className="w-3.5 h-3.5 text-emerald-600" />
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             <span>مطابق لمعايير وزارة التربية الوطنية والتعليم العالي والبحث العلمي (الجزائر).</span>
           </div>
         </div>
