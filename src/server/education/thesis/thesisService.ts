@@ -26,6 +26,11 @@ import { AcademicResearcher } from "./skills/researcher";
 import { SourceVetter } from "./skills/sourceVetter";
 import { ChapterWriter } from "./skills/chapterWriter";
 import { ThesisQualityAuditor } from "./validators/thesisValidators";
+import { IntroConclusionWriter, IntroConclusionResult } from "./skills/introConclusionWriter";
+import { AbstractTranslator, TrilingualAbstracts } from "./skills/abstractTranslator";
+import { CitationFormatter, FormattedBibliography } from "./skills/citationFormatter";
+import { ThesisAssembler, AssembledThesisDocument } from "./skills/thesisAssembler";
+import { GuideExtractor } from "./skills/guideExtractor";
 
 export interface CreateThesisDTO {
   shopId: string;
@@ -843,6 +848,115 @@ export class ThesisService {
       stats_accuracy_ratio: row.stats_accuracy_ratio,
       evaluated_at: row.evaluated_at,
     };
+  }
+
+  /**
+   * صياغة المقدمة العامة والخاتمة العامة للمذكرة
+   */
+  public static async generateIntroAndConclusion(
+    thesisId: string
+  ): Promise<IntroConclusionResult> {
+    ensureThesisStudioTables();
+    const project = this.getThesis(thesisId);
+    if (!project) throw new Error("المشروع غير موجود");
+
+    const plan = this.getPlan(thesisId);
+    if (!plan) throw new Error("خطة المذكرة غير موجودة");
+
+    const profile =
+      getInstitutionProfile(project.profile_id) ||
+      resolveProfileByInstitution(project.university, project.faculty, project.degree);
+
+    const chapters = this.getChapters(thesisId);
+
+    return IntroConclusionWriter.writeIntroAndConclusion({
+      project,
+      profile,
+      plan,
+      chapters,
+    });
+  }
+
+  /**
+   * توليد الملخصات الأكاديمية الثلاثية (عربي، فرنسي، إنجليزي) مع الكلمات المفتاحية
+   */
+  public static async generateAbstracts(
+    thesisId: string
+  ): Promise<TrilingualAbstracts> {
+    ensureThesisStudioTables();
+    const project = this.getThesis(thesisId);
+    if (!project) throw new Error("المشروع غير موجود");
+
+    const plan = this.getPlan(thesisId);
+    if (!plan) throw new Error("خطة المذكرة غير موجودة");
+
+    const chapters = this.getChapters(thesisId);
+
+    return AbstractTranslator.generateTrilingualAbstracts({
+      project,
+      plan,
+      chapters,
+    });
+  }
+
+  /**
+   * تجميع المذكرة الأكاديمية بالكامل (assembler) بصيغة DOCX/HTML مهيأة للطباعة
+   */
+  public static async assembleThesis(
+    thesisId: string
+  ): Promise<AssembledThesisDocument> {
+    ensureThesisStudioTables();
+    const project = this.getThesis(thesisId);
+    if (!project) throw new Error("المشروع غير موجود");
+
+    const plan = this.getPlan(thesisId);
+    if (!plan) throw new Error("خطة المذكرة غير موجودة");
+
+    const profile =
+      getInstitutionProfile(project.profile_id) ||
+      resolveProfileByInstitution(project.university, project.faculty, project.degree);
+
+    this.updateStatus(thesisId, "assembling");
+
+    const chapters = this.getChapters(thesisId);
+    const sources = this.getSources(thesisId);
+
+    // صياغة المقدمة والخاتمة
+    const introConclusion = await this.generateIntroAndConclusion(thesisId);
+
+    // صياغة الملخصات الثلاثية
+    const abstracts = await this.generateAbstracts(thesisId);
+
+    // التجميع الشامل
+    const assembledDoc = ThesisAssembler.assemble({
+      project,
+      profile,
+      plan,
+      chapters,
+      sources,
+      introConclusion,
+      abstracts,
+    });
+
+    // تشغيل فحص الجودة المباشر
+    this.runQualityAudit(thesisId);
+
+    return assembledDoc;
+  }
+
+  /**
+   * استخراج ملف مؤسسة (InstitutionProfile) جديد من نص دليل المذكرة
+   */
+  public static async extractProfileFromGuide(
+    guideText: string,
+    hints?: { university?: string; faculty?: string; degree?: ThesisDegree }
+  ) {
+    return GuideExtractor.extractProfile({
+      guide_text: guideText,
+      university_hint: hints?.university,
+      faculty_hint: hints?.faculty,
+      degree_hint: hints?.degree,
+    });
   }
 
   /**
