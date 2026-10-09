@@ -15,6 +15,7 @@ export interface ResearchHtmlSection {
   heading: string;
   content: string;
   paragraphs?: string[];
+  highlightBox?: string;
 }
 
 export interface ResearchHtmlOptions {
@@ -303,6 +304,30 @@ export function renderResearchHtmlDocument(options: ResearchHtmlOptions): string
     }
 
     /* ======================================================== */
+    /* 📄 ترويسة الصفحة A4 (Page Header Line)                   */
+    /* ======================================================== */
+    .page-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1.5px solid #cbd5e1;
+      padding-bottom: 6px;
+      margin-bottom: 18px;
+      font-size: 9.5pt;
+      color: #64748b;
+      font-weight: bold;
+    }
+
+    .page-header-num {
+      font-family: Arial, sans-serif;
+      color: #065f46;
+      background-color: #f0fdf4;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid #a7f3d0;
+    }
+
+    /* ======================================================== */
     /* 📋 فهرس وخطة البحث (Table of Contents)                   */
     /* ======================================================== */
     .toc-card {
@@ -548,139 +573,282 @@ export function renderResearchHtmlDocument(options: ResearchHtmlOptions): string
       </div>
     </div>
 
-    <!-- الفاصل بين الغلاف والفهرس -->
-    <div class="page-break" style="page-break-after: always; mso-special-character: line-break;"></div>
+    ${(() => {
+      // Helper function to calculate exact page number for each outline item
+      const getPageNumber = (idx: number): number => {
+        if (pageCount <= 1) return 1;
+        if (pageCount === 2) return 2;
+        if (pageCount === 3) {
+          return idx <= 1 ? 2 : 3;
+        }
+        if (pageCount === 5) {
+          if (idx === 0) return 2; // Intro
+          if (idx === 1 || idx === 2) return 3; // Section 1 & 2
+          if (idx === 3) return 4; // Section 3
+          return 5; // Conclusion & References
+        }
+        // General distribution for pageCount >= 4
+        if (idx === 0) return 2;
+        const totalItems = outline.length;
+        const lastCount = totalItems >= 5 ? 2 : 1;
+        if (idx >= totalItems - lastCount) return pageCount;
+        const middleItems = totalItems - 1 - lastCount;
+        const middlePages = pageCount - 2;
+        const middleIdx = idx - 1;
+        const assignedPage = 3 + Math.floor((middleIdx / Math.max(1, middleItems)) * middlePages);
+        return Math.min(pageCount - 1, Math.max(3, assignedPage));
+      };
 
-    <!-- ======================================================== -->
-    <!-- 2. فهرس وخطة البحث المعتمدة (Table of Contents)          -->
-    <!-- ======================================================== -->
-    <div class="toc-card">
-      <div class="toc-title">
-        ${isFrench ? "Table des Matières et Plan de Recherche" : isEnglish ? "Table of Contents & Research Plan" : "فهرس وخطة البحث المعتمدة"}
-      </div>
+      // Header helper for each content page
+      const renderPageHeader = (pageNum: number) => `
+        <div class="page-header-line">
+          <span>${isThesis ? university || "الجامعة الجزائرية" : schoolName || "المؤسسة التعليمية"}</span>
+          <span style="font-weight: 800; color: #1e293b;">${topic}</span>
+          <span class="page-header-num">ص ${pageNum} من ${pageCount}</span>
+        </div>
+      `;
 
-      <div class="toc-summary-box">
-        <strong>💡 ملخص منهجي: </strong>
-        <span>
-          ${
-            methodologySummary ||
-            `خطة بحث أكاديمي متكامل لمنهاج الجيل الثاني في ${subjectName}، تغطي جوانب نظرية وتطبيقية ميدانية في الجزائر، مع تطبيق أمثلة وشهادات وواقعيات، وتنتهي بمناقشة نتائج وتوصيات عملية موزعة على ${pageCount} صفحات.`
-          }
-        </span>
-      </div>
+      // Helper to render a section
+      const renderSectionHtml = (sec: ResearchHtmlSection, sIdx: number) => {
+        const paras = sec.paragraphs && sec.paragraphs.length > 0
+          ? sec.paragraphs
+          : sec.content
+          ? sec.content.split(/\n\s*\n/).filter((p) => p.trim().length > 0)
+          : [];
 
-      <table class="toc-table">
-        ${outline
-          .map((item, idx) => {
-            // Estimate page for each item across pageCount
-            const estimatedPage = Math.min(
-              pageCount,
-              Math.max(2, Math.round(2 + (idx / Math.max(1, totalOutlineItems - 1)) * (pageCount - 2)))
-            );
-            return `
-              <tr>
-                <td class="toc-num">${idx + 1}.</td>
-                <td class="toc-heading">${item}</td>
-                <td class="toc-page">ص ${estimatedPage}</td>
-              </tr>
-            `;
-          })
-          .join("")}
-      </table>
-    </div>
+        const defaultHighlight =
+          topic.includes("عبد القادر") || topic.includes("الأمير")
+            ? `📌 شاهد تاريخي وسيادي معتمد: أسس الأمير عبد القادر أول مصانع الأسلحة وسك عملة «المحمدية» عام 1839م، وأصدر عام 1843م ميثاق معاملة أسرى الحرب الذي سبق اتفاقيات جنيف الدولية بعقود.`
+            : topic.includes("مصالي") || topic.includes("نوفمبر") || topic.includes("الثورة")
+            ? `📌 شاهد وطني معتمد: شكل نضال الرواد وتأسيس المنظمة الخاصة (OS 1947م) القاعدة الصلبة التي مهدت لإجماع الشعب الجزائري حول بيان أول نوفمبر 1954م واسترجاع السيادة.`
+            : `📌 إضاءة بيداغوجية معتمدة: يربط المنهاج الوطني الجزائري بين المفاهيم النظرية المقررة والشواهد الحية المستمدة من البيئة والواقع الجزائري.`;
 
-    <!-- الفاصل بين الفهرس وبداية المتن -->
-    <div class="page-break" style="page-break-after: always; mso-special-character: line-break;"></div>
+        const highlightText = sec.highlightBox || defaultHighlight;
 
-    <!-- ======================================================== -->
-    <!-- 3. المتن المفصل للأقسام والمحاور (Content Sections)       -->
-    <!-- ======================================================== -->
-    <div class="body-content">
-      ${sections
-        .map((sec, sIdx) => {
-          const isLastSection = sIdx === sections.length - 1;
-          const paras = sec.paragraphs && sec.paragraphs.length > 0
-            ? sec.paragraphs
-            : sec.content
-            ? sec.content.split(/\n\s*\n/).filter((p) => p.trim().length > 0)
-            : [];
-
-          return `
-            <div class="section-container">
-              <div class="section-header">
-                ${sIdx + 1}. ${sec.heading}
-              </div>
-              ${
-                paras.length > 0
-                  ? paras
-                      .map((p) => `<p class="academic-paragraph">${p.trim()}</p>`)
-                      .join("")
-                  : `<p class="academic-paragraph">${sec.content}</p>`
-              }
-              ${
-                // Insert a visual highlight or note on key sections
-                sec.heading.includes("تطبيق") || sec.heading.includes("شواهد") || sec.heading.includes("بيان أول نوفمبر")
-                  ? `
-                  <div class="highlight-card">
-                    <strong>📌 شاهد تاريخي ووطني معتمد: </strong>
-                    <span>تؤكد الوثائق الوطنية الرسمية أن بلورة المطالب الاستقلالية ونضال الرواد شكل القاعدة الصلبة التي مهدت لإجماع الشعب الجزائري حول بيان أول نوفمبر 1954 وثورة التحرير المظفرة.</span>
-                  </div>
-                `
-                  : ""
-              }
+        return `
+          <div class="section-container">
+            <div class="section-header">
+              ${sIdx + 1}. ${sec.heading}
             </div>
             ${
-              // Insert page break every couple of sections or when pageCount is high
-              (sIdx + 1) % 2 === 0 && !isLastSection && pageCount >= 5
-                ? `<div class="page-break" style="page-break-after: always; mso-special-character: line-break;"></div>`
+              paras.length > 0
+                ? paras.map((p) => `<p class="academic-paragraph">${p.trim()}</p>`).join("")
+                : `<p class="academic-paragraph">${sec.content}</p>`
+            }
+            ${
+              (sec.highlightBox || sIdx === 1 || sec.heading.includes("المبحث الأول") || sec.heading.includes("المبحث الثالث"))
+                ? `
+                <div class="highlight-card">
+                  <span>${highlightText}</span>
+                </div>
+              `
                 : ""
             }
-          `;
-        })
-        .join("")}
-
-      <!-- ======================================================== -->
-      <!-- 4. قائمة المراجع والمصادر الرسمية المعتمدة               -->
-      <!-- ======================================================== -->
-      ${
-        references.length > 0
-          ? `
-        <div class="references-card">
-          <div class="references-title">
-            ${isFrench ? "Références officielles et sources :" : isEnglish ? "Official References & Sources:" : "قائمة المراجع والمصادر الوطنية المعتمدة:"}
           </div>
-          <ol class="references-list">
-            ${references.map((ref) => `<li>${ref}</li>`).join("")}
-          </ol>
+        `;
+      };
+
+      // Table of Contents HTML
+      const renderTocHtml = () => `
+        <div class="toc-card">
+          <div class="toc-title">
+            ${isFrench ? "Table des Matières et Plan de Recherche" : isEnglish ? "Table of Contents & Research Plan" : "فهرس وخطة البحث المعتمدة"}
+          </div>
+
+          <div class="toc-summary-box">
+            <strong>💡 ملخص منهجي: </strong>
+            <span>
+              ${
+                methodologySummary ||
+                `خطة بحث أكاديمي متكامل لمنهاج الجيل الثاني في ${subjectName}، مصممة بدقة لتستوفي ${pageCount} صفحات وفق المعايير الرسمية لوزارة التربية الوطنية.`
+              }
+            </span>
+          </div>
+
+          <table class="toc-table">
+            ${outline
+              .map((item, idx) => `
+                <tr>
+                  <td class="toc-num">${idx + 1}.</td>
+                  <td class="toc-heading">${item}</td>
+                  <td class="toc-page">ص ${getPageNumber(idx)}</td>
+                </tr>
+              `)
+              .join("")}
+          </table>
         </div>
-      `
-          : ""
+      `;
+
+      // References and review questions HTML
+      const renderReferencesAndQuestions = () => `
+        ${
+          references.length > 0
+            ? `
+          <div class="references-card">
+            <div class="references-title">
+              ${isFrench ? "Références officielles et sources :" : isEnglish ? "Official References & Sources:" : "قائمة المراجع والمصادر الوطنية المعتمدة:"}
+            </div>
+            <ol class="references-list">
+              ${references.map((ref) => `<li>${ref}</li>`).join("")}
+            </ol>
+          </div>
+        `
+            : ""
+        }
+        ${
+          reviewQuestions.length > 0
+            ? `
+          <div class="questions-card">
+            <div class="questions-title">
+              أسئلة مراجعة وتثبيت الفهم البيداغوجي (لتعزيز الاستيعاب والتحضير للامتحانات):
+            </div>
+            <ol class="questions-list">
+              ${reviewQuestions.map((q) => `<li>${q}</li>`).join("")}
+            </ol>
+          </div>
+        `
+            : ""
+        }
+        <div class="doc-footer">
+          تم إعداد وتنسيق هذا المستند آلياً وفق المعايير الأكاديمية والتربوية الرسمية للجمهورية الجزائرية الديمقراطية الشعبية · سهلة (Sahla 2.0)
+          ${watermark ? `<br/><span>${watermark}</span>` : ""}
+        </div>
+      `;
+
+      // ----------------------------------------------------
+      // Modular rendering by target page count
+      // ----------------------------------------------------
+      if (pageCount <= 1) {
+        // Single page document
+        return `
+          <div class="body-content">
+            ${sections.map((sec, idx) => renderSectionHtml(sec, idx)).join("")}
+            ${renderReferencesAndQuestions()}
+          </div>
+        `;
       }
 
-      <!-- ======================================================== -->
-      <!-- 5. أسئلة مراجعة وتثبيت الفهم البيداغوجي                   -->
-      <!-- ======================================================== -->
-      ${
-        reviewQuestions.length > 0
-          ? `
-        <div class="questions-card">
-          <div class="questions-title">
-            أسئلة مراجعة وتثبيت الفهم (لتعزيز الاستيعاب والتحضير للامتحانات وتجنب الغش):
+      if (pageCount === 2) {
+        return `
+          <!-- فاصل بعد الغلاف -->
+          <div class="page-break" style="page-break-after: always; mso-special-character: line-break;"></div>
+          <!-- صفحة 2: الفهرس والمتن الكامل -->
+          <div class="body-content">
+            ${renderPageHeader(2)}
+            ${renderTocHtml()}
+            ${sections.map((sec, idx) => renderSectionHtml(sec, idx)).join("")}
+            ${renderReferencesAndQuestions()}
           </div>
-          <ol class="questions-list">
-            ${reviewQuestions.map((q) => `<li>${q}</li>`).join("")}
-          </ol>
-        </div>
-      `
-          : ""
+        `;
       }
 
-      <!-- تذييل المستند -->
-      <div class="doc-footer">
-        تم إعداد وتنسيق هذا المستند آلياً وفق المعايير الأكاديمية والتربوية الرسمية للجمهورية الجزائرية الديمقراطية الشعبية · سهلة (Sahla 2.0)
-        ${watermark ? `<br/><span>${watermark}</span>` : ""}
-      </div>
-    </div>
+      if (pageCount === 3) {
+        const sec1 = sections[0];
+        const sec2 = sections[1];
+        const restSecs = sections.slice(2);
+
+        return `
+          <!-- فاصل بعد الغلاف -->
+          <div class="page-break" style="page-break-after: always; mso-special-character: line-break;"></div>
+          <!-- صفحة 2: الفهرس والمقدمة -->
+          <div class="body-content">
+            ${renderPageHeader(2)}
+            ${renderTocHtml()}
+            ${sec1 ? renderSectionHtml(sec1, 0) : ""}
+            ${sec2 ? renderSectionHtml(sec2, 1) : ""}
+          </div>
+
+          <!-- فاصل بعد صفحة 2 -->
+          <div class="page-break" style="page-break-after: always; mso-special-character: line-break;"></div>
+          <!-- صفحة 3: بقية المتن والخاتمة والمراجع -->
+          <div class="body-content">
+            ${renderPageHeader(3)}
+            ${restSecs.map((sec, idx) => renderSectionHtml(sec, idx + 2)).join("")}
+            ${renderReferencesAndQuestions()}
+          </div>
+        `;
+      }
+
+      if (pageCount === 5) {
+        // EXACT 5-PAGE ARCHITECTURE (Page 1: Cover, Page 2: TOC + Intro, Page 3: Sec 1 & 2, Page 4: Sec 3, Page 5: Conclusion & Refs)
+        const secIntro = sections[0] || { heading: outline[0] || "المقدمة", content: "" };
+        const sec1 = sections[1] || { heading: outline[1] || "المبحث الأول", content: "" };
+        const sec2 = sections[2] || { heading: outline[2] || "المبحث الثاني", content: "" };
+        const sec3 = sections[3] || { heading: outline[3] || "المبحث الثالث", content: "" };
+        const secConcl = sections[4] || { heading: outline[4] || "الخاتمة", content: "" };
+
+        return `
+          <!-- فاصل بعد صفحة الغلاف (صفحة 1) -->
+          <div class="page-break" style="page-break-after: always; mso-special-character: line-break;"></div>
+
+          <!-- صفحة 2: الفهرس والمقدمة المنهجية وطرح الإشكالية -->
+          <div class="body-content">
+            ${renderPageHeader(2)}
+            ${renderTocHtml()}
+            ${renderSectionHtml(secIntro, 0)}
+          </div>
+
+          <!-- فاصل بعد صفحة 2 -->
+          <div class="page-break" style="page-break-after: always; mso-special-character: line-break;"></div>
+
+          <!-- صفحة 3: المبحث الأول والمبحث الثاني والشواهد التاريخية -->
+          <div class="body-content">
+            ${renderPageHeader(3)}
+            ${renderSectionHtml(sec1, 1)}
+            ${renderSectionHtml(sec2, 2)}
+          </div>
+
+          <!-- فاصل بعد صفحة 3 -->
+          <div class="page-break" style="page-break-after: always; mso-special-character: line-break;"></div>
+
+          <!-- صفحة 4: المبحث الثالث والأبعاد المؤسساتية والتحليلية -->
+          <div class="body-content">
+            ${renderPageHeader(4)}
+            ${renderSectionHtml(sec3, 3)}
+          </div>
+
+          <!-- فاصل بعد صفحة 4 -->
+          <div class="page-break" style="page-break-after: always; mso-special-character: line-break;"></div>
+
+          <!-- صفحة 5: الخاتمة وحوصلة النتائج وقائمة المراجع وأسئلة المراجعة -->
+          <div class="body-content">
+            ${renderPageHeader(5)}
+            ${renderSectionHtml(secConcl, 4)}
+            ${renderReferencesAndQuestions()}
+          </div>
+        `;
+      }
+
+      // General case for pageCount >= 4 (such as 10 pages)
+      const pagesMap: Record<number, ResearchHtmlSection[]> = {};
+      for (let p = 2; p <= pageCount; p++) pagesMap[p] = [];
+
+      sections.forEach((sec, idx) => {
+        const assignedPage = getPageNumber(idx);
+        if (!pagesMap[assignedPage]) pagesMap[assignedPage] = [];
+        pagesMap[assignedPage].push(sec);
+      });
+
+      let multiPageHtml = "";
+      for (let p = 2; p <= pageCount; p++) {
+        const isFirstContent = p === 2;
+        const isLastPage = p === pageCount;
+        const pageSections = pagesMap[p] || [];
+
+        multiPageHtml += `
+          <!-- فاصل قبل صفحة ${p} -->
+          <div class="page-break" style="page-break-after: always; mso-special-character: line-break;"></div>
+          <div class="body-content">
+            ${renderPageHeader(p)}
+            ${isFirstContent ? renderTocHtml() : ""}
+            ${pageSections.map((sec, sIdx) => renderSectionHtml(sec, sIdx)).join("")}
+            ${isLastPage ? renderReferencesAndQuestions() : ""}
+          </div>
+        `;
+      }
+
+      return multiPageHtml;
+    })()}
 
   </div>
 </body>

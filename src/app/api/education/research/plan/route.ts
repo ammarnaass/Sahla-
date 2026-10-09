@@ -20,48 +20,18 @@ export async function POST(req: NextRequest) {
 
     let outline: string[] = [];
 
-    if (matchedPreset && matchedPreset.plan) {
+    const { getAlgerianKnowledge, buildDynamicCurriculumContent } = await import("@/server/education/algerianCurriculumKnowledge");
+    const matchedKnowledge = getAlgerianKnowledge(cleanTopic);
+
+    if (matchedKnowledge && matchedKnowledge.plansByPages) {
+      const targetPageKey = pageCount <= 1 ? 1 : pageCount === 2 ? 2 : pageCount === 3 ? 3 : pageCount <= 5 ? 5 : 10;
+      outline = matchedKnowledge.plansByPages[targetPageKey] || matchedKnowledge.plansByPages[5] || matchedKnowledge.plansByPages[3];
+    } else if (matchedPreset && matchedPreset.plan) {
       outline = [...matchedPreset.plan];
     } else {
-      // Intelligent curriculum-based outline generator
       const subjectName = ALGERIAN_SUBJECTS[subject]?.nameAr || "المادة المقررة";
-
-      if (level === "PRIMARY") {
-        outline = [
-          `مقدمة مبسطة حول ${cleanTopic}`,
-          `المحور الأول: ما هو ${cleanTopic} وما أهميته في حياتنا اليومية؟`,
-          `المحور الثاني: أمثلة ورسومات توضيحية من الكتاب المدرسي`,
-          `خاتمة: نصائح وإرشادات عامة للتلاميذ`,
-          `المراجع: كتاب ${subjectName} للتعليم الابتدائي - ديوان المطبوعات المدرسية (ONPS)`,
-        ];
-      } else if (level === "MIDDLE") {
-        outline = [
-          `المقدمة: الإشكالية العامة لـ ${cleanTopic} في المنهاج الجزائري`,
-          `المبحث الأول: المفاهيم الأساسية والنشأة التاريخية/العلمية`,
-          `المبحث الثاني: دراسة تفصيلية وتطبيقات واقعية في الجزائر`,
-          `المبحث الثالث: التحديات والحلول المقترحة وفق برامج وزارة التربية الوطنية`,
-          `الخاتمة: استنتاجات ونتائج البحث`,
-          `قائمة المراجع والمصادر الرسمية المعتمدة`,
-        ];
-      } else {
-        // SECONDARY or UNIVERSITY
-        outline = [
-          `المقدمة: طرح الإشكالية وضبط المفاهيم النظرية لـ ${cleanTopic}`,
-          `المبحث الأول: الإطار المفاهيمي والتاريخي / النظريات المؤسسة`,
-          `المبحث الثاني: التحليل المعمق والأبعاد التطبيقية والاقتصادية / العلمية`,
-          `المبحث الثالث: الواقع الجزائري والآفاق المستقبلية في ظل التنمية المستدامة`,
-          `الخاتمة: تركيب شامل والإجابة عن إشكالية البحث`,
-          `قائمة المراجع: وثائق وزارة التربية والتعليم العالي والديوان الوطني للمطبوعات المدرسية`,
-        ];
-      }
-
-      // Expand outline if pageCount >= 5
-      if (pageCount >= 5 && outline.length < 7) {
-        outline.splice(3, 0, `المبحث التكميلي: مقارنة وتحليل إحصائي ودراسة حالة نموذجية`);
-      }
-      if (pageCount >= 10 && outline.length < 9) {
-        outline.splice(4, 0, `المبحث الميداني: الاستراتيجية الوطنية الجزائرية والمشاريع الكبرى`);
-      }
+      const dynamic = buildDynamicCurriculumContent(cleanTopic, level?.toLowerCase() || "middle", pageCount, subjectName);
+      outline = dynamic.outline;
     }
 
     trackEvent("research_plan_created", {

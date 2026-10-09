@@ -220,7 +220,37 @@ export function runResearchPlanner(input: ResearchPlannerInput): ResearchPlanner
       }
     );
   } else {
-    // Standard school research (RESEARCH) tailored by pages count
+    // 🇩🇿 Check Algerian Curriculum Knowledge Engine first
+    const { getAlgerianKnowledge, buildDynamicCurriculumContent } = require("../algerianCurriculumKnowledge");
+    const matchedKnowledge = getAlgerianKnowledge(cleanTopic);
+
+    if (matchedKnowledge && matchedKnowledge.plansByPages) {
+      const targetPageKey = pages <= 1 ? 1 : pages === 2 ? 2 : pages === 3 ? 3 : pages <= 5 ? 5 : 10;
+      const presetPlan = matchedKnowledge.plansByPages[targetPageKey] || matchedKnowledge.plansByPages[5] || matchedKnowledge.plansByPages[3];
+
+      if (presetPlan && presetPlan.length > 0) {
+        presetPlan.forEach((title: string, idx: number) => {
+          const isIntro = idx === 0 || title.includes("مقدمة");
+          const isRef = idx === presetPlan.length - 1 && (title.includes("مراجع") || title.includes("مصادر"));
+          const isConclusion = !isRef && (idx === presetPlan.length - 1 || idx === presetPlan.length - 2 || title.includes("خاتمة"));
+          const type: PlanOutlineItem["type"] = isIntro ? "intro" : isRef ? "reference" : isConclusion ? "conclusion" : "body";
+
+          outline.push({
+            id: `s${idx + 1}`,
+            title,
+            type,
+            target_words: isIntro ? 180 : isRef ? 90 : isConclusion ? 160 : 250,
+          });
+        });
+
+        return {
+          outline,
+          total_target_words: totalTargetWords,
+        };
+      }
+    }
+
+    // Dynamic curriculum content generation for non-preset topics
     if (pages <= 1) {
       outline.push(
         {
@@ -252,13 +282,13 @@ export function runResearchPlanner(input: ResearchPlannerInput): ResearchPlanner
         },
         {
           id: "s2",
-          title: `المبحث الأول: المفاهيم والنشأة التاريخية / العلمية`,
+          title: `المبحث الأول: المفاهيم الأساسية والأبعاد التاريخية والعلمية المقررة`,
           type: "body",
           target_words: 220,
         },
         {
           id: "s3",
-          title: `المبحث الثاني: التطبيقات والشواهد في الواقع الجزائري`,
+          title: `المبحث الثاني: التطبيقات والشواهد الحية في الواقع والبيئة الجزائرية`,
           type: "body",
           target_words: 220,
         },
@@ -270,77 +300,19 @@ export function runResearchPlanner(input: ResearchPlannerInput): ResearchPlanner
         }
       );
     } else {
-      // 3, 5, 10 pages
-      outline.push({
-        id: "s1",
-        title:
-          stage === "primary"
-            ? `مقدمة مبسطة وشيقة حول ${cleanTopic}`
-            : stage === "secondary"
-            ? `المقدمة: الإطار المنهجي وطرح الإشكالية الجوهرية لـ ${cleanTopic}`
-            : `المقدمة: الإطار العام والأهمية لموضوع ${cleanTopic}`,
-        type: "intro",
-        target_words: Math.round(wordsPerPage * 0.7),
-        key_points: ["طرح الموضوع والتعريف الإجمالي", "بيان أهداف البحث والصلة بالمقرر الدراسي الجزائري"],
-      });
+      // 3, 5, 10 pages dynamic curriculum structure
+      const dynamic = buildDynamicCurriculumContent(cleanTopic, stage, pages, "المادة المقررة");
+      dynamic.outline.forEach((title: string, idx: number) => {
+        const isIntro = idx === 0;
+        const isRef = idx === dynamic.outline.length - 1 && title.includes("مراجع");
+        const isConclusion = !isRef && idx === dynamic.outline.length - 2;
 
-      if (teacherElements.length > 0) {
-        teacherElements.forEach((elem, idx) => {
-          outline.push({
-            id: `s${outline.length + 1}`,
-            title: `المبحث ${idx + 1}: ${elem} (مطلوب من الأستاذ المشرف)`,
-            type: "body",
-            target_words: Math.round((totalTargetWords * 0.6) / teacherElements.length),
-          });
-        });
-      } else {
         outline.push({
-          id: "s2",
-          title: `المبحث الأول: المفاهيم والنشأة التاريخية / العلمية لـ ${cleanTopic}`,
-          type: "body",
-          target_words: Math.round(wordsPerPage * 0.85),
+          id: `s${idx + 1}`,
+          title,
+          type: isIntro ? "intro" : isRef ? "reference" : isConclusion ? "conclusion" : "body",
+          target_words: isIntro ? 160 : isRef ? 90 : isConclusion ? 140 : 240,
         });
-        outline.push({
-          id: "s3",
-          title: `المبحث الثاني: دراسة تفصيلية وتحليل واقعي للظاهرة في الجزائر`,
-          type: "body",
-          target_words: Math.round(wordsPerPage * 0.85),
-        });
-        if (pages >= 4) {
-          outline.push({
-            id: "s4",
-            title: `المبحث الثالث: التحديات والحلول وتوجيهات وزارة التربية الوطنية`,
-            type: "body",
-            target_words: Math.round(wordsPerPage * 0.85),
-          });
-        }
-        if (pages >= 7) {
-          outline.push({
-            id: "s5",
-            title: `المبحث الرابع: نماذج مقارنة ودراسة حالة نموذجية في الجزائر`,
-            type: "body",
-            target_words: Math.round(wordsPerPage * 0.85),
-          });
-        }
-      }
-
-      outline.push({
-        id: `s${outline.length + 1}`,
-        title:
-          stage === "primary"
-            ? "الخاتمة: ماذا تعلمنا ونصائح مفيدة"
-            : stage === "secondary"
-            ? "الخاتمة: التركيب النهائي، حوصلة النتائج وآفاق البحث"
-            : "الخاتمة: الاستنتاجات العامة والتوصيات",
-        type: "conclusion",
-        target_words: Math.round(wordsPerPage * 0.6),
-      });
-
-      outline.push({
-        id: `s${outline.length + 1}`,
-        title: "قائمة المراجع والمصادر الرسمية المعتمدة (الديوان الوطني للمطبوعات المدرسية ONPS)",
-        type: "reference",
-        target_words: 90,
       });
     }
   }
