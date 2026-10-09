@@ -1,6 +1,6 @@
 /**
  * 🛠️ Layout & Formatting Service
- * إدارة الكتل والأصول والتخطيط وتصدير DOCX الحقيقي (النسخة 1.0 - الجزائر)
+ * إدارة الكتل والأصول والتخطيط وتصدير DOCX الحقيقي وPDF (النسخة 1.0 - الجزائر)
  */
 
 import { db } from "@/lib/db";
@@ -11,20 +11,30 @@ import {
   LayoutSettings,
   LayoutIssue,
   ImageCandidateRequest,
+  ExportOptions,
 } from "./types";
 import { ImagePicker, ImagePickerResult } from "./skills/imagePicker";
 import { LayoutValidators } from "./validators/layoutValidators";
 import { DocxBuilder } from "./docxBuilder";
+import { PdfConverter, PdfConversionResult } from "./pdfConverter";
 
 export class LayoutService {
   /**
-   * جلب كتل الوثيقة مرتبة
+   * جلب كتل الوثيقة مرتبة مع تهيئة آلية إن لم تكن موجودة
    */
   public static getBlocks(docId: string): DocumentBlock[] {
     ensureFormattingTables();
     const rows: any[] = db
       .prepare("SELECT * FROM document_blocks WHERE doc_id = ? ORDER BY order_num ASC")
       .all(docId);
+
+    if (rows.length === 0) {
+      // Auto initialize blocks from research_docs or documents
+      const initBlocks = this.initializeBlocksFromDoc(docId);
+      if (initBlocks.length > 0) {
+        return initBlocks;
+      }
+    }
 
     return rows.map((r) => ({
       id: r.id,
@@ -38,6 +48,146 @@ export class LayoutService {
       created_at: r.created_at,
       updated_at: r.updated_at,
     }));
+  }
+
+  /**
+   * تهيئة الكتل تلقائياً من بيانات البحث إن لم تكن مخزنة مسبقاً
+   */
+  public static initializeBlocksFromDoc(docId: string): DocumentBlock[] {
+    ensureFormattingTables();
+    let docRow: any = null;
+
+    try {
+      docRow = db.prepare("SELECT * FROM research_docs WHERE id = ?").get(docId);
+    } catch {
+      // Ignore if table doesn't exist yet
+    }
+
+    if (!docRow) {
+      try {
+        const dRow: any = db.prepare("SELECT * FROM documents WHERE id = ?").get(docId);
+        if (dRow && dRow.data_snapshot) {
+          const snap = JSON.parse(dRow.data_snapshot);
+          docRow = {
+            id: docId,
+            title: dRow.title,
+            student_name: dRow.customer_name,
+            content_json: JSON.stringify({ sections: snap.sections || [] }),
+            references_json: JSON.stringify(snap.references || []),
+          };
+        }
+      } catch {
+        // Ignore
+      }
+    }
+
+    const blocks: DocumentBlock[] = [];
+    const now = new Date().toISOString();
+    let order = 1;
+
+    // 1. الغلاف
+    const title = docRow?.title || "بحث علمي وأكاديمي";
+    blocks.push({
+      id: `b_${docId}_cover`,
+      doc_id: docId,
+      order_num: order++,
+      type: "cover",
+      content: {
+        text: title,
+        caption: docRow?.student_name || "إعداد الطالب",
+      },
+      created_at: now,
+      updated_at: now,
+    });
+
+    // 2. الفصول والأقسام
+    if (docRow && docRow.content_json) {
+      try {
+        const parsed = JSON.parse(docRow.content_json);
+        const sections: any[] = parsed.sections || [];
+
+        sections.forEach((sec, sIdx) => {
+          // عنوان الفصل
+          blocks.push({
+            id: `b_${docId}_h_${sIdx}`,
+            doc_id: docId,
+            order_num: order++,
+            type: "heading",
+            content: {
+              text: sec.title || `المبحث ${sIdx + 1}`,
+              level: 1,
+            },
+            page_break_before: sIdx > 0,
+            keep_with_next: true,
+            created_at: now,
+            updated_at: now,
+          });
+
+          // محتوى الفقرات
+          if (sec.content) {
+            const rawParas = String(sec.content)
+              .split(/\n\n+|<p>|<\/p>/)
+              .map((p) => p.trim())
+              .filter((p) => p.length > 0 && !p.startsWith("<") && !p.endsWith(">"));
+
+            rawParas.forEach((pText, pIdx) => {
+              blocks.push({
+                id: `b_${docId}_p_${sIdx}_${pIdx}`,
+                doc_id: docId,
+                order_num: order++,
+                type: "paragraph",
+                content: { text: pText },
+                created_at: now,
+                updated_at: now,
+              });
+            });
+          }
+        });
+      } catch (err: any) {
+        console.warn("[LayoutService] Error parsing content_json for doc:", docId, err?.message);
+      }
+    }
+
+    // 3. المراجع إن وجدت
+    if (docRow && docRow.references_json) {
+      try {
+        const refs: string[] = JSON.parse(docRow.references_json);
+        if (Array.isArray(refs) && refs.length > 0) {
+          blocks.push({
+            id: `b_${docId}_ref_h`,
+            doc_id: docId,
+            order_num: order++,
+            type: "heading",
+            content: { text: "قائمة المصادر والمراجع", level: 1 },
+            page_break_before: true,
+            keep_with_next: true,
+            created_at: now,
+            updated_at: now,
+          });
+
+          blocks.push({
+            id: `b_${docId}_ref_list`,
+            doc_id: docId,
+            order_num: order++,
+            type: "list",
+            content: { list_items: refs, is_ordered: true },
+            created_at: now,
+            updated_at: now,
+          });
+        }
+      } catch {
+        // Ignore
+      }
+    }
+
+    // If blocks were generated, persist them to SQLite
+    if (blocks.length > 0) {
+      blocks.forEach((b) => {
+        this.upsertBlock(docId, b);
+      });
+    }
+
+    return blocks;
   }
 
   /**
@@ -270,38 +420,86 @@ export class LayoutService {
 
     // Save candidates to DB
     result.candidates.forEach((asset) => {
-      db.prepare(`
-        INSERT INTO document_assets (
-          id, doc_id, kind, source, license, author, url, file_url,
-          width_px, height_px, dpi, alt_text, caption, source_attribution,
-          figure_number, section_id, status, created_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(id) DO UPDATE SET
-          status = excluded.status;
-      `).run(
-        asset.id,
-        asset.doc_id,
-        asset.kind,
-        asset.source,
-        asset.license,
-        asset.author,
-        asset.url || null,
-        asset.file_url || null,
-        asset.width_px,
-        asset.height_px,
-        asset.dpi,
-        asset.alt_text,
-        asset.caption,
-        asset.source_attribution,
-        asset.figure_number || null,
-        asset.section_id || null,
-        asset.status,
-        asset.created_at
-      );
+      this.saveAsset(asset);
     });
 
     return result;
+  }
+
+  /**
+   * حفظ أو تحديث أصل صورة
+   */
+  public static saveAsset(asset: DocumentAsset): DocumentAsset {
+    ensureFormattingTables();
+    db.prepare(`
+      INSERT INTO document_assets (
+        id, doc_id, kind, source, license, author, url, file_url,
+        width_px, height_px, dpi, alt_text, caption, source_attribution,
+        figure_number, section_id, status, created_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        status = excluded.status,
+        file_url = excluded.file_url,
+        caption = excluded.caption,
+        figure_number = excluded.figure_number;
+    `).run(
+      asset.id,
+      asset.doc_id,
+      asset.kind,
+      asset.source,
+      asset.license,
+      asset.author,
+      asset.url || null,
+      asset.file_url || null,
+      asset.width_px,
+      asset.height_px,
+      asset.dpi,
+      asset.alt_text,
+      asset.caption,
+      asset.source_attribution,
+      asset.figure_number || null,
+      asset.section_id || null,
+      asset.status,
+      asset.created_at
+    );
+
+    return asset;
+  }
+
+  /**
+   * اعتماد صورة مختارة من قبل المستخدم وربطها بالكتلة
+   */
+  public static selectAsset(docId: string, assetId: string, blockId?: string): DocumentAsset | null {
+    ensureFormattingTables();
+    const assetRow: any = db.prepare("SELECT * FROM document_assets WHERE id = ? AND doc_id = ?").get(assetId, docId);
+    if (!assetRow) return null;
+
+    // Unselect other candidates in same section
+    if (assetRow.section_id) {
+      db.prepare(`
+        UPDATE document_assets SET status = 'candidate'
+        WHERE doc_id = ? AND section_id = ? AND status = 'selected'
+      `).run(docId, assetRow.section_id);
+    }
+
+    // Set this one as selected
+    db.prepare("UPDATE document_assets SET status = 'selected' WHERE id = ?").run(assetId);
+
+    // If blockId provided, bind to that block
+    if (blockId) {
+      this.patchBlock(docId, blockId, {
+        content: {
+          asset_id: assetId,
+          figure_number: assetRow.figure_number,
+          caption: assetRow.caption,
+          source_attribution: assetRow.source_attribution,
+        },
+      });
+    }
+
+    const updated = this.getAssets(docId).find((a) => a.id === assetId);
+    return updated || null;
   }
 
   /**
@@ -372,18 +570,113 @@ export class LayoutService {
   }
 
   /**
+   * التطبيق التلقائي لحلول مشكلات التنسيق الشائعة (Auto-fix)
+   */
+  public static autoFixIssues(docId: string): { fixedCount: number; remainingIssues: LayoutIssue[] } {
+    const issues = this.auditLayout(docId);
+    let fixedCount = 0;
+
+    const blocks = this.getBlocks(docId);
+    const settings = this.getLayoutSettings(docId);
+
+    for (const iss of issues) {
+      if (iss.code === "F05") {
+        // اجعل العناوين الرئيسية تبدأ بصفحة جديدة
+        blocks
+          .filter((b) => b.type === "heading" && b.content.level === 1)
+          .forEach((b) => {
+            if (!b.page_break_before) {
+              this.patchBlock(docId, b.id, { page_break_before: true });
+              fixedCount++;
+            }
+          });
+      } else if (iss.code === "F06") {
+        // حماية العناوين بخاصية keep_with_next
+        blocks
+          .filter((b) => b.type === "heading")
+          .forEach((b) => {
+            if (!b.keep_with_next) {
+              this.patchBlock(docId, b.id, { keep_with_next: true });
+              fixedCount++;
+            }
+          });
+      } else if (iss.code === "F07") {
+        // حماية الأشكال بتعليقها
+        blocks
+          .filter((b) => b.type === "figure")
+          .forEach((b) => {
+            if (!b.keep_with_next) {
+              this.patchBlock(docId, b.id, { keep_with_next: true });
+              fixedCount++;
+            }
+          });
+      } else if (iss.code === "F09") {
+        // حذف الفواصل المتتالية
+        for (let i = 0; i < blocks.length - 1; i++) {
+          if (blocks[i].page_break_before && blocks[i + 1].page_break_before) {
+            this.patchBlock(docId, blocks[i + 1].id, { page_break_before: false });
+            fixedCount++;
+          }
+        }
+      } else if (iss.code === "F02") {
+        // ضبط بداية الترقيم
+        this.updateLayoutSettings(docId, {
+          page_numbering: {
+            ...settings.page_numbering,
+            start_body_at: 1,
+          },
+        });
+        fixedCount++;
+      } else if (iss.code === "F12") {
+        // ضبط هامش التجليد 30 مم
+        this.updateLayoutSettings(docId, {
+          margins_mm: {
+            ...settings.margins_mm,
+            right: 30,
+          },
+        });
+        fixedCount++;
+      }
+    }
+
+    const remaining = this.auditLayout(docId);
+    return { fixedCount, remainingIssues: remaining };
+  }
+
+  /**
    * تصدير DOCX حقيقي ثنائي للوثيقة
    */
-  public static async exportDocx(docId: string, title: string): Promise<Buffer> {
+  public static async exportDocx(
+    docId: string,
+    title?: string,
+    options?: Partial<ExportOptions>
+  ): Promise<Buffer> {
     const blocks = this.getBlocks(docId);
     const settings = this.getLayoutSettings(docId);
     const assets = this.getAssets(docId);
 
+    const docTitle = title || blocks.find((b) => b.type === "cover")?.content.text || "بحث أكاديمي";
+
     return DocxBuilder.buildDocxBuffer({
-      title,
+      title: docTitle,
       settings,
       blocks,
       assets,
+      coverData: options?.cover_data,
+      includeFiguresList: options?.include_figures_list ?? true,
+      includeTablesList: options?.include_tables_list ?? true,
     });
+  }
+
+  /**
+   * تصدير PDF رسمي عبر محرك LibreOffice Headless
+   */
+  public static async exportPdf(
+    docId: string,
+    title?: string,
+    options?: Partial<ExportOptions>
+  ): Promise<PdfConversionResult> {
+    const docxBuf = await this.exportDocx(docId, title, options);
+    return PdfConverter.convertDocxToPdf(docxBuf, docId);
   }
 }

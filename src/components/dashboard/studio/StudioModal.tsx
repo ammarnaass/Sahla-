@@ -31,6 +31,8 @@ export function StudioModal({
 }: StudioModalProps) {
   const studio = useStudioState();
   const [mobileView, setMobileView] = React.useState<"form" | "preview">("form");
+  const [isExportingDocx, setIsExportingDocx] = React.useState(false);
+  const [isExportingPdf, setIsExportingPdf] = React.useState(false);
 
   if (!service) return null;
 
@@ -85,6 +87,116 @@ export function StudioModal({
       }
     } catch {
       alert("تعذر إعداد حزمة الطباعة المجمعة");
+    }
+  };
+
+  const handleExportNativeDocx = async () => {
+    const docId = studio.activeDocId || `doc_${Date.now()}`;
+    const isThesis = studio.eduDocKind === "THESIS";
+    const title = `${isThesis ? "مذكرة تخرج" : "بحث مدرسي"} - ${studio.eduTopic || "المستند الأكاديمي"}`;
+    setIsExportingDocx(true);
+    try {
+      const res = await fetch(`/api/docs/${docId}/export`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          format: "docx",
+          title,
+          options: {
+            include_toc: true,
+            include_figures_list: true,
+            include_tables_list: true,
+            cover_data: {
+              template_type: isThesis
+                ? "university_master"
+                : studio.eduLevel === "SECONDARY"
+                ? "secondary"
+                : studio.eduLevel === "MIDDLE"
+                ? "middle"
+                : "primary",
+              title: studio.eduTopic || "عنوان البحث",
+              institution_name: studio.eduSchoolName || studio.eduUniversity || "المؤسسة التعليمية",
+              faculty_or_division: studio.eduFaculty,
+              specialty: studio.eduSpecialty,
+              student_names: [studio.customerName.trim() || (isThesis ? "الطالب الباحث" : "تلميذ المؤسسة")],
+              supervisor_name: studio.eduTeacherName || "الأستاذ المشرف",
+              academic_year: "2025 / 2026 م",
+            },
+          },
+        }),
+      });
+
+      if (!res.ok) throw new Error("فشل تصدير DOCX");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${title}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err: any) {
+      console.error("Native DOCX export error:", err);
+      handleExportWord();
+    } finally {
+      setIsExportingDocx(false);
+    }
+  };
+
+  const handleExportNativePdf = async () => {
+    const docId = studio.activeDocId || `doc_${Date.now()}`;
+    const isThesis = studio.eduDocKind === "THESIS";
+    const title = `${isThesis ? "مذكرة تخرج" : "بحث مدرسي"} - ${studio.eduTopic || "المستند الأكاديمي"}`;
+    setIsExportingPdf(true);
+    try {
+      const res = await fetch(`/api/docs/${docId}/export`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          format: "pdf",
+          title,
+          options: {
+            include_toc: true,
+            include_figures_list: true,
+            include_tables_list: true,
+            cover_data: {
+              template_type: isThesis
+                ? "university_master"
+                : studio.eduLevel === "SECONDARY"
+                ? "secondary"
+                : studio.eduLevel === "MIDDLE"
+                ? "middle"
+                : "primary",
+              title: studio.eduTopic || "عنوان البحث",
+              institution_name: studio.eduSchoolName || studio.eduUniversity || "المؤسسة التعليمية",
+              faculty_or_division: studio.eduFaculty,
+              specialty: studio.eduSpecialty,
+              student_names: [studio.customerName.trim() || (isThesis ? "الطالب الباحث" : "تلميذ المؤسسة")],
+              supervisor_name: studio.eduTeacherName || "الأستاذ المشرف",
+              academic_year: "2025 / 2026 م",
+            },
+          },
+        }),
+      });
+
+      if (!res.ok) throw new Error("فشل تحويل PDF");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${title}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err: any) {
+      console.error("Native PDF export error:", err);
+      alert("حدث خطأ أثناء تحويل PDF عبر محرك LibreOffice. يمكنك تنزيل ملف Word وتصديره.");
+    } finally {
+      setIsExportingPdf(false);
     }
   };
 
@@ -356,7 +468,11 @@ export function StudioModal({
                 eduGeneratedSections={studio.eduGeneratedSections}
                 eduCoverTemplate={studio.eduCoverTemplate}
                 eduStyleLevel={studio.eduStyleLevel}
-                eduIncludeReviewQuestions={studio.eduIncludeReviewQuestions}
+                docId={studio.activeDocId || undefined}
+                onExportDocx={handleExportNativeDocx}
+                onExportPdf={handleExportNativePdf}
+                isExportingDocx={isExportingDocx}
+                isExportingPdf={isExportingPdf}
                 onExportWord={handleExportWord}
                 onExportHtml={handleExportHtml}
                 conformanceScore={studio.conformanceReport?.score || 0.94}

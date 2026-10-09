@@ -122,3 +122,42 @@ export interface ImageCandidateRequest {
   caption_hint: string;
   max_count?: number;
 }
+
+export type CoverTemplateType =
+  | "primary"
+  | "middle"
+  | "secondary"
+  | "university_license"
+  | "university_master"
+  | "vocational";
+
+export interface CoverTemplateData {
+  template_type: CoverTemplateType;
+  republic_header?: string; // الجمهورية الجزائرية الديمقراطية الشعبية
+  ministry_header?: string; // وزارة التعليم العالي / التربية الوطنية / التكوين
+  institution_name: string; // اسم الجامعة / الثانوية / المتوسطة / المركز
+  faculty_or_division?: string; // كلية العلوم أو الشعبة
+  department_or_year?: string; // قسم التاريخ أو السنة الرابعة متوسط
+  specialty?: string; // التخصص الدقيق
+  title: string; // عنوان البحث أو المذكرة
+  subtitle?: string; // عنوان فرعي أو تخصص
+  doc_classification?: string; // مذكرة تخرج لنيل شهادة الماستر / بحث مدرسي فصلي
+  student_names: string[]; // أسماء الطلبة / التلاميذ
+  supervisor_name?: string; // اسم الأستاذ المشرف
+  co_supervisor_name?: string; // الأستاذ المساعد
+  jury_members?: Array<{ role: string; name: string; title: string }>; // لجنة المناقشة
+  academic_year: string; // 2025 / 2026 م
+  wilaya?: string; // الولاية
+  logo_url?: string; // شعار المؤسسة
+}
+
+export type ExportFormat = "docx" | "pdf";
+
+export interface ExportOptions {
+  format: ExportFormat;
+  include_toc?: boolean;
+  include_figures_list?: boolean;
+  include_tables_list?: boolean;
+  cover_data?: Partial<CoverTemplateData>;
+}
+

@@ -17,6 +17,15 @@ import {
   ArrowLeftIcon,
   DocCvIcon,
 } from "@/components/ui/Icons";
+import { BlockEditor } from "./BlockEditor";
+import { LayoutSettingsPanel } from "./LayoutSettingsPanel";
+import type {
+  DocumentBlock,
+  DocumentAsset,
+  LayoutSettings,
+  LayoutIssue,
+} from "@/server/education/formatting/types";
+import { Sparkles, Sliders, AlertTriangle, CheckCircle, RefreshCw, FileText } from "lucide-react";
 
 interface StudioLivePreviewA4Props {
   service: ServiceDefinition;
@@ -59,8 +68,13 @@ interface StudioLivePreviewA4Props {
   eduTeacherRequirements?: string;
   eduUnitTitle?: string;
   eduGeneratedSections?: Array<{ id: string; heading: string; content: string }>;
+  docId?: string;
   onExportWord?: () => void;
   onExportHtml?: () => void;
+  onExportDocx?: () => void;
+  onExportPdf?: () => void;
+  isExportingDocx?: boolean;
+  isExportingPdf?: boolean;
   onReportError?: () => void;
   conformanceScore?: number;
   onViewConformance?: () => void;
@@ -155,14 +169,63 @@ export function StudioLivePreviewA4({
   eduCoverTemplate = "OFFICIAL",
   eduStyleLevel = "MODERATE",
   eduIncludeReviewQuestions = true,
+  docId,
   onExportWord,
   onExportHtml,
+  onExportDocx,
+  onExportPdf,
+  isExportingDocx = false,
+  isExportingPdf = false,
   onReportError,
   conformanceScore = 0.94,
   onViewConformance,
   onGenerateFullDocument,
 }: StudioLivePreviewA4Props) {
   const isSchoolService = service.code === "SCHOOL_RESEARCH" || service.code === "EXAMS";
+
+  const [activeTab, setActiveTab] = useState<"PREVIEW" | "BLOCKS" | "LAYOUT" | "AUDIT">("PREVIEW");
+  const [blocks, setBlocks] = useState<DocumentBlock[]>([]);
+  const [assets, setAssets] = useState<DocumentAsset[]>([]);
+  const [layoutSettings, setLayoutSettings] = useState<LayoutSettings | null>(null);
+  const [layoutIssues, setLayoutIssues] = useState<LayoutIssue[]>([]);
+  const [isAutoFixing, setIsAutoFixing] = useState(false);
+
+  // Load document blocks, assets, settings, and layout issues
+  React.useEffect(() => {
+    if (!docId) return;
+    fetch(`/api/docs/${docId}/preview`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          if (data.blocks) setBlocks(data.blocks);
+          if (data.assets) setAssets(data.assets);
+          if (data.settings) setLayoutSettings(data.settings);
+          if (data.issues) setLayoutIssues(data.issues);
+        }
+      })
+      .catch((err) => console.warn("Failed to fetch doc preview data:", err));
+  }, [docId]);
+
+  const handleAutoFix = async () => {
+    if (!docId) return;
+    setIsAutoFixing(true);
+    try {
+      const res = await fetch(`/api/docs/${docId}/layout/issues`, { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        setLayoutIssues(data.remainingIssues || []);
+        // Refresh blocks and settings
+        const prevRes = await fetch(`/api/docs/${docId}/preview`);
+        const prevData = await prevRes.json();
+        if (prevData.success && prevData.blocks) setBlocks(prevData.blocks);
+        if (prevData.success && prevData.settings) setLayoutSettings(prevData.settings);
+      }
+    } catch (err) {
+      console.error("Auto fix failed:", err);
+    } finally {
+      setIsAutoFixing(false);
+    }
+  };
 
   const [zoomLevel, setZoomLevel] = useState<"fit" | "75" | "100">("fit");
   const [localPage, setLocalPage] = useState<number>(eduCurrentPagePreview || 1);
@@ -328,10 +391,97 @@ export function StudioLivePreviewA4({
               </div>
             )}
 
+            {/* 🎨 Navigation Tabs for Academic Formatting & Blocks */}
+            {isSchoolService && (
+              <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700/60 text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("PREVIEW")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                    activeTab === "PREVIEW"
+                      ? "bg-white dark:bg-zinc-900 text-emerald-700 dark:text-emerald-300 shadow-sm"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>معاينة A4 المطبوعة</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("BLOCKS")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                    activeTab === "BLOCKS"
+                      ? "bg-white dark:bg-zinc-900 text-emerald-700 dark:text-emerald-300 shadow-sm"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>محرر الكتل والصور ({blocks.length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("LAYOUT")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                    activeTab === "LAYOUT"
+                      ? "bg-white dark:bg-zinc-900 text-emerald-700 dark:text-emerald-300 shadow-sm"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+                  }`}
+                >
+                  <Sliders className="w-3.5 h-3.5" />
+                  <span>تخطيط وهوامش A4</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("AUDIT")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                    activeTab === "AUDIT"
+                      ? "bg-white dark:bg-zinc-900 text-emerald-700 dark:text-emerald-300 shadow-sm"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+                  }`}
+                >
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                  <span>تدقيق التنسيق</span>
+                  {layoutIssues.length > 0 ? (
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-mono">
+                      {layoutIssues.length} تنبيه
+                    </span>
+                  ) : (
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-mono">
+                      مطابق 100%
+                    </span>
+                  )}
+                </button>
+              </div>
+            )}
+
             {/* Quick Export & Actions Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] px-1">
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                {onExportWord && (
+                {onExportDocx && (
+                  <button
+                    type="button"
+                    onClick={onExportDocx}
+                    disabled={isExportingDocx}
+                    className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 transition-all font-bold cursor-pointer min-h-[34px] shadow-sm disabled:opacity-50"
+                    title="تحميل ملف Microsoft Word (.docx) أصلي منسق بالصور والفهارس"
+                  >
+                    <span>📄</span>
+                    <span>{isExportingDocx ? "جاري التصدير..." : "Word أصلي (.docx)"}</span>
+                  </button>
+                )}
+                {onExportPdf && (
+                  <button
+                    type="button"
+                    onClick={onExportPdf}
+                    disabled={isExportingPdf}
+                    className="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-1.5 transition-all font-bold cursor-pointer min-h-[34px] shadow-sm disabled:opacity-50"
+                    title="تحميل ملف PDF رسمي عبر محرك LibreOffice Headless"
+                  >
+                    <span>📕</span>
+                    <span>{isExportingPdf ? "جاري التحويل..." : "PDF رسمي (.pdf)"}</span>
+                  </button>
+                )}
+                {onExportWord && !onExportDocx && (
                   <button
                     type="button"
                     onClick={onExportWord}
@@ -384,17 +534,130 @@ export function StudioLivePreviewA4({
           </div>
         )}
 
+        {/* Block Editor View */}
+        {activeTab === "BLOCKS" && (
+          <div className="w-full">
+            <BlockEditor
+              docId={docId || "doc_preview"}
+              blocks={blocks}
+              assets={assets}
+              onBlocksChange={setBlocks}
+              onAssetsChange={setAssets}
+            />
+          </div>
+        )}
+
+        {/* Layout Settings View */}
+        {activeTab === "LAYOUT" && (
+          <div className="w-full">
+            <LayoutSettingsPanel
+              docId={docId || "doc_preview"}
+              settings={
+                layoutSettings || {
+                  doc_id: docId || "doc_preview",
+                  paper: "A4",
+                  margins_mm: { top: 25, bottom: 25, right: 30, left: 20 },
+                  font_family: "Traditional Arabic",
+                  font_size_pt: 14,
+                  line_spacing: 1.5,
+                  page_numbering: {
+                    position: "bottom_center",
+                    format_front: "abjad",
+                    format_body: "decimal",
+                    start_body_at: 1,
+                  },
+                  header_mode: "chapter_title",
+                  decorative_frame: false,
+                  updated_at: new Date().toISOString(),
+                }
+              }
+              onSettingsChange={setLayoutSettings}
+            />
+          </div>
+        )}
+
+        {/* Audit & Issues View */}
+        {activeTab === "AUDIT" && (
+          <div className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 sm:p-6 space-y-4 text-right" dir="rtl">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-100 dark:border-zinc-800">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+                <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
+                  تقرير تدقيق ومطابقة التنسيق والصور (النسخة 1.0 - الجزائر)
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={handleAutoFix}
+                disabled={isAutoFixing || layoutIssues.length === 0}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition-colors disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isAutoFixing ? "animate-spin" : ""}`} />
+                <span>{isAutoFixing ? "جاري التطبيق..." : "⚡ تطبيق الإصلاح التلقائي لجميع التنبيهات"}</span>
+              </button>
+            </div>
+
+            {layoutIssues.length === 0 ? (
+              <div className="p-6 text-center bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl space-y-2">
+                <CheckCircle className="w-10 h-10 text-emerald-600 dark:text-emerald-400 mx-auto" />
+                <h4 className="font-bold text-emerald-900 dark:text-emerald-200">
+                  الوثيقة مطابقة 100% لمعايير التنسيق والأرقام والصور الأكاديمية!
+                </h4>
+                <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                  تم استيفاء جميع معايير الصور (I01-I10) والتخطيط والترقيم (F01-F14). الملف جاهز للطباعة والتصدير.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {layoutIssues.map((issue) => (
+                  <div
+                    key={issue.id}
+                    className="p-3 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/70 rounded-xl space-y-1.5 text-xs"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold px-2 py-0.5 rounded bg-zinc-200 dark:bg-zinc-700 text-zinc-800 dark:text-zinc-200">
+                          {issue.code}
+                        </span>
+                        <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                          {issue.location}
+                        </span>
+                      </div>
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          issue.severity === "critical"
+                            ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300"
+                            : issue.severity === "high"
+                            ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                            : "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                        }`}
+                      >
+                        {issue.severity === "critical" ? "حرج" : issue.severity === "high" ? "عالٍ" : "متوسط"}
+                      </span>
+                    </div>
+                    <p className="text-zinc-700 dark:text-zinc-300">{issue.message}</p>
+                    <p className="text-emerald-700 dark:text-emerald-400 font-medium">
+                      💡 الاقتراح: {issue.suggestion}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Simulated White Paper Document (A4 Aspect Ratio with Dynamic Zoom) */}
-        <div
-          dir={isRTL ? "rtl" : "ltr"}
-          className={`bg-white text-slate-900 p-4 sm:p-6 rounded-xl shadow-2xl min-h-[380px] text-right font-sans text-xs transition-all select-none border border-slate-300 ${
-            zoomLevel === "75"
-              ? "max-w-[85%] mx-auto"
-              : zoomLevel === "100"
-              ? "w-full min-w-[320px] max-w-[560px] mx-auto shadow-2xl"
-              : "w-full"
-          }`}
-        >
+        {activeTab === "PREVIEW" && (
+          <div
+            dir={isRTL ? "rtl" : "ltr"}
+            className={`bg-white text-slate-900 p-4 sm:p-6 rounded-xl shadow-2xl min-h-[380px] text-right font-sans text-xs transition-all select-none border border-slate-300 ${
+              zoomLevel === "75"
+                ? "max-w-[85%] mx-auto"
+                : zoomLevel === "100"
+                ? "w-full min-w-[320px] max-w-[560px] mx-auto shadow-2xl"
+                : "w-full"
+            }`}
+          >
           {/* ======================================================== */}
           {/* 🎓 SCHOOL RESEARCH & THESIS: UNIFIED 1-PAGE DOCUMENT     */}
           {/* ======================================================== */}
@@ -1085,6 +1348,7 @@ export function StudioLivePreviewA4({
               </div>
             )}
         </div>
+        )}
       </div>
 
       <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 flex items-center justify-between">
